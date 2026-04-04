@@ -223,6 +223,87 @@ SENSORS: tuple[ProxonSensorDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
     ),
+
+    # ── T300 Warmwasser-Wärmepumpe ──────────────────────────────────────
+    ProxonSensorDescription(
+        key="t300_t5_vorverdampfer", data_key="t300_t5_vorverdampfer", name="T300 T5 VorVerdampfer",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+    ),
+    ProxonSensorDescription(
+        key="t300_t6_verdampfer", data_key="t300_t6_verdampfer", name="T300 T6 Verdampfer",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+    ),
+    ProxonSensorDescription(
+        key="t300_t20_behaelter_unten", data_key="t300_t20_behaelter_unten", name="T300 T20 Behälter Unten",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+    ),
+    ProxonSensorDescription(
+        key="t300_t21_behaelter_mitte", data_key="t300_t21_behaelter_mitte", name="T300 T21 Behälter Mitte",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+    ),
+    ProxonSensorDescription(
+        key="t300_t13_kompressor", data_key="t300_t13_kompressor", name="T300 T13 Kompressor",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+    ),
+    ProxonSensorDescription(
+        key="t300_t11_sauggas", data_key="t300_t11_sauggas", name="T300 T11 Sauggas",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+    ),
+    ProxonSensorDescription(
+        key="t300_t9_extern", data_key="t300_t9_extern", name="T300 T9 Extern",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+    ),
+    ProxonSensorDescription(
+        key="t300_behaelter_avg", data_key="t300_behaelter_avg", name="T300 Behälter Ø",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+    ),
+    ProxonSensorDescription(
+        key="t300_solltemperatur_akt", data_key="t300_solltemperatur_akt", name="T300 Aktueller Sollwert",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+    ),
+    ProxonSensorDescription(
+        key="t300_ventilator_pct", data_key="t300_ventilator_pct", name="T300 Ventilator",
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=PERCENTAGE,
+        icon="mdi:fan",
+    ),
+    ProxonSensorDescription(
+        key="t300_ventilator_rpm", data_key="t300_ventilator_rpm", name="T300 Ventilator RPM",
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=REVOLUTIONS_PER_MINUTE,
+        icon="mdi:fan",
+    ),
+    # T300 Solltemperatur (from holding register, for display)
+    ProxonSensorDescription(
+        key="t300_solltemperatur", data_key="t300_solltemperatur", name="T300 Solltemperatur",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+    ),
+    ProxonSensorDescription(
+        key="t300_temp_eheiz", data_key="t300_temp_eheiz", name="T300 Temperatur E-Heiz",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+    ),
 )
 
 

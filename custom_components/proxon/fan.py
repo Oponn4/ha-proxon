@@ -9,7 +9,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, HOLDING_REGISTERS
+from .const import DOMAIN, FWT_HOLDING_REGISTERS
 from .coordinator import ProxonCoordinator
 from .entity import ProxonEntity
 
@@ -66,7 +66,7 @@ class ProxonFan(ProxonEntity, FanEntity):
 
     async def async_set_percentage(self, percentage: int) -> None:
         level = _pct_to_level(percentage)
-        reg = HOLDING_REGISTERS["luefterstufe"]
+        reg = FWT_HOLDING_REGISTERS["luefterstufe"]
         await self.coordinator.write_register(reg.address, level)
         await self.coordinator.async_request_refresh()
 
@@ -78,6 +78,6 @@ class ProxonFan(ProxonEntity, FanEntity):
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         # Turning off the fan means switching to "Aus" operating mode
-        reg = HOLDING_REGISTERS["sollbetriebsart"]
+        reg = FWT_HOLDING_REGISTERS["sollbetriebsart"]
         await self.coordinator.write_register(reg.address, 0)
         await self.coordinator.async_request_refresh()

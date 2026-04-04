@@ -9,7 +9,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, HOLDING_REGISTERS
+from .const import DOMAIN, FWT_HOLDING_REGISTERS, T300_HOLDING_REGISTERS
 from .coordinator import ProxonCoordinator
 from .entity import ProxonEntity
 
@@ -21,6 +21,7 @@ class ProxonSwitchDescription(SwitchEntityDescription):
 
 
 SWITCHES: tuple[ProxonSwitchDescription, ...] = (
+    # FWT
     ProxonSwitchDescription(
         key="kuehlung_freigabe",
         data_key="kuehlung_freigabe",
@@ -34,6 +35,28 @@ SWITCHES: tuple[ProxonSwitchDescription, ...] = (
         register_key="hbde_ptc_freigabe",
         name="HBDE PTC Freigabe (Wohnzimmer)",
         icon="mdi:radiator",
+    ),
+    # T300
+    ProxonSwitchDescription(
+        key="t300_eheiz_freigabe",
+        data_key="t300_eheiz_freigabe",
+        register_key="t300_eheiz_freigabe",
+        name="T300 E-Heizstab",
+        icon="mdi:water-boiler",
+    ),
+    ProxonSwitchDescription(
+        key="t300_legionella",
+        data_key="t300_legionella",
+        register_key="t300_legionella",
+        name="T300 Legionellafunktion",
+        icon="mdi:bacteria",
+    ),
+    ProxonSwitchDescription(
+        key="t300_pv_funktion",
+        data_key="t300_pv_funktion",
+        register_key="t300_pv_funktion",
+        name="T300 PV Funktion",
+        icon="mdi:solar-power",
     ),
 )
 
@@ -67,12 +90,14 @@ class ProxonSwitch(ProxonEntity, SwitchEntity):
             return None
         return int(val) == 1
 
+    def _reg(self):
+        key = self.entity_description.register_key
+        return FWT_HOLDING_REGISTERS.get(key) or T300_HOLDING_REGISTERS[key]
+
     async def async_turn_on(self, **kwargs: Any) -> None:
-        reg = HOLDING_REGISTERS[self.entity_description.register_key]
-        await self.coordinator.write_register(reg.address, 1)
+        await self.coordinator.write_register(self._reg().address, 1)
         await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
-        reg = HOLDING_REGISTERS[self.entity_description.register_key]
-        await self.coordinator.write_register(reg.address, 0)
+        await self.coordinator.write_register(self._reg().address, 0)
         await self.coordinator.async_request_refresh()

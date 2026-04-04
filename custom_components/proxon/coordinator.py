@@ -13,8 +13,10 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 
 from .const import (
     DOMAIN,
-    INPUT_REGISTERS,
-    HOLDING_REGISTERS,
+    FWT_INPUT_REGISTERS,
+    FWT_HOLDING_REGISTERS,
+    T300_INPUT_REGISTERS,
+    T300_HOLDING_REGISTERS,
     ModbusRegister,
     REG_INPUT,
 )
@@ -30,12 +32,13 @@ def _to_signed16(value: int) -> int:
 
 
 def _decode(reg: ModbusRegister, raw: int) -> float | int:
-    """Apply sign conversion and scaling."""
+    """Apply sign conversion, offset and scaling."""
     if reg.data_type == "int16":
         raw = _to_signed16(raw)
+    val = raw + reg.offset
     if reg.scale == 1:
-        return raw
-    return round(raw / reg.scale, 2)
+        return val
+    return round(val / reg.scale, 2)
 
 
 class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
@@ -73,7 +76,7 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             data: dict[str, Any] = {}
 
             # Read input registers
-            for key, reg in INPUT_REGISTERS.items():
+            for key, reg in FWT_INPUT_REGISTERS.items():
                 result = await client.read_input_registers(
                     reg.address, count=1, slave=self.slave
                 )
@@ -83,13 +86,35 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 else:
                     data[key] = _decode(reg, result.registers[0])
 
-            # Read holding registers
-            for key, reg in HOLDING_REGISTERS.items():
+            # Read holding registers (FWT)
+            for key, reg in FWT_HOLDING_REGISTERS.items():
                 result = await client.read_holding_registers(
                     reg.address, count=1, slave=self.slave
                 )
                 if result.isError():
                     _LOGGER.warning("Error reading holding register %s (addr %d)", key, reg.address)
+                    data[key] = None
+                else:
+                    data[key] = _decode(reg, result.registers[0])
+
+            # Read T300 input registers
+            for key, reg in T300_INPUT_REGISTERS.items():
+                result = await client.read_input_registers(
+                    reg.address, count=1, slave=self.slave
+                )
+                if result.isError():
+                    _LOGGER.warning("Error reading T300 input register %s (addr %d)", key, reg.address)
+                    data[key] = None
+                else:
+                    data[key] = _decode(reg, result.registers[0])
+
+            # Read T300 holding registers
+            for key, reg in T300_HOLDING_REGISTERS.items():
+                result = await client.read_holding_registers(
+                    reg.address, count=1, slave=self.slave
+                )
+                if result.isError():
+                    _LOGGER.warning("Error reading T300 holding register %s (addr %d)", key, reg.address)
                     data[key] = None
                 else:
                     data[key] = _decode(reg, result.registers[0])

@@ -24,25 +24,62 @@ class ProxonBinarySensorDescription(BinarySensorEntityDescription):
 
 
 BINARY_SENSORS: tuple[ProxonBinarySensorDescription, ...] = (
+    # FWT
     ProxonBinarySensorDescription(
         key="stoerung",
         data_key="stoerung",
-        name="Störung",
+        name="FWT Störung",
         device_class=BinarySensorDeviceClass.PROBLEM,
         on_value=1,
     ),
     ProxonBinarySensorDescription(
         key="kompressor_aktiv",
         data_key="kompressor_status",
-        name="Kompressor aktiv",
+        name="FWT Kompressor aktiv",
         device_class=BinarySensorDeviceClass.RUNNING,
         on_value=1,
     ),
     ProxonBinarySensorDescription(
         key="bypass_offen",
         data_key="bypass_zustand",
-        name="Bypass offen",
+        name="FWT Bypass offen",
         icon="mdi:valve-open",
+        on_value=1,
+    ),
+    # T300
+    ProxonBinarySensorDescription(
+        key="t300_stoerung",
+        data_key="t300_fehlerliste",
+        name="T300 Störung",
+        device_class=BinarySensorDeviceClass.PROBLEM,
+        on_value=1,  # any non-zero = fault; see FehlerList bitmask
+    ),
+    ProxonBinarySensorDescription(
+        key="t300_kompressor_aktiv",
+        data_key="t300_r2_kompressor",
+        name="T300 Kompressor aktiv",
+        device_class=BinarySensorDeviceClass.RUNNING,
+        on_value=1,
+    ),
+    ProxonBinarySensorDescription(
+        key="t300_eheiz_aktiv",
+        data_key="t300_r4_eheiz",
+        name="T300 E-Heiz aktiv",
+        icon="mdi:water-boiler",
+        on_value=1,
+    ),
+    ProxonBinarySensorDescription(
+        key="t300_abtau_aktiv",
+        data_key="t300_r6_abtau",
+        name="T300 Abtau aktiv",
+        icon="mdi:snowflake-melt",
+        on_value=1,
+    ),
+    ProxonBinarySensorDescription(
+        key="t300_pv_wp",
+        data_key="t300_pv_wp",
+        name="T300 PV WP aktiv",
+        icon="mdi:solar-power",
         on_value=1,
     ),
 )
@@ -75,4 +112,8 @@ class ProxonBinarySensor(ProxonEntity, BinarySensorEntity):
         val = self.coordinator.data.get(self.entity_description.data_key)
         if val is None:
             return None
-        return int(val) == self.entity_description.on_value
+        raw = int(val)
+        # FehlerList is a bitmask – any non-zero means fault
+        if self.entity_description.key == "t300_stoerung":
+            return raw != 0
+        return raw == self.entity_description.on_value

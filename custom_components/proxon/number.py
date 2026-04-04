@@ -14,7 +14,7 @@ from homeassistant.const import UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, HOLDING_REGISTERS
+from .const import DOMAIN, FWT_HOLDING_REGISTERS, T300_HOLDING_REGISTERS
 from .coordinator import ProxonCoordinator
 from .entity import ProxonEntity
 
@@ -118,6 +118,34 @@ NUMBERS: tuple[ProxonNumberDescription, ...] = (
         icon="mdi:fan-speed-3",
         scale=1.0,
     ),
+
+    # ── T300 ────────────────────────────────────────────────────────────
+    ProxonNumberDescription(
+        key="t300_solltemperatur",
+        data_key="t300_solltemperatur",
+        register_key="t300_solltemperatur",
+        name="T300 Solltemperatur",
+        device_class=NumberDeviceClass.TEMPERATURE,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        native_min_value=20,
+        native_max_value=55,
+        native_step=0.5,
+        mode=NumberMode.BOX,
+        scale=10.0,
+    ),
+    ProxonNumberDescription(
+        key="t300_temp_eheiz",
+        data_key="t300_temp_eheiz",
+        register_key="t300_temp_eheiz",
+        name="T300 Temperatur E-Heiz",
+        device_class=NumberDeviceClass.TEMPERATURE,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        native_min_value=20,
+        native_max_value=70,
+        native_step=0.5,
+        mode=NumberMode.BOX,
+        scale=10.0,
+    ),
 )
 
 
@@ -149,6 +177,7 @@ class ProxonNumber(ProxonEntity, NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         raw = int(round(value * self.entity_description.scale))
-        reg = HOLDING_REGISTERS[self.entity_description.register_key]
+        key = self.entity_description.register_key
+        reg = FWT_HOLDING_REGISTERS.get(key) or T300_HOLDING_REGISTERS[key]
         await self.coordinator.write_register(reg.address, raw)
         await self.coordinator.async_request_refresh()

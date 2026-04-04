@@ -32,12 +32,13 @@ class ModbusRegister:
     writable: int = WRITE_NONE   # write permission level
     min_raw: int | None = None
     max_raw: int | None = None
+    offset: int = 0     # added to raw before scaling: real = (raw + offset) / scale
 
 
 # ─────────────────────────────────────────────
 # Input Registers (3x, read-only)
 # ─────────────────────────────────────────────
-INPUT_REGISTERS: dict[str, ModbusRegister] = {
+FWT_INPUT_REGISTERS: dict[str, ModbusRegister] = {
     # Operating state
     "betriebsart": ModbusRegister(23, REG_INPUT, "Aktuelle Betriebsart", "", 1, "int16"),
 
@@ -101,7 +102,7 @@ INPUT_REGISTERS: dict[str, ModbusRegister] = {
 # ─────────────────────────────────────────────
 # Holding Registers (4x, read + optional write)
 # ─────────────────────────────────────────────
-HOLDING_REGISTERS: dict[str, ModbusRegister] = {
+FWT_HOLDING_REGISTERS: dict[str, ModbusRegister] = {
     # Operating mode (write level 1)
     "sollbetriebsart": ModbusRegister(
         16, REG_HOLDING, "Soll Betriebsart", "", 1, "uint16",
@@ -169,3 +170,80 @@ BETRIEBSART_MAP: dict[int, str] = {
     9: "Test",
 }
 BETRIEBSART_REVERSE: dict[str, int] = {v: k for k, v in BETRIEBSART_MAP.items()}
+
+# ─────────────────────────────────────────────
+# T300 Warmwasser-Wärmepumpe
+# Same RS485 bus + Slave ID 41 as FWT
+# Temperature formula: real = (raw - 1000) / 10
+# ─────────────────────────────────────────────
+T300_INPUT_REGISTERS: dict[str, ModbusRegister] = {
+    # Temperatures (offset=-1000, scale=10)
+    "t300_t5_vorverdampfer": ModbusRegister(811, REG_INPUT, "T300 T5 VorVerdampfer", "°C", 10, "uint16", offset=-1000),
+    "t300_t6_verdampfer": ModbusRegister(812, REG_INPUT, "T300 T6 Verdampfer", "°C", 10, "uint16", offset=-1000),
+    "t300_t20_behaelter_unten": ModbusRegister(813, REG_INPUT, "T300 T20 Behälter Unten", "°C", 10, "uint16", offset=-1000),
+    "t300_t21_behaelter_mitte": ModbusRegister(814, REG_INPUT, "T300 T21 Behälter Mitte", "°C", 10, "uint16", offset=-1000),
+    "t300_t13_kompressor": ModbusRegister(815, REG_INPUT, "T300 T13 Kompressor", "°C", 10, "uint16", offset=-1000),
+    "t300_t11_sauggas": ModbusRegister(816, REG_INPUT, "T300 T11 Sauggas nach Verdampfer", "°C", 10, "uint16", offset=-1000),
+    "t300_t9_extern": ModbusRegister(817, REG_INPUT, "T300 T9 Extern Fühler", "°C", 10, "uint16", offset=-1000),
+    "t300_behaelter_avg": ModbusRegister(882, REG_INPUT, "T300 Behälter Durchschnitt", "°C", 100, "uint16"),
+    "t300_solltemperatur_akt": ModbusRegister(879, REG_INPUT, "T300 Aktueller Sollwert", "°C", 10, "uint16"),
+
+    # Relay states
+    "t300_r2_kompressor": ModbusRegister(824, REG_INPUT, "T300 R2 Kompressor", "", 1, "uint16"),
+    "t300_r3_solar": ModbusRegister(825, REG_INPUT, "T300 R3 Solar", "", 1, "uint16"),
+    "t300_r4_eheiz": ModbusRegister(826, REG_INPUT, "T300 R4 E-Heiz", "", 1, "uint16"),
+    "t300_r5_ventilator": ModbusRegister(827, REG_INPUT, "T300 R5 Ventilator", "", 1, "uint16"),
+    "t300_r6_abtau": ModbusRegister(828, REG_INPUT, "T300 R6 Abtau", "", 1, "uint16"),
+
+    # Fan
+    "t300_ventilator_pct": ModbusRegister(838, REG_INPUT, "T300 Ventilator Geschwindigkeit", "%", 1, "uint16"),
+    "t300_ventilator_rpm": ModbusRegister(862, REG_INPUT, "T300 Ventilator RPM", "rpm", 1, "uint16"),
+
+    # PV
+    "t300_pv_eheiz": ModbusRegister(899, REG_INPUT, "T300 PV E-Heiz aktiv", "", 1, "uint16"),
+    "t300_pv_wp": ModbusRegister(900, REG_INPUT, "T300 PV WP aktiv", "", 1, "uint16"),
+
+    # Errors
+    "t300_fehlerliste": ModbusRegister(861, REG_INPUT, "T300 Fehlerliste", "", 1, "uint16"),
+}
+
+T300_HOLDING_REGISTERS: dict[str, ModbusRegister] = {
+    # Betriebsart 0=AUS, 1=Bedarf, 2=LF1 (Legionella Force 1), 3=LF2
+    "t300_betriebsart": ModbusRegister(
+        2002, REG_HOLDING, "T300 Betriebsart", "", 1, "uint16",
+        writable=WRITE_SOME, min_raw=0, max_raw=3,
+    ),
+    # Solltemperatur (normal water temp)
+    "t300_solltemperatur": ModbusRegister(
+        2000, REG_HOLDING, "T300 Solltemperatur", "°C", 10, "uint16",
+        writable=WRITE_SOME, min_raw=200, max_raw=550,
+    ),
+    # E-Heizstab (boost heater)
+    "t300_eheiz_freigabe": ModbusRegister(
+        2001, REG_HOLDING, "T300 E-Heiz Freigabe", "", 1, "uint16",
+        writable=WRITE_SOME, min_raw=0, max_raw=1,
+    ),
+    # Boost temperature
+    "t300_temp_eheiz": ModbusRegister(
+        2003, REG_HOLDING, "T300 Temperatur E-Heiz", "°C", 10, "uint16",
+        writable=WRITE_SOME, min_raw=200, max_raw=700,
+    ),
+    # Legionella function
+    "t300_legionella": ModbusRegister(
+        2025, REG_HOLDING, "T300 Legionellafunktion", "", 1, "uint16",
+        writable=WRITE_SOME, min_raw=0, max_raw=1,
+    ),
+    # PV function
+    "t300_pv_funktion": ModbusRegister(
+        2010, REG_HOLDING, "T300 PV Funktion", "", 1, "uint16",
+        writable=WRITE_SOME, min_raw=0, max_raw=1,
+    ),
+}
+
+T300_BETRIEBSART_MAP: dict[int, str] = {
+    0: "Aus",
+    1: "Bedarf",
+    2: "Legionella Force 1",
+    3: "Legionella Force 2",
+}
+T300_BETRIEBSART_REVERSE: dict[str, int] = {v: k for k, v in T300_BETRIEBSART_MAP.items()}
