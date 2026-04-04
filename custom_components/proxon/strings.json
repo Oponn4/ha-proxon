@@ -1,0 +1,23 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Proxon FWT einrichten",
+        "description": "Verbindungsdaten für den Proxon RS485-to-LAN Adapter eingeben.",
+        "data": {
+          "host": "IP-Adresse oder Hostname",
+          "port": "Modbus TCP Port",
+          "slave": "Modbus Slave ID",
+          "scan_interval": "Abfrageintervall (Sekunden)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung fehlgeschlagen – IP/Port/Slave-ID prüfen",
+      "unknown": "Unbekannter Fehler"
+    },
+    "abort": {
+      "already_configured": "Dieses Gerät ist bereits konfiguriert"
+    }
+  }
+}

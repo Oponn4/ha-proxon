@@ -1,0 +1,171 @@
+"""Constants for the Proxon FWT integration."""
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Any
+
+DOMAIN = "proxon"
+DEFAULT_PORT = 502
+DEFAULT_SLAVE = 41
+DEFAULT_SCAN_INTERVAL = 30
+
+# Modbus register types
+REG_INPUT = "input"      # 3x – read only (FC4)
+REG_HOLDING = "holding"  # 4x – read/write (FC3/FC6)
+
+# Write permission levels from the Proxon Excel
+# 0 = read only, 1 = R/W (Einige), 2 = R/W (Ja)
+WRITE_NONE = 0
+WRITE_SOME = 1
+WRITE_FULL = 2
+
+
+@dataclass
+class ModbusRegister:
+    """Describes a single Modbus register."""
+    address: int
+    reg_type: str       # REG_INPUT or REG_HOLDING
+    name: str
+    unit: str
+    scale: float        # divide raw value by this to get real value
+    data_type: str      # "int16" or "uint16"
+    writable: int = WRITE_NONE   # write permission level
+    min_raw: int | None = None
+    max_raw: int | None = None
+
+
+# ─────────────────────────────────────────────
+# Input Registers (3x, read-only)
+# ─────────────────────────────────────────────
+INPUT_REGISTERS: dict[str, ModbusRegister] = {
+    # Operating state
+    "betriebsart": ModbusRegister(23, REG_INPUT, "Aktuelle Betriebsart", "", 1, "int16"),
+
+    # Temperatures
+    "t1_zuluft": ModbusRegister(195, REG_INPUT, "T1 Zuluft", "°C", 100, "uint16"),
+    "t3_frischluft": ModbusRegister(198, REG_INPUT, "T3 Frischluft", "°C", 100, "uint16"),
+    "t4_fortluft": ModbusRegister(197, REG_INPUT, "T4 Fortluft", "°C", 100, "uint16"),
+    "t5_vorverdampfer": ModbusRegister(175, REG_INPUT, "T5 VorVerdampfer", "°C", 100, "uint16"),
+    "t6_verdampfer": ModbusRegister(176, REG_INPUT, "T6 Verdampfer", "°C", 100, "uint16"),
+    "t7_abluft": ModbusRegister(196, REG_INPUT, "T7 Abluft", "°C", 100, "uint16"),
+    "t13_kompressor": ModbusRegister(180, REG_INPUT, "T13 Kompressor", "°C", 100, "uint16"),
+    "t21_zone1": ModbusRegister(263, REG_INPUT, "T2.1 Zonentemperatur 1 (EG)", "°C", 100, "uint16"),
+    "t22_zone2": ModbusRegister(264, REG_INPUT, "T2.2 Zonentemperatur 2 (OG)", "°C", 100, "uint16"),
+    "soll_zone1": ModbusRegister(265, REG_INPUT, "Soll Zonentemperatur 1 (EG)", "°C", 100, "uint16"),
+    "soll_zone2": ModbusRegister(251, REG_INPUT, "Soll Zonentemperatur 2 (OG)", "°C", 100, "uint16"),
+    "temp_hbde": ModbusRegister(41, REG_INPUT, "Temperatur HBDE", "°C", 100, "uint16"),
+    "temp_hnbe": ModbusRegister(40, REG_INPUT, "Temperatur HNBE", "°C", 100, "uint16"),
+
+    # Compressor
+    "kompressor_status": ModbusRegister(162, REG_INPUT, "Status Kompressor", "", 1, "int16"),
+    "kompressor_leistung": ModbusRegister(171, REG_INPUT, "Leistung Kompressor", "%", 100, "int16"),
+    "kompressor_drehzahl": ModbusRegister(190, REG_INPUT, "Drehzahl Kompressor", "rpm", 1, "int16"),
+
+    # Ventilation
+    "stufe_zuluft": ModbusRegister(154, REG_INPUT, "Ventilator Stufe Zuluft", "", 1, "int16"),
+    "drehzahl_zuluft": ModbusRegister(0, REG_INPUT, "Drehzahl Zuluft", "rpm", 1, "int16"),
+    "stufe_abluft": ModbusRegister(211, REG_INPUT, "Ventilator Stufe Abluft", "", 1, "int16"),
+    "drehzahl_abluft": ModbusRegister(1, REG_INPUT, "Drehzahl Abluft", "rpm", 1, "int16"),
+
+    # Power
+    "power_pcb": ModbusRegister(19, REG_INPUT, "Leistung PCB", "W", 10, "int16"),
+    "power_fu": ModbusRegister(20, REG_INPUT, "Leistung FU", "W", 10, "int16"),
+    "power_total": ModbusRegister(25, REG_INPUT, "Leistung Gesamt", "W", 10, "int16"),
+
+    # COP / JAZ
+    "jaz_komp_1h": ModbusRegister(28, REG_INPUT, "JAZ Kompressor (1h)", "", 100, "int16"),
+    "jaz_komp_24h": ModbusRegister(29, REG_INPUT, "JAZ Kompressor (24h)", "", 100, "int16"),
+    "jaz_total_1h": ModbusRegister(33, REG_INPUT, "JAZ Gesamt (1h)", "", 100, "int16"),
+    "jaz_total_24h": ModbusRegister(34, REG_INPUT, "JAZ Gesamt (24h)", "", 100, "int16"),
+
+    # Humidity / CO2
+    "co2_sensor1": ModbusRegister(21, REG_INPUT, "CO2 Sensor 1", "ppm", 1, "int16"),
+    "rf_sensor1": ModbusRegister(22, REG_INPUT, "Relative Feuchte Sensor 1", "%", 1, "int16"),
+
+    # Air volume
+    "luftmenge_m3h": ModbusRegister(26, REG_INPUT, "Luftmenge", "m³/h", 10, "int16"),
+
+    # Valve states
+    "bypass_zustand": ModbusRegister(222, REG_INPUT, "Bypass Zustand", "", 1, "int16"),
+    "schieber_position": ModbusRegister(159, REG_INPUT, "Schieber Position", "", 1, "int16"),
+    "magnetventil": ModbusRegister(221, REG_INPUT, "Magnetventil", "", 1, "int16"),
+
+    # Errors
+    "stoerung": ModbusRegister(47, REG_INPUT, "Störung", "", 1, "int16"),
+    "error_status1": ModbusRegister(48, REG_INPUT, "Fehlerstatus 1", "", 1, "int16"),
+    "error_status2": ModbusRegister(49, REG_INPUT, "Fehlerstatus 2", "", 1, "int16"),
+    "error_status3": ModbusRegister(50, REG_INPUT, "Fehlerstatus 3", "", 1, "int16"),
+    "error_status4": ModbusRegister(51, REG_INPUT, "Fehlerstatus 4", "", 1, "int16"),
+}
+
+# ─────────────────────────────────────────────
+# Holding Registers (4x, read + optional write)
+# ─────────────────────────────────────────────
+HOLDING_REGISTERS: dict[str, ModbusRegister] = {
+    # Operating mode (write level 1)
+    "sollbetriebsart": ModbusRegister(
+        16, REG_HOLDING, "Soll Betriebsart", "", 1, "uint16",
+        writable=WRITE_SOME, min_raw=0, max_raw=9,
+    ),
+    # Fan level (write level 1)
+    "luefterstufe": ModbusRegister(
+        22, REG_HOLDING, "Lüfterstufe", "", 1, "uint16",
+        writable=WRITE_SOME, min_raw=1, max_raw=4,
+    ),
+    # Cooling enable (write level 1)
+    "kuehlung_freigabe": ModbusRegister(
+        62, REG_HOLDING, "Kühlung Freigabe", "", 1, "uint16",
+        writable=WRITE_SOME, min_raw=0, max_raw=1,
+    ),
+    # Target temperatures (write level 1)
+    "soll_temp_zone1": ModbusRegister(
+        70, REG_HOLDING, "Soll Temperatur Zone 1 (EG)", "°C", 100, "int16",
+        writable=WRITE_SOME, min_raw=1000, max_raw=3000,
+    ),
+    "soll_temp_zone2": ModbusRegister(
+        75, REG_HOLDING, "Soll Temperatur Zone 2 (OG)", "°C", 100, "int16",
+        writable=WRITE_SOME, min_raw=1000, max_raw=3000,
+    ),
+    # Intensive ventilation (write level 1)
+    "intensivlueftung": ModbusRegister(
+        133, REG_HOLDING, "Intensivlüftung", "min", 1, "uint16",
+        writable=WRITE_SOME, min_raw=0, max_raw=1440,
+    ),
+    # Thresholds (read-only at level 0 / 1)
+    "wp_einschaltschwelle": ModbusRegister(42, REG_HOLDING, "WP Einschaltschwelle", "°C", 100, "int16"),
+    "wp_ausschaltschwelle": ModbusRegister(134, REG_HOLDING, "WP Ausschaltschwelle", "°C", 100, "int16"),
+    "wp_kuehlschwelle": ModbusRegister(41, REG_HOLDING, "WP Kühlschwelle", "°C", 100, "int16"),
+    # Write permissions register (read current level)
+    "schreibrechte": ModbusRegister(0, REG_HOLDING, "Schreibrechte", "", 1, "uint16"),
+    # NBE offsets (write level 1)
+    "nbe_offset_haupt": ModbusRegister(
+        213, REG_HOLDING, "NBE Offset Hauptbedienteil (Büro)", "°C", 1, "int16",
+        writable=WRITE_SOME, min_raw=-3, max_raw=3,
+    ),
+    "nbe_offset_1": ModbusRegister(
+        214, REG_HOLDING, "NBE 1 Offset (Diele)", "°C", 1, "int16",
+        writable=WRITE_SOME, min_raw=-3, max_raw=3,
+    ),
+    "nbe_offset_2": ModbusRegister(
+        215, REG_HOLDING, "NBE 2 Offset (Schlafen)", "°C", 1, "int16",
+        writable=WRITE_SOME, min_raw=-3, max_raw=3,
+    ),
+    "nbe_offset_4": ModbusRegister(
+        217, REG_HOLDING, "NBE 4 Offset (Kreativ)", "°C", 1, "int16",
+        writable=WRITE_SOME, min_raw=-3, max_raw=3,
+    ),
+    # HBDE PTC (write level 1)
+    "hbde_ptc_freigabe": ModbusRegister(
+        187, REG_HOLDING, "HBDE PTC Freigabe (Wohnzimmer)", "", 1, "uint16",
+        writable=WRITE_SOME, min_raw=0, max_raw=1,
+    ),
+}
+
+# Operating mode mapping
+BETRIEBSART_MAP: dict[int, str] = {
+    0: "Aus",
+    1: "Eco Sommer",
+    2: "Eco Winter",
+    9: "Test",
+}
+BETRIEBSART_REVERSE: dict[str, int] = {v: k for k, v in BETRIEBSART_MAP.items()}
