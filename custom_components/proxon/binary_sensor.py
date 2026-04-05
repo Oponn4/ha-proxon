@@ -90,6 +90,31 @@ BINARY_SENSORS: tuple[ProxonBinarySensorDescription, ...] = (
         icon="mdi:air-filter",
         on_value=True,
     ),
+    # Status flags – disabled by default (technical/diagnostic)
+    ProxonBinarySensorDescription(
+        key="umluft_aktiv",
+        data_key="umluft_aktiv",
+        name="Umluft aktiv",
+        icon="mdi:rotate-3d-variant",
+        on_value=1,
+        entity_registry_enabled_default=False,
+    ),
+    ProxonBinarySensorDescription(
+        key="erdwaerme_aktiv",
+        data_key="erdwaerme_aktiv",
+        name="Erdwärme aktiv",
+        icon="mdi:earth",
+        on_value=1,
+        entity_registry_enabled_default=False,
+    ),
+    ProxonBinarySensorDescription(
+        key="vierwege_ventil",
+        data_key="vierwege_ventil",
+        name="4-Wegeventil (Kühlen)",
+        icon="mdi:valve",
+        on_value=1,
+        entity_registry_enabled_default=False,
+    ),
 )
 
 

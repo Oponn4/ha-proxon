@@ -118,6 +118,20 @@ NUMBERS: tuple[ProxonNumberDescription, ...] = (
         icon="mdi:fan-speed-3",
         scale=1.0,
     ),
+    ProxonNumberDescription(
+        key="nacht_temperatur",
+        data_key="nacht_temperatur",
+        register_key="nacht_temperatur",
+        name="Nachttemperatur",
+        device_class=NumberDeviceClass.TEMPERATURE,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        native_min_value=10,
+        native_max_value=30,
+        native_step=0.5,
+        mode=NumberMode.BOX,
+        scale=100.0,
+        entity_registry_enabled_default=False,
+    ),
 
     # ── T300 ────────────────────────────────────────────────────────────
     ProxonNumberDescription(

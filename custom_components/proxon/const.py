@@ -86,13 +86,20 @@ FWT_INPUT_REGISTERS: dict[str, ModbusRegister] = {
     "co2_sensor1": ModbusRegister(21, REG_INPUT, "CO2 Sensor 1", "ppm", 1, "int16"),
     "rf_sensor1": ModbusRegister(22, REG_INPUT, "Relative Feuchte Sensor 1", "%", 1, "int16"),
 
-    # Air volume
+    # Air volume / pressure
     "luftmenge_m3h": ModbusRegister(26, REG_INPUT, "Luftmenge", "m³/h", 10, "int16"),
+    "druckventilator_pa": ModbusRegister(24, REG_INPUT, "Druckventilator P18", "Pa", 10, "int16"),
+    "umluft_aktiv": ModbusRegister(39, REG_INPUT, "Umluft aktiv", "", 1, "int16"),
 
-    # Valve states
+    # Außenluft
+    "t9_aussenluft": ModbusRegister(181, REG_INPUT, "T9 Außenluft vor EWT", "°C", 100, "uint16", min_raw=0, max_raw=5000),
+
+    # Valve states & system status
     "bypass_zustand": ModbusRegister(222, REG_INPUT, "Bypass Zustand", "", 1, "int16"),
     "schieber_position": ModbusRegister(159, REG_INPUT, "Schieber Position", "", 1, "int16"),
     "magnetventil": ModbusRegister(221, REG_INPUT, "Magnetventil", "", 1, "int16"),
+    "erdwaerme_aktiv": ModbusRegister(220, REG_INPUT, "Erdwärme Zustand", "", 1, "int16"),
+    "vierwege_ventil": ModbusRegister(223, REG_INPUT, "4-Wegeventil (0=Heizen 1=Kühlen)", "", 1, "int16"),
 
     # Room temperatures via NBE sensors (scale 0.1 → divide by 10, valid 10–40°C)
     "temp_klavierzimmer": ModbusRegister(590, REG_INPUT, "Temperatur Klavierzimmer", "°C", 10, "uint16", min_raw=100, max_raw=400),
@@ -187,6 +194,20 @@ FWT_HOLDING_REGISTERS: dict[str, ModbusRegister] = {
     # HBDE PTC (write level 1)
     "hbde_ptc_freigabe": ModbusRegister(
         187, REG_HOLDING, "HBDE PTC Freigabe (Wohnzimmer)", "", 1, "uint16",
+        writable=WRITE_SOME, min_raw=0, max_raw=1,
+    ),
+
+    # Nachtabsenkung (write level 1) – requires new READ_BLOCK (613, 7)
+    "zeitprogramm_luft": ModbusRegister(
+        613, REG_HOLDING, "Zeitprogramm Luftmenge An/Aus", "", 1, "uint16",
+        writable=WRITE_SOME, min_raw=0, max_raw=1,
+    ),
+    "nacht_temperatur": ModbusRegister(
+        618, REG_HOLDING, "Nachttemperatur", "°C", 100, "int16",
+        writable=WRITE_SOME, min_raw=1000, max_raw=3000,
+    ),
+    "nachtabsenkung": ModbusRegister(
+        619, REG_HOLDING, "Nachtabsenkung An/Aus", "", 1, "uint16",
         writable=WRITE_SOME, min_raw=0, max_raw=1,
     ),
 

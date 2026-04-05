@@ -173,6 +173,26 @@ SENSORS: tuple[ProxonSensorDescription, ...] = (
         native_unit_of_measurement="m³/h",
         icon="mdi:air-filter",
     ),
+    ProxonSensorDescription(
+        key="druckventilator_pa", data_key="druckventilator_pa", name="Druckventilator P18",
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement="Pa",
+        icon="mdi:gauge",
+        entity_registry_enabled_default=False,
+    ),
+    ProxonSensorDescription(
+        key="stufe_abluft", data_key="stufe_abluft", name="Ventilator Stufe Abluft",
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:fan",
+        entity_registry_enabled_default=False,
+    ),
+    ProxonSensorDescription(
+        key="t9_aussenluft", data_key="t9_aussenluft", name="T9 Außenluft vor EWT",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        entity_registry_enabled_default=False,
+    ),
 
     # Power
     ProxonSensorDescription(

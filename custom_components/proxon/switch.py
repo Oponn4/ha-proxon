@@ -36,6 +36,23 @@ SWITCHES: tuple[ProxonSwitchDescription, ...] = (
         name="HBDE PTC Freigabe (Wohnzimmer)",
         icon="mdi:radiator",
     ),
+    # FWT – disabled by default (schedule/config settings)
+    ProxonSwitchDescription(
+        key="zeitprogramm_luft",
+        data_key="zeitprogramm_luft",
+        register_key="zeitprogramm_luft",
+        name="Zeitprogramm Luftmenge",
+        icon="mdi:clock-time-eight-outline",
+        entity_registry_enabled_default=False,
+    ),
+    ProxonSwitchDescription(
+        key="nachtabsenkung",
+        data_key="nachtabsenkung",
+        register_key="nachtabsenkung",
+        name="Nachtabsenkung",
+        icon="mdi:weather-night",
+        entity_registry_enabled_default=False,
+    ),
     # T300
     ProxonSwitchDescription(
         key="t300_eheiz_freigabe",
