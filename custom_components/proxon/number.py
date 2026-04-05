@@ -66,6 +66,7 @@ NUMBERS: tuple[ProxonNumberDescription, ...] = (
         native_step=1,
         mode=NumberMode.BOX,
         scale=1.0,
+        entity_registry_enabled_default=False,
     ),
     ProxonNumberDescription(
         key="nbe_offset_1",
@@ -79,6 +80,7 @@ NUMBERS: tuple[ProxonNumberDescription, ...] = (
         native_step=1,
         mode=NumberMode.BOX,
         scale=1.0,
+        entity_registry_enabled_default=False,
     ),
     ProxonNumberDescription(
         key="nbe_offset_2",
@@ -92,6 +94,7 @@ NUMBERS: tuple[ProxonNumberDescription, ...] = (
         native_step=1,
         mode=NumberMode.BOX,
         scale=1.0,
+        entity_registry_enabled_default=False,
     ),
     ProxonNumberDescription(
         key="nbe_offset_4",
@@ -105,6 +108,7 @@ NUMBERS: tuple[ProxonNumberDescription, ...] = (
         native_step=1,
         mode=NumberMode.BOX,
         scale=1.0,
+        entity_registry_enabled_default=False,
     ),
     ProxonNumberDescription(
         key="intensivlueftung",

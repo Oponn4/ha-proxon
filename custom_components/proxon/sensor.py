@@ -396,7 +396,7 @@ SENSORS: tuple[ProxonSensorDescription, ...] = (
         icon="mdi:air-filter",
     ),
     ProxonSensorDescription(
-        key="fwt_betriebsstunden", data_key="fwt_betriebsstunden", name="FWT Betriebsstunden gesamt",
+        key="fwt_betriebsstunden", data_key="fwt_betriebsstunden", name="Betriebsstunden gesamt",
         state_class=SensorStateClass.TOTAL_INCREASING,
         native_unit_of_measurement="h",
         icon="mdi:heat-pump",
