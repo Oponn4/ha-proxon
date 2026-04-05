@@ -1,6 +1,7 @@
 """DataUpdateCoordinator for Proxon FWT."""
 from __future__ import annotations
 
+import asyncio
 import logging
 from datetime import timedelta
 from typing import Any
@@ -25,10 +26,8 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 # Bulk read blocks: (start_address, count, fc)
-# Groups consecutive register ranges into single requests (max 125 per request).
-# Derived from the register addresses in const.py.
-# NOTE: Only include ranges that the Proxon device/adapter actually responds to.
-# Large blocks with gaps cause Modbus errors on this RS485-LAN adapter.
+# Only ranges the Proxon device+adapter actually responds to.
+# Large blocks with register gaps cause Modbus errors on this USR RS485-LAN adapter.
 _READ_BLOCKS: list[tuple[int, int, str]] = [
     (0,    52, REG_INPUT),   # FWT input:    0–51
     (154, 112, REG_INPUT),   # FWT input:  154–265
@@ -41,6 +40,25 @@ _READ_BLOCKS: list[tuple[int, int, str]] = [
     (2000, 26, "holding"),   # T300 holding: 2000–2025
 ]
 
+# The USR TCP-RS485 bridge forwards ALL RS485 bus traffic (including Proxon-internal
+# device communication) to any connected TCP client.  Without inter-request pauses,
+# stale RTU frames from internal bus activity can be misinterpreted as responses to
+# our requests, producing garbage values (e.g. 128 °C hot water).
+#
+# Mitigations:
+#   _INTER_BLOCK_DELAY  – pause between consecutive block reads; gives the asyncio
+#                         event loop time to receive+discard any stale frames before
+#                         the next request is issued.
+#   _POST_CONNECT_DRAIN – pause right after opening a new TCP connection; the bridge
+#                         flushes its TCP send-buffer on connect, so waiting here lets
+#                         pymodbus drain+discard that initial burst of stale frames.
+#   Always reconnect    – close the TCP connection after every update cycle.  A fresh
+#                         connection starts with a clean framer state; a long-lived
+#                         connection accumulates stale-frame debt that grows over time.
+_INTER_BLOCK_DELAY = 0.15   # seconds between block reads
+_POST_CONNECT_DRAIN = 0.30  # seconds to wait after connect before first read
+_MODBUS_TIMEOUT = 5         # seconds per request (pymodbus default is 3)
+
 
 def _to_signed16(value: int) -> int:
     """Convert unsigned 16-bit int to signed."""
@@ -49,10 +67,15 @@ def _to_signed16(value: int) -> int:
     return value
 
 
-def _decode(reg: ModbusRegister, raw: int) -> float | int:
-    """Apply sign conversion, offset and scaling."""
+def _decode(reg: ModbusRegister, raw: int) -> float | int | None:
+    """Apply sign conversion, offset, scaling – and reject out-of-range raws."""
     if reg.data_type == "int16":
         raw = _to_signed16(raw)
+    # Reject values outside the documented raw range (catches stale-frame garbage).
+    if reg.min_raw is not None and raw < reg.min_raw:
+        return None
+    if reg.max_raw is not None and raw > reg.max_raw:
+        return None
     val = raw + reg.offset
     if reg.scale == 1:
         return val
@@ -82,11 +105,27 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             update_interval=timedelta(seconds=scan_interval),
         )
 
-    async def _get_client(self) -> AsyncModbusTcpClient:
-        if self._client is None or not self._client.connected:
-            self._client = AsyncModbusTcpClient(self.host, port=self.port, framer=FramerType.RTU)
-            await self._client.connect()
-        return self._client
+    async def _open_client(self) -> AsyncModbusTcpClient:
+        """Open a fresh Modbus TCP connection and drain any initial stale frames."""
+        client = AsyncModbusTcpClient(
+            self.host,
+            port=self.port,
+            framer=FramerType.RTU,
+            timeout=_MODBUS_TIMEOUT,
+        )
+        await client.connect()
+        # Allow the asyncio event loop to process (and discard) any RTU frames
+        # that the bridge queued before/during our connect.
+        await asyncio.sleep(_POST_CONNECT_DRAIN)
+        return client
+
+    def _close_client(self) -> None:
+        if self._client is not None:
+            try:
+                self._client.close()
+            except Exception:
+                pass
+            self._client = None
 
     async def _read_block(
         self,
@@ -106,34 +145,56 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     start, count=count, device_id=self.slave
                 )
             if result.isError():
-                _LOGGER.warning("Block read error: fc=%s start=%d count=%d", fc, start, count)
+                _LOGGER.warning(
+                    "Block read error: fc=%s start=%d count=%d → %s",
+                    fc, start, count, result,
+                )
                 return {}
+            if len(result.registers) != count:
+                _LOGGER.warning(
+                    "Block read short: fc=%s start=%d expected=%d got=%d",
+                    fc, start, count, len(result.registers),
+                )
+                # Accept partial response rather than discarding everything
             return {start + i: result.registers[i] for i in range(len(result.registers))}
-        except Exception:
-            _LOGGER.warning("Block read exception: fc=%s start=%d count=%d", fc, start, count)
+        except Exception as exc:
+            _LOGGER.warning(
+                "Block read exception: fc=%s start=%d count=%d: %s",
+                fc, start, count, exc,
+            )
             return {}
 
     async def _async_update_data(self) -> dict[str, Any]:
+        # Always use a fresh connection per cycle.
+        # This keeps the framer state clean and limits the window in which stale
+        # RS485 frames can contaminate our reads.
+        self._close_client()
         try:
-            client = await self._get_client()
+            self._client = await self._open_client()
         except Exception as err:
-            raise UpdateFailed(f"Cannot connect to Proxon: {err}") from err
+            raise UpdateFailed(f"Cannot connect to Proxon at {self.host}:{self.port}: {err}") from err
 
-        # Read all blocks; collect raw values keyed by (fc, address)
+        # Read all blocks with inter-request pauses.
         raw: dict[tuple[str, int], int] = {}
-        had_error = False
+        errors: list[str] = []
 
-        for start, count, fc in _READ_BLOCKS:
-            block = await self._read_block(client, start, count, fc)
+        for i, (start, count, fc) in enumerate(_READ_BLOCKS):
+            if i > 0:
+                await asyncio.sleep(_INTER_BLOCK_DELAY)
+            block = await self._read_block(self._client, start, count, fc)
             if not block:
-                had_error = True
+                errors.append(f"{fc}@{start}+{count}")
             for addr, val in block.items():
                 raw[(fc, addr)] = val
 
-        # Decode into data dict
+        if errors:
+            _LOGGER.debug("Block read failures this cycle: %s", ", ".join(errors))
+
+        # Decode raw values into the data dict.
+        # _decode() returns None for out-of-range raws (stale-frame guard).
         data: dict[str, Any] = {}
         for reg_dict, fc in [
-            (FWT_INPUT_REGISTERS,  REG_INPUT),
+            (FWT_INPUT_REGISTERS,   REG_INPUT),
             (FWT_HOLDING_REGISTERS, "holding"),
             (T300_INPUT_REGISTERS,  REG_INPUT),
             (T300_HOLDING_REGISTERS, "holding"),
@@ -142,23 +203,21 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 raw_val = raw.get((fc, reg.address))
                 data[key] = _decode(reg, raw_val) if raw_val is not None else None
 
-        # Reconnect next cycle if any block failed (clears TCP stream state).
-        # The RS485-LAN adapter forwards all bus traffic; a failed block indicates
-        # stale RTU frames confused the framer – reconnecting restores sync.
-        if had_error:
-            try:
-                client.close()
-            except Exception:
-                pass
-            self._client = None
+        # Connection is deliberately NOT kept open; it will be reopened next cycle.
+        self._close_client()
 
         return data
 
     async def write_register(self, address: int, value: int) -> bool:
         """Write a single holding register. Returns True on success."""
+        # Use the existing connection if available, otherwise open a temporary one.
+        close_after = self._client is None
         try:
-            client = await self._get_client()
-            result = await client.write_register(address, value, device_id=self.slave)
+            if self._client is None:
+                self._client = await self._open_client()
+            result = await self._client.write_register(
+                address, value, device_id=self.slave
+            )
             if result.isError():
                 _LOGGER.error("Write error at address %d: %s", address, result)
                 return False
@@ -166,3 +225,6 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         except ModbusException as err:
             _LOGGER.error("Modbus write exception at address %d: %s", address, err)
             return False
+        finally:
+            if close_after:
+                self._close_client()

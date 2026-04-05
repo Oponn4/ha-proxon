@@ -114,6 +114,32 @@ SENSORS: tuple[ProxonSensorDescription, ...] = (
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
     ),
 
+    # NBE room temperatures
+    ProxonSensorDescription(
+        key="temp_klavierzimmer", data_key="temp_klavierzimmer", name="Raumtemperatur Klavierzimmer",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+    ),
+    ProxonSensorDescription(
+        key="temp_flur", data_key="temp_flur", name="Raumtemperatur Flur",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+    ),
+    ProxonSensorDescription(
+        key="temp_schlafzimmer", data_key="temp_schlafzimmer", name="Raumtemperatur Schlafen",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+    ),
+    ProxonSensorDescription(
+        key="temp_office", data_key="temp_office", name="Raumtemperatur Office",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+    ),
+
     # Compressor
     ProxonSensorDescription(
         key="kompressor_leistung", data_key="kompressor_leistung", name="Kompressor Leistung",

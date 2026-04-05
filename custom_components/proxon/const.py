@@ -42,20 +42,20 @@ FWT_INPUT_REGISTERS: dict[str, ModbusRegister] = {
     # Operating state
     "betriebsart": ModbusRegister(23, REG_INPUT, "Aktuelle Betriebsart", "", 1, "int16"),
 
-    # Temperatures
-    "t1_zuluft": ModbusRegister(195, REG_INPUT, "T1 Zuluft", "°C", 100, "uint16"),
-    "t3_frischluft": ModbusRegister(198, REG_INPUT, "T3 Frischluft", "°C", 100, "uint16"),
-    "t4_fortluft": ModbusRegister(197, REG_INPUT, "T4 Fortluft", "°C", 100, "uint16"),
-    "t5_vorverdampfer": ModbusRegister(175, REG_INPUT, "T5 VorVerdampfer", "°C", 100, "uint16"),
-    "t6_verdampfer": ModbusRegister(176, REG_INPUT, "T6 Verdampfer", "°C", 100, "uint16"),
-    "t7_abluft": ModbusRegister(196, REG_INPUT, "T7 Abluft", "°C", 100, "uint16"),
-    "t13_kompressor": ModbusRegister(180, REG_INPUT, "T13 Kompressor", "°C", 100, "uint16"),
-    "t21_zone1": ModbusRegister(263, REG_INPUT, "T2.1 Zonentemperatur 1 (EG)", "°C", 100, "uint16"),
-    "t22_zone2": ModbusRegister(264, REG_INPUT, "T2.2 Zonentemperatur 2 (OG)", "°C", 100, "uint16"),
-    "soll_zone1": ModbusRegister(265, REG_INPUT, "Soll Zonentemperatur 1 (EG)", "°C", 100, "uint16"),
-    "soll_zone2": ModbusRegister(251, REG_INPUT, "Soll Zonentemperatur 2 (OG)", "°C", 100, "uint16"),
-    "temp_hbde": ModbusRegister(41, REG_INPUT, "Temperatur HBDE", "°C", 100, "uint16"),
-    "temp_hnbe": ModbusRegister(40, REG_INPUT, "Temperatur HNBE", "°C", 100, "uint16"),
+    # Temperatures – raw = real°C * 100; range -30°C to +60°C → raw 0–6000
+    "t1_zuluft": ModbusRegister(195, REG_INPUT, "T1 Zuluft", "°C", 100, "uint16", min_raw=0, max_raw=6000),
+    "t3_frischluft": ModbusRegister(198, REG_INPUT, "T3 Frischluft", "°C", 100, "uint16", min_raw=0, max_raw=6000),
+    "t4_fortluft": ModbusRegister(197, REG_INPUT, "T4 Fortluft", "°C", 100, "uint16", min_raw=0, max_raw=6000),
+    "t5_vorverdampfer": ModbusRegister(175, REG_INPUT, "T5 VorVerdampfer", "°C", 100, "uint16", min_raw=0, max_raw=6000),
+    "t6_verdampfer": ModbusRegister(176, REG_INPUT, "T6 Verdampfer", "°C", 100, "uint16", min_raw=0, max_raw=6000),
+    "t7_abluft": ModbusRegister(196, REG_INPUT, "T7 Abluft", "°C", 100, "uint16", min_raw=0, max_raw=6000),
+    "t13_kompressor": ModbusRegister(180, REG_INPUT, "T13 Kompressor", "°C", 100, "uint16", min_raw=0, max_raw=15000),
+    "t21_zone1": ModbusRegister(263, REG_INPUT, "T2.1 Zonentemperatur 1 (EG)", "°C", 100, "uint16", min_raw=0, max_raw=6000),
+    "t22_zone2": ModbusRegister(264, REG_INPUT, "T2.2 Zonentemperatur 2 (OG)", "°C", 100, "uint16", min_raw=0, max_raw=6000),
+    "soll_zone1": ModbusRegister(265, REG_INPUT, "Soll Zonentemperatur 1 (EG)", "°C", 100, "uint16", min_raw=1000, max_raw=3000),
+    "soll_zone2": ModbusRegister(251, REG_INPUT, "Soll Zonentemperatur 2 (OG)", "°C", 100, "uint16", min_raw=1000, max_raw=3000),
+    "temp_hbde": ModbusRegister(41, REG_INPUT, "Temperatur HBDE", "°C", 100, "uint16", min_raw=0, max_raw=4000),
+    "temp_hnbe": ModbusRegister(40, REG_INPUT, "Temperatur HNBE", "°C", 100, "uint16", min_raw=0, max_raw=4000),
 
     # Compressor
     "kompressor_status": ModbusRegister(162, REG_INPUT, "Status Kompressor", "", 1, "int16"),
@@ -91,11 +91,11 @@ FWT_INPUT_REGISTERS: dict[str, ModbusRegister] = {
     "schieber_position": ModbusRegister(159, REG_INPUT, "Schieber Position", "", 1, "int16"),
     "magnetventil": ModbusRegister(221, REG_INPUT, "Magnetventil", "", 1, "int16"),
 
-    # Room temperatures via NBE sensors (scale 0.1 → divide by 10)
-    "temp_klavierzimmer": ModbusRegister(590, REG_INPUT, "Temperatur Klavierzimmer", "°C", 10, "uint16"),
-    "temp_flur": ModbusRegister(593, REG_INPUT, "Temperatur Flur", "°C", 10, "uint16"),
-    "temp_schlafzimmer": ModbusRegister(596, REG_INPUT, "Temperatur Schlafzimmer", "°C", 10, "uint16"),
-    "temp_office": ModbusRegister(602, REG_INPUT, "Temperatur Office", "°C", 10, "uint16"),
+    # Room temperatures via NBE sensors (scale 0.1 → divide by 10, valid 10–40°C)
+    "temp_klavierzimmer": ModbusRegister(590, REG_INPUT, "Temperatur Klavierzimmer", "°C", 10, "uint16", min_raw=100, max_raw=400),
+    "temp_flur": ModbusRegister(593, REG_INPUT, "Temperatur Flur", "°C", 10, "uint16", min_raw=100, max_raw=400),
+    "temp_schlafzimmer": ModbusRegister(596, REG_INPUT, "Temperatur Schlafzimmer", "°C", 10, "uint16", min_raw=100, max_raw=400),
+    "temp_office": ModbusRegister(602, REG_INPUT, "Temperatur Office", "°C", 10, "uint16", min_raw=100, max_raw=400),
 
     # Errors
     "stoerung": ModbusRegister(47, REG_INPUT, "Störung", "", 1, "int16"),
@@ -195,15 +195,16 @@ BETRIEBSART_REVERSE: dict[str, int] = {v: k for k, v in BETRIEBSART_MAP.items()}
 # ─────────────────────────────────────────────
 T300_INPUT_REGISTERS: dict[str, ModbusRegister] = {
     # Temperatures (offset=-1000, scale=10)
-    "t300_t5_vorverdampfer": ModbusRegister(811, REG_INPUT, "T300 T5 VorVerdampfer", "°C", 10, "uint16", offset=-1000),
-    "t300_t6_verdampfer": ModbusRegister(812, REG_INPUT, "T300 T6 Verdampfer", "°C", 10, "uint16", offset=-1000),
-    "t300_t20_behaelter_unten": ModbusRegister(813, REG_INPUT, "T300 T20 Behälter Unten", "°C", 10, "uint16", offset=-1000),
-    "t300_t21_behaelter_mitte": ModbusRegister(814, REG_INPUT, "T300 T21 Behälter Mitte", "°C", 10, "uint16", offset=-1000),
-    "t300_t13_kompressor": ModbusRegister(815, REG_INPUT, "T300 T13 Kompressor", "°C", 10, "uint16", offset=-1000),
-    "t300_t11_sauggas": ModbusRegister(816, REG_INPUT, "T300 T11 Sauggas nach Verdampfer", "°C", 10, "uint16", offset=-1000),
-    "t300_t9_extern": ModbusRegister(817, REG_INPUT, "T300 T9 Extern Fühler", "°C", 10, "uint16", offset=-1000),
-    "t300_behaelter_avg": ModbusRegister(882, REG_INPUT, "T300 Behälter Durchschnitt", "°C", 100, "uint16"),
-    "t300_solltemperatur_akt": ModbusRegister(879, REG_INPUT, "T300 Aktueller Sollwert", "°C", 10, "uint16"),
+    # raw range: 500–2000 → -50°C to +100°C; stale-frame guard via min_raw/max_raw
+    "t300_t5_vorverdampfer": ModbusRegister(811, REG_INPUT, "T300 T5 VorVerdampfer", "°C", 10, "uint16", offset=-1000, min_raw=500, max_raw=2000),
+    "t300_t6_verdampfer": ModbusRegister(812, REG_INPUT, "T300 T6 Verdampfer", "°C", 10, "uint16", offset=-1000, min_raw=500, max_raw=2000),
+    "t300_t20_behaelter_unten": ModbusRegister(813, REG_INPUT, "T300 T20 Behälter Unten", "°C", 10, "uint16", offset=-1000, min_raw=500, max_raw=2000),
+    "t300_t21_behaelter_mitte": ModbusRegister(814, REG_INPUT, "T300 T21 Behälter Mitte", "°C", 10, "uint16", offset=-1000, min_raw=500, max_raw=2000),
+    "t300_t13_kompressor": ModbusRegister(815, REG_INPUT, "T300 T13 Kompressor", "°C", 10, "uint16", offset=-1000, min_raw=500, max_raw=2500),
+    "t300_t11_sauggas": ModbusRegister(816, REG_INPUT, "T300 T11 Sauggas nach Verdampfer", "°C", 10, "uint16", offset=-1000, min_raw=500, max_raw=2000),
+    "t300_t9_extern": ModbusRegister(817, REG_INPUT, "T300 T9 Extern Fühler", "°C", 10, "uint16", offset=-1000, min_raw=500, max_raw=2000),
+    "t300_behaelter_avg": ModbusRegister(882, REG_INPUT, "T300 Behälter Durchschnitt", "°C", 100, "uint16", min_raw=1000, max_raw=10000),
+    "t300_solltemperatur_akt": ModbusRegister(879, REG_INPUT, "T300 Aktueller Sollwert", "°C", 10, "uint16", min_raw=200, max_raw=700),
 
     # Relay states
     "t300_r2_kompressor": ModbusRegister(824, REG_INPUT, "T300 R2 Kompressor", "", 1, "uint16"),
