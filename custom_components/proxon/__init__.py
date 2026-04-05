@@ -1,11 +1,18 @@
 """Proxon FWT Home Assistant Integration."""
 from __future__ import annotations
 
+from homeassistant.components.persistent_notification import async_create, async_dismiss
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL, Platform
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 
-from .const import DEFAULT_SCAN_INTERVAL, DEFAULT_SLAVE, DOMAIN
+from .const import (
+    CONF_FILTER_NOTIFICATION,
+    DEFAULT_SCAN_INTERVAL,
+    DEFAULT_SLAVE,
+    DOMAIN,
+    FILTER_NOTIFICATION_ID,
+)
 from .coordinator import ProxonCoordinator
 
 CONF_SLAVE = "slave"
@@ -34,7 +41,41 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    _setup_filter_notification(hass, entry, coordinator)
     return True
+
+
+def _setup_filter_notification(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    coordinator: ProxonCoordinator,
+) -> None:
+    """Register coordinator listener for filter-change persistent notification."""
+    notification_id = f"{FILTER_NOTIFICATION_ID}_{entry.entry_id}"
+
+    @callback
+    def _on_coordinator_update() -> None:
+        filter_due: bool = coordinator.data.get("filter_wechsel_faellig", False) is True
+        notify_enabled: bool = entry.options.get(CONF_FILTER_NOTIFICATION, True)
+
+        if filter_due and notify_enabled:
+            async_create(
+                hass,
+                message=(
+                    "Der Gerätefilter der Proxon FWT muss gewechselt werden.\n\n"
+                    "**Wichtig:** Das Gerät schaltet sich automatisch ab, wenn der Filter "
+                    "nicht innerhalb von 3 Wochen getauscht wird.\n\n"
+                    "Nach dem Tausch: Quittierung am Bedienteil + "
+                    "Button **Gerätefilter zurücksetzen** in Home Assistant drücken."
+                ),
+                title="Proxon FWT – Filterwechsel fällig",
+                notification_id=notification_id,
+            )
+        else:
+            async_dismiss(hass, notification_id)
+
+    entry.async_on_unload(coordinator.async_add_listener(_on_coordinator_update))
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

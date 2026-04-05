@@ -1,4 +1,14 @@
 {
+  "options": {
+    "step": {
+      "init": {
+        "title": "Proxon FWT Optionen",
+        "data": {
+          "filter_notification": "Filterwechsel-Benachrichtigung aktivieren"
+        }
+      }
+    }
+  },
   "config": {
     "step": {
       "user": {

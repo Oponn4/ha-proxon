@@ -9,6 +9,9 @@ DEFAULT_PORT = 502
 DEFAULT_SLAVE = 41
 DEFAULT_SCAN_INTERVAL = 30
 
+CONF_FILTER_NOTIFICATION = "filter_notification"
+FILTER_NOTIFICATION_ID = "proxon_filter_wechsel"
+
 # Modbus register types
 REG_INPUT = "input"      # 3x – read only (FC4)
 REG_HOLDING = "holding"  # 4x – read/write (FC3/FC6)
