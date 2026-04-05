@@ -12,7 +12,7 @@ from .const import (
     DOMAIN, FWT_HOLDING_REGISTERS, T300_HOLDING_REGISTERS,
 )
 from .coordinator import ProxonCoordinator
-from .entity import ProxonEntity
+from .entity import DEVICE_T300, ProxonEntity
 
 
 async def async_setup_entry(
@@ -56,12 +56,12 @@ class ProxonBetriebsartSelect(ProxonEntity, SelectEntity):
 class ProxonT300BetriebsartSelect(ProxonEntity, SelectEntity):
     """Select entity for the T300 operating mode."""
 
-    _attr_name = "T300 Betriebsart"
+    _attr_name = "Betriebsart"
     _attr_icon = "mdi:water-boiler"
     _attr_options = list(T300_BETRIEBSART_MAP.values())
 
     def __init__(self, coordinator: ProxonCoordinator) -> None:
-        super().__init__(coordinator, "t300_betriebsart")
+        super().__init__(coordinator, "t300_betriebsart", DEVICE_T300)
 
     @property
     def current_option(self) -> str | None:

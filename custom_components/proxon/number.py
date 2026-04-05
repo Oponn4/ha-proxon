@@ -16,7 +16,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN, FWT_HOLDING_REGISTERS, T300_HOLDING_REGISTERS
 from .coordinator import ProxonCoordinator
-from .entity import ProxonEntity
+from .entity import DEVICE_FWT, DEVICE_T300, ProxonEntity
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -24,6 +24,7 @@ class ProxonNumberDescription(NumberEntityDescription):
     data_key: str
     register_key: str
     scale: float = 1.0   # multiply HA value by this before writing
+    device: str = DEVICE_FWT
 
 
 NUMBERS: tuple[ProxonNumberDescription, ...] = (
@@ -138,7 +139,7 @@ NUMBERS: tuple[ProxonNumberDescription, ...] = (
         key="t300_solltemperatur",
         data_key="t300_solltemperatur",
         register_key="t300_solltemperatur",
-        name="T300 Solltemperatur",
+        name="Solltemperatur",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         native_min_value=20,
@@ -146,12 +147,13 @@ NUMBERS: tuple[ProxonNumberDescription, ...] = (
         native_step=0.5,
         mode=NumberMode.BOX,
         scale=10.0,
+        device=DEVICE_T300,
     ),
     ProxonNumberDescription(
         key="t300_temp_eheiz",
         data_key="t300_temp_eheiz",
         register_key="t300_temp_eheiz",
-        name="T300 Temperatur E-Heiz",
+        name="Temperatur E-Heiz",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         native_min_value=20,
@@ -159,6 +161,7 @@ NUMBERS: tuple[ProxonNumberDescription, ...] = (
         native_step=0.5,
         mode=NumberMode.BOX,
         scale=10.0,
+        device=DEVICE_T300,
     ),
 )
 
@@ -182,7 +185,7 @@ class ProxonNumber(ProxonEntity, NumberEntity):
         coordinator: ProxonCoordinator,
         description: ProxonNumberDescription,
     ) -> None:
-        super().__init__(coordinator, description.key)
+        super().__init__(coordinator, description.key, description.device)
         self.entity_description = description
 
     @property

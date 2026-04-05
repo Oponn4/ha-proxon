@@ -11,7 +11,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
 from .coordinator import ProxonCoordinator
-from .entity import ProxonEntity
+from .entity import DEVICE_FWT, ProxonEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -21,6 +21,7 @@ class ProxonButtonDescription(ButtonEntityDescription):
     """Describes a Proxon button."""
     register: int = 0
     reset_value: int = 0
+    device: str = DEVICE_FWT
 
 
 BUTTONS: tuple[ProxonButtonDescription, ...] = (
@@ -53,7 +54,7 @@ class ProxonButton(ProxonEntity, ButtonEntity):
         coordinator: ProxonCoordinator,
         description: ProxonButtonDescription,
     ) -> None:
-        super().__init__(coordinator, description.key)
+        super().__init__(coordinator, description.key, description.device)
         self.entity_description = description
 
     async def async_press(self) -> None:

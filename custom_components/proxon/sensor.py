@@ -24,13 +24,14 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
 from .coordinator import ProxonCoordinator
-from .entity import ProxonEntity
+from .entity import DEVICE_FWT, DEVICE_T300, ProxonEntity
 
 
 @dataclass(frozen=True, kw_only=True)
 class ProxonSensorDescription(SensorEntityDescription):
     """Extended sensor description with the coordinator data key."""
     data_key: str
+    device: str = DEVICE_FWT
 
 
 SENSORS: tuple[ProxonSensorDescription, ...] = (
@@ -281,91 +282,103 @@ SENSORS: tuple[ProxonSensorDescription, ...] = (
 
     # ── T300 Warmwasser-Wärmepumpe ──────────────────────────────────────
     ProxonSensorDescription(
-        key="t300_t5_vorverdampfer", data_key="t300_t5_vorverdampfer", name="T300 T5 VorVerdampfer",
+        key="t300_t5_vorverdampfer", data_key="t300_t5_vorverdampfer", name="T5 VorVerdampfer",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         entity_registry_enabled_default=False,
+        device=DEVICE_T300,
     ),
     ProxonSensorDescription(
-        key="t300_t6_verdampfer", data_key="t300_t6_verdampfer", name="T300 T6 Verdampfer",
+        key="t300_t6_verdampfer", data_key="t300_t6_verdampfer", name="T6 Verdampfer",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         entity_registry_enabled_default=False,
+        device=DEVICE_T300,
     ),
     ProxonSensorDescription(
-        key="t300_t20_behaelter_unten", data_key="t300_t20_behaelter_unten", name="T300 T20 Behälter Unten",
+        key="t300_t20_behaelter_unten", data_key="t300_t20_behaelter_unten", name="T20 Behälter Unten",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device=DEVICE_T300,
     ),
     ProxonSensorDescription(
-        key="t300_t21_behaelter_mitte", data_key="t300_t21_behaelter_mitte", name="T300 T21 Behälter Mitte",
+        key="t300_t21_behaelter_mitte", data_key="t300_t21_behaelter_mitte", name="T21 Behälter Mitte",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device=DEVICE_T300,
     ),
     ProxonSensorDescription(
-        key="t300_t13_kompressor", data_key="t300_t13_kompressor", name="T300 T13 Kompressor",
-        device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        entity_registry_enabled_default=False,
-    ),
-    ProxonSensorDescription(
-        key="t300_t11_sauggas", data_key="t300_t11_sauggas", name="T300 T11 Sauggas",
+        key="t300_t13_kompressor", data_key="t300_t13_kompressor", name="T13 Kompressor",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         entity_registry_enabled_default=False,
+        device=DEVICE_T300,
     ),
     ProxonSensorDescription(
-        key="t300_t9_extern", data_key="t300_t9_extern", name="T300 T9 Extern",
+        key="t300_t11_sauggas", data_key="t300_t11_sauggas", name="T11 Sauggas",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         entity_registry_enabled_default=False,
+        device=DEVICE_T300,
     ),
     ProxonSensorDescription(
-        key="t300_behaelter_avg", data_key="t300_behaelter_avg", name="T300 Behälter Ø",
+        key="t300_t9_extern", data_key="t300_t9_extern", name="T9 Extern",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        entity_registry_enabled_default=False,
+        device=DEVICE_T300,
     ),
     ProxonSensorDescription(
-        key="t300_solltemperatur_akt", data_key="t300_solltemperatur_akt", name="T300 Aktueller Sollwert",
+        key="t300_behaelter_avg", data_key="t300_behaelter_avg", name="Behälter Ø",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device=DEVICE_T300,
     ),
     ProxonSensorDescription(
-        key="t300_ventilator_pct", data_key="t300_ventilator_pct", name="T300 Ventilator",
+        key="t300_solltemperatur_akt", data_key="t300_solltemperatur_akt", name="Aktueller Sollwert",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device=DEVICE_T300,
+    ),
+    ProxonSensorDescription(
+        key="t300_ventilator_pct", data_key="t300_ventilator_pct", name="Ventilator",
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=PERCENTAGE,
         icon="mdi:fan",
+        device=DEVICE_T300,
     ),
     ProxonSensorDescription(
-        key="t300_ventilator_rpm", data_key="t300_ventilator_rpm", name="T300 Ventilator RPM",
+        key="t300_ventilator_rpm", data_key="t300_ventilator_rpm", name="Ventilator RPM",
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=REVOLUTIONS_PER_MINUTE,
         icon="mdi:fan",
         entity_registry_enabled_default=False,
+        device=DEVICE_T300,
     ),
-    # T300 Solltemperatur (from holding register, duplicates the number entity)
     ProxonSensorDescription(
-        key="t300_solltemperatur", data_key="t300_solltemperatur", name="T300 Solltemperatur",
+        key="t300_solltemperatur", data_key="t300_solltemperatur", name="Solltemperatur",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         entity_registry_enabled_default=False,
+        device=DEVICE_T300,
     ),
     ProxonSensorDescription(
-        key="t300_temp_eheiz", data_key="t300_temp_eheiz", name="T300 Temperatur E-Heiz",
+        key="t300_temp_eheiz", data_key="t300_temp_eheiz", name="Temperatur E-Heiz",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         entity_registry_enabled_default=False,
+        device=DEVICE_T300,
     ),
 
     # Filter + Betriebsstunden
@@ -411,7 +424,7 @@ class ProxonSensor(ProxonEntity, SensorEntity):
         coordinator: ProxonCoordinator,
         description: ProxonSensorDescription,
     ) -> None:
-        super().__init__(coordinator, description.key)
+        super().__init__(coordinator, description.key, description.device)
         self.entity_description = description
 
     @property

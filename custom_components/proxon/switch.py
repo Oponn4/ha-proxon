@@ -11,13 +11,14 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN, FWT_HOLDING_REGISTERS, T300_HOLDING_REGISTERS
 from .coordinator import ProxonCoordinator
-from .entity import ProxonEntity
+from .entity import DEVICE_FWT, DEVICE_T300, ProxonEntity
 
 
 @dataclass(frozen=True, kw_only=True)
 class ProxonSwitchDescription(SwitchEntityDescription):
     data_key: str
     register_key: str
+    device: str = DEVICE_FWT
 
 
 SWITCHES: tuple[ProxonSwitchDescription, ...] = (
@@ -58,22 +59,25 @@ SWITCHES: tuple[ProxonSwitchDescription, ...] = (
         key="t300_eheiz_freigabe",
         data_key="t300_eheiz_freigabe",
         register_key="t300_eheiz_freigabe",
-        name="T300 E-Heizstab",
+        name="E-Heizstab",
         icon="mdi:water-boiler",
+        device=DEVICE_T300,
     ),
     ProxonSwitchDescription(
         key="t300_legionella",
         data_key="t300_legionella",
         register_key="t300_legionella",
-        name="T300 Legionellafunktion",
+        name="Legionellafunktion",
         icon="mdi:bacteria",
+        device=DEVICE_T300,
     ),
     ProxonSwitchDescription(
         key="t300_pv_funktion",
         data_key="t300_pv_funktion",
         register_key="t300_pv_funktion",
-        name="T300 PV Funktion",
+        name="PV Funktion",
         icon="mdi:solar-power",
+        device=DEVICE_T300,
     ),
 )
 
@@ -97,7 +101,7 @@ class ProxonSwitch(ProxonEntity, SwitchEntity):
         coordinator: ProxonCoordinator,
         description: ProxonSwitchDescription,
     ) -> None:
-        super().__init__(coordinator, description.key)
+        super().__init__(coordinator, description.key, description.device)
         self.entity_description = description
 
     @property

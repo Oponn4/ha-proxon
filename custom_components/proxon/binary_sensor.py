@@ -14,13 +14,14 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
 from .coordinator import ProxonCoordinator
-from .entity import ProxonEntity
+from .entity import DEVICE_FWT, DEVICE_T300, ProxonEntity
 
 
 @dataclass(frozen=True, kw_only=True)
 class ProxonBinarySensorDescription(BinarySensorEntityDescription):
     data_key: str
     on_value: int = 1   # raw value considered "on"
+    device: str = DEVICE_FWT
 
 
 BINARY_SENSORS: tuple[ProxonBinarySensorDescription, ...] = (
@@ -50,37 +51,42 @@ BINARY_SENSORS: tuple[ProxonBinarySensorDescription, ...] = (
     ProxonBinarySensorDescription(
         key="t300_stoerung",
         data_key="t300_fehlerliste",
-        name="T300 Störung",
+        name="Störung",
         device_class=BinarySensorDeviceClass.PROBLEM,
         on_value=1,  # any non-zero = fault; see FehlerList bitmask
+        device=DEVICE_T300,
     ),
     ProxonBinarySensorDescription(
         key="t300_kompressor_aktiv",
         data_key="t300_r2_kompressor",
-        name="T300 Kompressor aktiv",
+        name="Kompressor aktiv",
         device_class=BinarySensorDeviceClass.RUNNING,
         on_value=1,
+        device=DEVICE_T300,
     ),
     ProxonBinarySensorDescription(
         key="t300_eheiz_aktiv",
         data_key="t300_r4_eheiz",
-        name="T300 E-Heiz aktiv",
+        name="E-Heiz aktiv",
         icon="mdi:water-boiler",
         on_value=1,
+        device=DEVICE_T300,
     ),
     ProxonBinarySensorDescription(
         key="t300_abtau_aktiv",
         data_key="t300_r6_abtau",
-        name="T300 Abtau aktiv",
+        name="Abtau aktiv",
         icon="mdi:snowflake-melt",
         on_value=1,
+        device=DEVICE_T300,
     ),
     ProxonBinarySensorDescription(
         key="t300_pv_wp",
         data_key="t300_pv_wp",
-        name="T300 PV WP aktiv",
+        name="PV WP aktiv",
         icon="mdi:solar-power",
         on_value=1,
+        device=DEVICE_T300,
     ),
     ProxonBinarySensorDescription(
         key="filter_wechsel_faellig",
@@ -137,7 +143,7 @@ class ProxonBinarySensor(ProxonEntity, BinarySensorEntity):
         coordinator: ProxonCoordinator,
         description: ProxonBinarySensorDescription,
     ) -> None:
-        super().__init__(coordinator, description.key)
+        super().__init__(coordinator, description.key, description.device)
         self.entity_description = description
 
     @property
