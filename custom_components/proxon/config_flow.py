@@ -7,10 +7,12 @@ from typing import Any
 import voluptuous as vol
 from pymodbus.client import AsyncModbusTcpClient
 from pymodbus.exceptions import ModbusException
+from pymodbus.framer import FramerType
 
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL
 import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers.selector import NumberSelector, NumberSelectorConfig, NumberSelectorMode
 
 from .const import DOMAIN, DEFAULT_PORT, DEFAULT_SLAVE, DEFAULT_SCAN_INTERVAL
 
@@ -22,7 +24,7 @@ STEP_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_HOST): str,
         vol.Optional(CONF_PORT, default=DEFAULT_PORT): cv.port,
-        vol.Optional(CONF_SLAVE, default=DEFAULT_SLAVE): vol.All(int, vol.Range(min=1, max=247)),
+        vol.Optional(CONF_SLAVE, default=DEFAULT_SLAVE): NumberSelector(NumberSelectorConfig(min=1, max=247, mode=NumberSelectorMode.BOX)),
         vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): vol.All(
             int, vol.Range(min=10, max=300)
         ),
@@ -43,13 +45,13 @@ class ProxonConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             host = user_input[CONF_HOST]
             port = user_input[CONF_PORT]
-            slave = user_input[CONF_SLAVE]
+            slave = int(user_input[CONF_SLAVE])
 
             # Test connection
             try:
-                client = AsyncModbusTcpClient(host, port=port)
+                client = AsyncModbusTcpClient(host, port=port, framer=FramerType.RTU)
                 await client.connect()
-                result = await client.read_input_registers(23, count=1, slave=slave)
+                result = await client.read_input_registers(23, count=1, device_id=slave)
                 client.close()
                 if result.isError():
                     errors["base"] = "cannot_connect"
@@ -58,7 +60,7 @@ class ProxonConfigFlow(ConfigFlow, domain=DOMAIN):
                     self._abort_if_unique_id_configured()
                     return self.async_create_entry(
                         title=f"Proxon FWT ({host})",
-                        data=user_input,
+                        data={**user_input, CONF_SLAVE: slave},
                     )
             except (ModbusException, OSError):
                 errors["base"] = "cannot_connect"

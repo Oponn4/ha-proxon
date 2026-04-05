@@ -91,6 +91,12 @@ FWT_INPUT_REGISTERS: dict[str, ModbusRegister] = {
     "schieber_position": ModbusRegister(159, REG_INPUT, "Schieber Position", "", 1, "int16"),
     "magnetventil": ModbusRegister(221, REG_INPUT, "Magnetventil", "", 1, "int16"),
 
+    # Room temperatures via NBE sensors (scale 0.1 → divide by 10)
+    "temp_klavierzimmer": ModbusRegister(590, REG_INPUT, "Temperatur Klavierzimmer", "°C", 10, "uint16"),
+    "temp_flur": ModbusRegister(593, REG_INPUT, "Temperatur Flur", "°C", 10, "uint16"),
+    "temp_schlafzimmer": ModbusRegister(596, REG_INPUT, "Temperatur Schlafzimmer", "°C", 10, "uint16"),
+    "temp_office": ModbusRegister(602, REG_INPUT, "Temperatur Office", "°C", 10, "uint16"),
+
     # Errors
     "stoerung": ModbusRegister(47, REG_INPUT, "Störung", "", 1, "int16"),
     "error_status1": ModbusRegister(48, REG_INPUT, "Fehlerstatus 1", "", 1, "int16"),
@@ -134,10 +140,10 @@ FWT_HOLDING_REGISTERS: dict[str, ModbusRegister] = {
     ),
     # Thresholds (read-only at level 0 / 1)
     "wp_einschaltschwelle": ModbusRegister(42, REG_HOLDING, "WP Einschaltschwelle", "°C", 100, "int16"),
-    "wp_ausschaltschwelle": ModbusRegister(134, REG_HOLDING, "WP Ausschaltschwelle", "°C", 100, "int16"),
+    "wp_ausschaltschwelle": ModbusRegister(143, REG_HOLDING, "WP Ausschaltschwelle", "°C", 100, "int16"),
     "wp_kuehlschwelle": ModbusRegister(41, REG_HOLDING, "WP Kühlschwelle", "°C", 100, "int16"),
     # Write permissions register (read current level)
-    "schreibrechte": ModbusRegister(0, REG_HOLDING, "Schreibrechte", "", 1, "uint16"),
+    "schreibrechte": ModbusRegister(438, REG_HOLDING, "Schreibrechte", "", 1, "uint16"),
     # NBE offsets (write level 1)
     "nbe_offset_haupt": ModbusRegister(
         213, REG_HOLDING, "NBE Offset Hauptbedienteil (Büro)", "°C", 1, "int16",
@@ -155,6 +161,15 @@ FWT_HOLDING_REGISTERS: dict[str, ModbusRegister] = {
         217, REG_HOLDING, "NBE 4 Offset (Kreativ)", "°C", 1, "int16",
         writable=WRITE_SOME, min_raw=-3, max_raw=3,
     ),
+    # Actual heat pump operating mode (read-only holding)
+    "betriebsart_wp": ModbusRegister(69, REG_HOLDING, "Betriebsart Wärmepumpe", "", 1, "uint16"),
+
+    # NBE average zone temperatures (no scale = raw integer °C)
+    "mitteltemp_klavierzimmer": ModbusRegister(233, REG_HOLDING, "Mitteltemperatur Klavierzimmer", "°C", 1, "int16"),
+    "mitteltemp_flur": ModbusRegister(234, REG_HOLDING, "Mitteltemperatur Flur", "°C", 1, "int16"),
+    "mitteltemp_schlafzimmer": ModbusRegister(235, REG_HOLDING, "Mitteltemperatur Schlafzimmer", "°C", 1, "int16"),
+    "mitteltemp_office": ModbusRegister(237, REG_HOLDING, "Mitteltemperatur Office", "°C", 1, "int16"),
+
     # HBDE PTC (write level 1)
     "hbde_ptc_freigabe": ModbusRegister(
         187, REG_HOLDING, "HBDE PTC Freigabe (Wohnzimmer)", "", 1, "uint16",
@@ -165,8 +180,10 @@ FWT_HOLDING_REGISTERS: dict[str, ModbusRegister] = {
 # Operating mode mapping
 BETRIEBSART_MAP: dict[int, str] = {
     0: "Aus",
-    1: "Eco Sommer",
-    2: "Eco Winter",
+    1: "Sommerbetrieb",
+    2: "Winterbetrieb",
+    3: "Komfortbetrieb",
+    4: "Ofenmodus",
     9: "Test",
 }
 BETRIEBSART_REVERSE: dict[str, int] = {v: k for k, v in BETRIEBSART_MAP.items()}

@@ -12,12 +12,12 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
+    CONCENTRATION_PARTS_PER_MILLION,
     PERCENTAGE,
     REVOLUTIONS_PER_MINUTE,
     UnitOfPower,
     UnitOfTemperature,
     UnitOfVolumeFlowRate,
-    UnitOfConcentration,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -195,7 +195,7 @@ SENSORS: tuple[ProxonSensorDescription, ...] = (
         key="co2_sensor1", data_key="co2_sensor1", name="CO₂",
         device_class=SensorDeviceClass.CO2,
         state_class=SensorStateClass.MEASUREMENT,
-        native_unit_of_measurement=UnitOfConcentration.PARTS_PER_MILLION,
+        native_unit_of_measurement=CONCENTRATION_PARTS_PER_MILLION,
     ),
     ProxonSensorDescription(
         key="rf_sensor1", data_key="rf_sensor1", name="Relative Feuchte",
