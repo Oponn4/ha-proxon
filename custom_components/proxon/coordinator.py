@@ -37,6 +37,8 @@ _READ_BLOCKS: list[tuple[int, int, str]] = [
     (41,  103, "holding"),   # FWT holding:  41–143
     (187,   1, "holding"),   # FWT holding: 187     (hbde_ptc_freigabe)
     (213,   5, "holding"),   # FWT holding: 213–217 (NBE offsets)
+    (460,   1, "holding"),   # FWT holding: 460     (geraetefilter standzeit, requires unlock)
+    (467,   3, "holding"),   # FWT holding: 467–469 (stundenzähler FWT/umluft/geraetefilter)
     (2000, 26, "holding"),   # T300 holding: 2000–2025
 ]
 
@@ -97,6 +99,9 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.port = port
         self.slave = slave
         self._client: AsyncModbusTcpClient | None = None
+        # Written once per HA session to unlock service register access (addr 438 = 55555).
+        # Avoids repeated flash writes on the device; re-unlocks automatically after HA restart.
+        self._write_access_unlocked = False
 
         super().__init__(
             hass,
@@ -174,6 +179,20 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         except Exception as err:
             raise UpdateFailed(f"Cannot connect to Proxon at {self.host}:{self.port}: {err}") from err
 
+        # Unlock service register access (addr 438 = 55555 = full Modbus write/read rights).
+        # Required to read filter stundenzähler (addr 460, 467-469).
+        # Written once per HA session to avoid repeated flash writes on the device.
+        if not self._write_access_unlocked:
+            try:
+                result = await self._client.write_register(438, 55555, device_id=self.slave)
+                if not result.isError():
+                    self._write_access_unlocked = True
+                    _LOGGER.debug("Modbus write access unlocked (reg 438 = 55555)")
+                else:
+                    _LOGGER.warning("Failed to unlock Modbus write access: %s", result)
+            except Exception as exc:
+                _LOGGER.warning("Exception unlocking Modbus write access: %s", exc)
+
         # Read all blocks with inter-request pauses.
         raw: dict[tuple[str, int], int] = {}
         errors: list[str] = []
@@ -202,6 +221,15 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             for key, reg in reg_dict.items():
                 raw_val = raw.get((fc, reg.address))
                 data[key] = _decode(reg, raw_val) if raw_val is not None else None
+
+        # Derived: remaining filter days from Stunden Gerätefilter (469) + Standzeit Monate (460)
+        standzeit_monate = data.get("geraetefilter_standzeit_monate")
+        laufzeit_h = data.get("geraetefilter_stunden")
+        if standzeit_monate is not None and laufzeit_h is not None:
+            standzeit_h = standzeit_monate * 30 * 24
+            data["geraetefilter_remaining_days"] = round((standzeit_h - laufzeit_h) / 24, 1)
+        else:
+            data["geraetefilter_remaining_days"] = None
 
         # Connection is deliberately NOT kept open; it will be reopened next cycle.
         self._close_client()

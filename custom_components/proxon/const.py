@@ -170,11 +170,23 @@ FWT_HOLDING_REGISTERS: dict[str, ModbusRegister] = {
     "mitteltemp_schlafzimmer": ModbusRegister(235, REG_HOLDING, "Mitteltemperatur Schlafzimmer", "°C", 1, "int16"),
     "mitteltemp_office": ModbusRegister(237, REG_HOLDING, "Mitteltemperatur Office", "°C", 1, "int16"),
 
+    # Filter + Stundenzähler (requires write access unlock via reg 438 = 55555)
+    "geraetefilter_standzeit_monate": ModbusRegister(
+        460, REG_HOLDING, "Gerätefilter Standzeit", "Monate", 1, "uint16", min_raw=3, max_raw=8,
+    ),
+    "fwt_betriebsstunden": ModbusRegister(
+        467, REG_HOLDING, "FWT Betriebsstunden gesamt", "h", 1, "uint16", min_raw=0, max_raw=65535,
+    ),
+    "geraetefilter_stunden": ModbusRegister(
+        469, REG_HOLDING, "Gerätefilter Betriebsstunden", "h", 1, "uint16", min_raw=0, max_raw=65535,
+    ),
+
     # HBDE PTC (write level 1)
     "hbde_ptc_freigabe": ModbusRegister(
         187, REG_HOLDING, "HBDE PTC Freigabe (Wohnzimmer)", "", 1, "uint16",
         writable=WRITE_SOME, min_raw=0, max_raw=1,
     ),
+
 }
 
 # Operating mode mapping

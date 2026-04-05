@@ -330,6 +330,27 @@ SENSORS: tuple[ProxonSensorDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
     ),
+
+    # Filter
+    ProxonSensorDescription(
+        key="geraetefilter_stunden", data_key="geraetefilter_stunden", name="Gerätefilter Betriebsstunden",
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        native_unit_of_measurement="h",
+        icon="mdi:air-filter",
+    ),
+    ProxonSensorDescription(
+        key="geraetefilter_remaining_days", data_key="geraetefilter_remaining_days", name="Gerätefilter verbleibende Tage",
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement="d",
+        icon="mdi:air-filter",
+    ),
+    ProxonSensorDescription(
+        key="fwt_betriebsstunden", data_key="fwt_betriebsstunden", name="FWT Betriebsstunden gesamt",
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        native_unit_of_measurement="h",
+        icon="mdi:heat-pump",
+    ),
+
 )
 
 
