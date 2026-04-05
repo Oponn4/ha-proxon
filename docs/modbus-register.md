@@ -3,7 +3,129 @@
 Vollständige Register-Referenz für die HA Custom Integration.
 **Adressierung**: 0-basiert (PDU-Adresse = Excel-Nummer), identisch mit const.py.
 
-**Quellen**: Modbus-Liste-FWT2.0-ver1-Christian, Modbus-Liste-FWT2.0-ver2-T300
+**Quellen**: Modbus-Liste-FWT2.0-ver1-Christian, Modbus-Liste-FWT2.0-ver2-T300, ModbusPanel.ini (IBT ELT Ver12/Ver14)
+
+---
+
+## Implementierungsübersicht (HA Integration)
+
+### Input Register – in const.py implementiert
+
+| Addr | Key | Einheit | Bemerkung |
+|-----:|-----|---------|-----------|
+| 0 | drehzahl_zuluft | rpm | |
+| 1 | drehzahl_abluft | rpm | |
+| 19 | power_pcb | W | |
+| 20 | power_fu | W | |
+| 21 | co2_sensor1 | ppm | |
+| 22 | rf_sensor1 | % | |
+| 23 | betriebsart | — | |
+| 25 | power_total | W | |
+| 26 | luftmenge_m3h | m³/h | |
+| 28 | jaz_komp_1h | — | ⚠️ immer 0, siehe unten |
+| 29 | jaz_komp_24h | — | ⚠️ immer 0, siehe unten |
+| 33 | jaz_total_1h | — | ⚠️ immer 0, siehe unten |
+| 34 | jaz_total_24h | — | ⚠️ immer 0, siehe unten |
+| 40 | temp_hnbe | °C | |
+| 41 | temp_hbde | °C | |
+| 47 | stoerung | — | |
+| 48 | error_status1 | Bit | Bit1=Filtertausch fällig |
+| 49–51 | error_status2–4 | Bit | |
+| 154 | stufe_zuluft | — | |
+| 162 | kompressor_status | — | |
+| 171 | kompressor_leistung | % | |
+| 175 | t5_vorverdampfer | °C | |
+| 176 | t6_verdampfer | °C | |
+| 180 | t13_kompressor | °C | |
+| 190 | kompressor_drehzahl | rpm | |
+| 195–198 | t1/t3/t4/t7 | °C | Temperaturen |
+| 211 | stufe_abluft | — | |
+| 221 | magnetventil | — | |
+| 222 | bypass_zustand | — | |
+| 263–265 | t21/t22/soll_zone1 | °C | |
+| 590–602 | temp_klavierzimmer/flur/schlafen/office | °C | NBE-Sensoren |
+| 811–900 | T300 (Warmwasser-WP) | — | Eigener Block |
+
+### Holding Register – in const.py implementiert
+
+| Addr | Key | Einheit | Bemerkung |
+|-----:|-----|---------|-----------|
+| 16 | sollbetriebsart | — | R/W |
+| 22 | luefterstufe | — | R/W |
+| 41 | wp_kuehlschwelle | °C | |
+| 42 | wp_einschaltschwelle | °C | |
+| 62 | kuehlung_freigabe | — | R/W |
+| 69 | betriebsart_wp | — | |
+| 70 | soll_temp_zone1 | °C | R/W |
+| 75 | soll_temp_zone2 | °C | R/W |
+| 133 | intensivlueftung | min | R/W |
+| 143 | wp_ausschaltschwelle | °C | |
+| 187 | hbde_ptc_freigabe | — | R/W |
+| 213–217 | nbe_offset_* | °C | R/W, Raum-Offsets |
+| 233–237 | mitteltemp_* | °C | NBE-Mitteltemperaturen |
+| 438 | schreibrechte | — | Write unlock: 55555 |
+| 448 | passwort | — | Service: 906 |
+| 460 | geraetefilter_standzeit_monate | Monate | R/W |
+| 467 | fwt_betriebsstunden | h | Zähler |
+| 469 | geraetefilter_stunden | h | Reset nach Filtertausch |
+| 2000–2025 | T300 Holding | — | Warmwasser-WP Sollwerte |
+
+---
+
+## Bekannte Probleme & Untersuchungen
+
+### JAZ-Sensoren immer 0
+
+**Betroffene Register**: 27–36 (Input, JAZ Komp und JAZ Total für 1min/1h/24h/365d)
+
+**Messung (2026-04-05, Firmware 73.73)**:
+- Reg 27 (JAZ Komp 1min): 0
+- Reg 28 (JAZ Komp 1h): 0
+- Reg 29 (JAZ Komp 24h): 0
+- Reg 30 (JAZ Komp 365d): 0
+- **Reg 31 (JAZ Komp Days): 7637** ← Zähler läuft!
+- Reg 32–35 (JAZ Total alle Perioden): 0
+- Reg 36 (JAZ Total Days): 0
+
+**Analyse**: Der Days-Zähler (Reg 31 = 7637) läuft, was bedeutet, dass die JAZ-Infrastruktur im Gerät aktiv ist. Die eigentliche JAZ-Berechnung gibt aber 0 zurück. Mögliche Ursachen:
+- Die FWT benötigt für die JAZ-Berechnung einen Wärmemengenzähler (nicht installiert)
+- Oder die Wärmeauskopplung wird über Kältemitteldaten berechnet und ist in dieser Firmware-Konfiguration deaktiviert
+- "Reset COP val" (Holding Reg 810 = 1) könnte die Werte zurückgesetzt haben
+
+**Konsequenz**: JAZ-Sensoren sind in der Integration standardmäßig deaktiviert (`entity_registry_enabled_default = False`).
+
+### ErrorStatus1 Bit-Mapping (Input Reg 48)
+
+| Bit | Wert | Bedeutung |
+|-----|-----:|-----------|
+| 0 | 1 | — (unbekannt) |
+| **1** | **2** | **Filtertausch fällig** |
+| 2 | 4 | — |
+| ... | ... | weitere Fehler |
+
+Gerät-eigener Wert am 2026-04-05: `error_status1 = 2` → Bit 1 gesetzt → Filtertausch fällig ✓
+
+---
+
+## Raumnamen-Register (Holding, FC3, Unlock erforderlich)
+
+Holding-Register 620–859 enthalten die NBE-Raumnamen als **Packed ASCII** (2 Zeichen pro uint16-Register, 10 Register à 20 Zeichen pro NBE-Name). Zum Lesen muss der Write-Unlock aktiv sein (Reg 438 = 55555).
+
+**Quellen**: `ModbusPanel.ini` Blöcke R12 und R13:
+- `R12=41;3;620;120` → NBE 0–11 Namen (Haupt-NBE + NBE 1–11)
+- `R13=41;3;740;90` → NBE 12–20 Namen
+
+| Addr | Register | Beschreibung |
+|-----:|----------|--------------|
+| 620 | NBE0nameCh1Ch2 | Haupt-NBE Name Zeichen 1–2 |
+| 621 | NBE0nameCh3Ch4 | Haupt-NBE Name Zeichen 3–4 |
+| ... | ... | je 10 Register pro NBE = 20 Zeichen |
+| 630 | NBE1nameCh1Ch2 | NBE 1 Name Zeichen 1–2 |
+| 640 | NBE2nameCh1Ch2 | NBE 2 Name |
+| ... | ... | |
+| 740 | NBE12nameCh1Ch2 | NBE 12 Name |
+
+**Dekodierung**: Jedes uint16 enthält 2 ASCII-Zeichen: `high_byte = raw >> 8`, `low_byte = raw & 0xFF`
 
 ---
 
