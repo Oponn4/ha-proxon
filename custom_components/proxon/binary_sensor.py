@@ -82,6 +82,14 @@ BINARY_SENSORS: tuple[ProxonBinarySensorDescription, ...] = (
         icon="mdi:solar-power",
         on_value=1,
     ),
+    ProxonBinarySensorDescription(
+        key="filter_wechsel_faellig",
+        data_key="filter_wechsel_faellig",
+        name="Filtertausch fällig",
+        device_class="problem",
+        icon="mdi:air-filter",
+        on_value=True,
+    ),
 )
 
 
@@ -112,6 +120,9 @@ class ProxonBinarySensor(ProxonEntity, BinarySensorEntity):
         val = self.coordinator.data.get(self.entity_description.data_key)
         if val is None:
             return None
+        # Boolean values (e.g. filter_wechsel_faellig computed in coordinator)
+        if isinstance(val, bool):
+            return val
         raw = int(val)
         # FehlerList is a bitmask – any non-zero means fault
         if self.entity_description.key == "t300_stoerung":

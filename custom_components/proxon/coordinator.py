@@ -222,14 +222,12 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 raw_val = raw.get((fc, reg.address))
                 data[key] = _decode(reg, raw_val) if raw_val is not None else None
 
-        # Derived: remaining filter days from Stunden Gerätefilter (469) + Standzeit Monate (460)
-        standzeit_monate = data.get("geraetefilter_standzeit_monate")
-        laufzeit_h = data.get("geraetefilter_stunden")
-        if standzeit_monate is not None and laufzeit_h is not None:
-            standzeit_h = standzeit_monate * 30 * 24
-            data["geraetefilter_remaining_days"] = round((standzeit_h - laufzeit_h) / 24, 1)
+        # Derived: filter change due from ErrorStatus1 (input 48) bit 1
+        error_status1 = raw.get((REG_INPUT, 48))
+        if error_status1 is not None:
+            data["filter_wechsel_faellig"] = bool(error_status1 & 0x0002)
         else:
-            data["geraetefilter_remaining_days"] = None
+            data["filter_wechsel_faellig"] = None
 
         # Connection is deliberately NOT kept open; it will be reopened next cycle.
         self._close_client()
