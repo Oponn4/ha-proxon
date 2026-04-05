@@ -180,12 +180,14 @@ SENSORS: tuple[ProxonSensorDescription, ...] = (
         device_class=SensorDeviceClass.POWER,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfPower.WATT,
+        entity_registry_enabled_default=False,
     ),
     ProxonSensorDescription(
         key="power_fu", data_key="power_fu", name="Leistung FU",
         device_class=SensorDeviceClass.POWER,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfPower.WATT,
+        entity_registry_enabled_default=False,
     ),
     ProxonSensorDescription(
         key="power_total", data_key="power_total", name="Leistung Gesamt",
@@ -194,26 +196,30 @@ SENSORS: tuple[ProxonSensorDescription, ...] = (
         native_unit_of_measurement=UnitOfPower.WATT,
     ),
 
-    # JAZ / COP
+    # JAZ / COP — always 0 in firmware 73.73 (no heat meter configured)
     ProxonSensorDescription(
         key="jaz_komp_1h", data_key="jaz_komp_1h", name="JAZ Kompressor (1h)",
         state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:gauge",
+        entity_registry_enabled_default=False,
     ),
     ProxonSensorDescription(
         key="jaz_komp_24h", data_key="jaz_komp_24h", name="JAZ Kompressor (24h)",
         state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:gauge",
+        entity_registry_enabled_default=False,
     ),
     ProxonSensorDescription(
         key="jaz_total_1h", data_key="jaz_total_1h", name="JAZ Gesamt (1h)",
         state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:gauge",
+        entity_registry_enabled_default=False,
     ),
     ProxonSensorDescription(
         key="jaz_total_24h", data_key="jaz_total_24h", name="JAZ Gesamt (24h)",
         state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:gauge",
+        entity_registry_enabled_default=False,
     ),
 
     # Air quality
@@ -230,24 +236,27 @@ SENSORS: tuple[ProxonSensorDescription, ...] = (
         native_unit_of_measurement=PERCENTAGE,
     ),
 
-    # Thresholds (from holding registers, read-only display)
+    # Thresholds (holding register config values, not live measurements)
     ProxonSensorDescription(
         key="wp_einschaltschwelle", data_key="wp_einschaltschwelle", name="WP Einschaltschwelle",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        entity_registry_enabled_default=False,
     ),
     ProxonSensorDescription(
         key="wp_ausschaltschwelle", data_key="wp_ausschaltschwelle", name="WP Ausschaltschwelle",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        entity_registry_enabled_default=False,
     ),
     ProxonSensorDescription(
         key="wp_kuehlschwelle", data_key="wp_kuehlschwelle", name="WP Kühlschwelle",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        entity_registry_enabled_default=False,
     ),
 
     # ── T300 Warmwasser-Wärmepumpe ──────────────────────────────────────
@@ -256,12 +265,14 @@ SENSORS: tuple[ProxonSensorDescription, ...] = (
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        entity_registry_enabled_default=False,
     ),
     ProxonSensorDescription(
         key="t300_t6_verdampfer", data_key="t300_t6_verdampfer", name="T300 T6 Verdampfer",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        entity_registry_enabled_default=False,
     ),
     ProxonSensorDescription(
         key="t300_t20_behaelter_unten", data_key="t300_t20_behaelter_unten", name="T300 T20 Behälter Unten",
@@ -280,18 +291,21 @@ SENSORS: tuple[ProxonSensorDescription, ...] = (
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        entity_registry_enabled_default=False,
     ),
     ProxonSensorDescription(
         key="t300_t11_sauggas", data_key="t300_t11_sauggas", name="T300 T11 Sauggas",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        entity_registry_enabled_default=False,
     ),
     ProxonSensorDescription(
         key="t300_t9_extern", data_key="t300_t9_extern", name="T300 T9 Extern",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        entity_registry_enabled_default=False,
     ),
     ProxonSensorDescription(
         key="t300_behaelter_avg", data_key="t300_behaelter_avg", name="T300 Behälter Ø",
@@ -316,19 +330,22 @@ SENSORS: tuple[ProxonSensorDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=REVOLUTIONS_PER_MINUTE,
         icon="mdi:fan",
+        entity_registry_enabled_default=False,
     ),
-    # T300 Solltemperatur (from holding register, for display)
+    # T300 Solltemperatur (from holding register, duplicates the number entity)
     ProxonSensorDescription(
         key="t300_solltemperatur", data_key="t300_solltemperatur", name="T300 Solltemperatur",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        entity_registry_enabled_default=False,
     ),
     ProxonSensorDescription(
         key="t300_temp_eheiz", data_key="t300_temp_eheiz", name="T300 Temperatur E-Heiz",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        entity_registry_enabled_default=False,
     ),
 
     # Filter + Betriebsstunden
