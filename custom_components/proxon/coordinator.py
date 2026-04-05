@@ -229,6 +229,16 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         else:
             data["filter_wechsel_faellig"] = None
 
+        # Derived: remaining filter days from Stunden Gerätefilter (469) + Standzeit Monate (460).
+        # Accurate after reg 469 is reset to 0 on filter change (button.geraetefilter_reset).
+        standzeit_monate = data.get("geraetefilter_standzeit_monate")
+        laufzeit_h = data.get("geraetefilter_stunden")
+        if standzeit_monate is not None and laufzeit_h is not None:
+            remaining = ((standzeit_monate * 30 * 24) - laufzeit_h) / 24
+            data["geraetefilter_remaining_days"] = round(max(0.0, remaining), 1)
+        else:
+            data["geraetefilter_remaining_days"] = None
+
         # Connection is deliberately NOT kept open; it will be reopened next cycle.
         self._close_client()
 
