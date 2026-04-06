@@ -37,6 +37,7 @@ _READ_BLOCKS: list[tuple[int, int, str]] = [
     (41,  103, "holding"),   # FWT holding:  41–143
     (187,   1, "holding"),   # FWT holding: 187     (hbde_ptc_freigabe)
     (213,   5, "holding"),   # FWT holding: 213–217 (NBE offsets)
+    (233,   5, "holding"),   # FWT holding: 233–237 (Mitteltemperaturen NBE)
     (460,   1, "holding"),   # FWT holding: 460     (geraetefilter standzeit, requires unlock)
     (467,   3, "holding"),   # FWT holding: 467–469 (stundenzähler FWT/umluft/geraetefilter)
     (613,   7, "holding"),   # FWT holding: 613–619 (zeitprogramm_luft, nacht_temperatur, nachtabsenkung)
