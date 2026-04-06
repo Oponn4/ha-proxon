@@ -10,6 +10,8 @@ from homeassistant.components.climate import (
     HVACAction,
     HVACMode,
 )
+# Note: only HVACMode.HEAT is exposed — system Betriebsart is controlled
+# via the dedicated Select entity, not through the climate cards.
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
@@ -18,22 +20,6 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import CONF_ROOM_NAMES, DOMAIN
 from .coordinator import ProxonCoordinator
 from .entity import DEVICE_FWT, ProxonEntity
-
-# Mapping: sollbetriebsart value → HVACMode
-_BA_TO_HVAC: dict[int, HVACMode] = {
-    0: HVACMode.OFF,
-    1: HVACMode.COOL,   # Sommerbetrieb
-    2: HVACMode.HEAT,   # Winterbetrieb
-    3: HVACMode.HEAT,   # Komfortbetrieb
-    4: HVACMode.HEAT,   # Ofenmodus
-    9: HVACMode.HEAT,   # Test
-}
-# For set_hvac_mode: write Komfortbetrieb (3) for HEAT, Sommerbetrieb (1) for COOL
-_HVAC_TO_BA: dict[HVACMode, int] = {
-    HVACMode.OFF: 0,
-    HVACMode.HEAT: 3,
-    HVACMode.COOL: 1,
-}
 
 # NBE offset register is int16; pymodbus write_register expects uint16.
 def _offset_to_raw(offset: int) -> int:
@@ -110,7 +96,9 @@ class ProxonRoomClimate(ProxonEntity, ClimateEntity):
     the user from requesting an offset outside the device's ±3°C capability.
     """
 
-    _attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT, HVACMode.COOL]
+    # Only one mode: the system Betriebsart is controlled via the Select entity,
+    # not here. With a single mode HA hides the mode selector in the UI.
+    _attr_hvac_modes = [HVACMode.HEAT]
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_supported_features = ClimateEntityFeature.TARGET_TEMPERATURE
     _attr_target_temperature_step = 1.0
@@ -156,22 +144,20 @@ class ProxonRoomClimate(ProxonEntity, ClimateEntity):
     # ── HVAC mode / action ────────────────────────────────────────────────
 
     @property
-    def hvac_mode(self) -> HVACMode | None:
-        ba = self.coordinator.data.get("sollbetriebsart")
-        if ba is None:
-            return None
-        return _BA_TO_HVAC.get(int(ba), HVACMode.HEAT)
+    def hvac_mode(self) -> HVACMode:
+        return HVACMode.HEAT
 
     @property
     def hvac_action(self) -> HVACAction | None:
-        mode = self.hvac_mode
-        if mode == HVACMode.OFF:
+        ba = self.coordinator.data.get("sollbetriebsart")
+        if ba is not None and int(ba) == 0:
             return HVACAction.OFF
         running = self.coordinator.data.get("kompressor_status")
         if running is None:
             return None
         if int(running) == 1:
-            return HVACAction.COOLING if mode == HVACMode.COOL else HVACAction.HEATING
+            ba_val = int(ba) if ba is not None else 3
+            return HVACAction.COOLING if ba_val == 1 else HVACAction.HEATING
         return HVACAction.IDLE
 
     # ── write actions ─────────────────────────────────────────────────────
@@ -187,9 +173,3 @@ class ProxonRoomClimate(ProxonEntity, ClimateEntity):
         await self.coordinator.write_register(self._room.offset_addr, _offset_to_raw(offset))
         await self.coordinator.async_request_refresh()
 
-    async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
-        ba = _HVAC_TO_BA.get(hvac_mode)
-        if ba is None:
-            return
-        await self.coordinator.write_register(16, ba)
-        await self.coordinator.async_request_refresh()
