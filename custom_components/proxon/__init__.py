@@ -18,6 +18,7 @@ from .coordinator import ProxonCoordinator
 CONF_SLAVE = "slave"
 
 PLATFORMS = [
+    Platform.CLIMATE,
     Platform.SENSOR,
     Platform.SELECT,
     Platform.FAN,
