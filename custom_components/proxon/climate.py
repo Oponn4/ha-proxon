@@ -10,8 +10,6 @@ from homeassistant.components.climate import (
     HVACAction,
     HVACMode,
 )
-# Note: only HVACMode.HEAT is exposed — system Betriebsart is controlled
-# via the dedicated Select entity, not through the climate cards.
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
@@ -90,15 +88,16 @@ class ProxonRoomClimate(ProxonEntity, ClimateEntity):
     Current temperature  = NBE sensor (input register).
     Target temperature   = Mitteltemperatur + NBE-Offset (both holding registers).
     Setting target temp  → writes new offset = round(target − Mittel), clamped to ±3°C.
-    HVAC mode            = system-wide Sollbetriebsart (reg 16); applies to all rooms.
 
-    Dynamic limits: min_temp = Mittel − 3, max_temp = Mittel + 3, so HA prevents
-    the user from requesting an offset outside the device's ±3°C capability.
+    HVAC modes (system-wide, affect all rooms simultaneously via shared coordinator):
+      OFF  → Betriebsart 0 (Aus)
+      HEAT → Betriebsart 3 (Komfortbetrieb) + Kühlung Freigabe = 0
+      COOL → Betriebsart 3 (Komfortbetrieb) + Kühlung Freigabe = 1 (active cooling)
+
+    Dynamic limits: min_temp = Mittel − 3, max_temp = Mittel + 3.
     """
 
-    # Only one mode: the system Betriebsart is controlled via the Select entity,
-    # not here. With a single mode HA hides the mode selector in the UI.
-    _attr_hvac_modes = [HVACMode.HEAT]
+    _attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT, HVACMode.COOL]
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_supported_features = ClimateEntityFeature.TARGET_TEMPERATURE
     _attr_target_temperature_step = 1.0
@@ -144,20 +143,27 @@ class ProxonRoomClimate(ProxonEntity, ClimateEntity):
     # ── HVAC mode / action ────────────────────────────────────────────────
 
     @property
-    def hvac_mode(self) -> HVACMode:
+    def hvac_mode(self) -> HVACMode | None:
+        ba = self.coordinator.data.get("sollbetriebsart")
+        if ba is None:
+            return None
+        if int(ba) == 0:
+            return HVACMode.OFF
+        kuehl = self.coordinator.data.get("kuehlung_freigabe")
+        if kuehl is not None and int(kuehl) == 1:
+            return HVACMode.COOL
         return HVACMode.HEAT
 
     @property
     def hvac_action(self) -> HVACAction | None:
-        ba = self.coordinator.data.get("sollbetriebsart")
-        if ba is not None and int(ba) == 0:
+        mode = self.hvac_mode
+        if mode == HVACMode.OFF:
             return HVACAction.OFF
         running = self.coordinator.data.get("kompressor_status")
         if running is None:
             return None
         if int(running) == 1:
-            ba_val = int(ba) if ba is not None else 3
-            return HVACAction.COOLING if ba_val == 1 else HVACAction.HEATING
+            return HVACAction.COOLING if mode == HVACMode.COOL else HVACAction.HEATING
         return HVACAction.IDLE
 
     # ── write actions ─────────────────────────────────────────────────────
@@ -173,3 +179,13 @@ class ProxonRoomClimate(ProxonEntity, ClimateEntity):
         await self.coordinator.write_register(self._room.offset_addr, _offset_to_raw(offset))
         await self.coordinator.async_request_refresh()
 
+    async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
+        if hvac_mode == HVACMode.OFF:
+            await self.coordinator.write_register(16, 0)
+        elif hvac_mode == HVACMode.HEAT:
+            await self.coordinator.write_register(16, 3)   # Komfortbetrieb
+            await self.coordinator.write_register(62, 0)   # Kühlung Freigabe aus
+        elif hvac_mode == HVACMode.COOL:
+            await self.coordinator.write_register(16, 3)   # Komfortbetrieb
+            await self.coordinator.write_register(62, 1)   # Kühlung Freigabe ein
+        await self.coordinator.async_request_refresh()
