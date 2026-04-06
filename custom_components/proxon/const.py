@@ -10,6 +10,7 @@ DEFAULT_SLAVE = 41
 DEFAULT_SCAN_INTERVAL = 30
 
 CONF_FILTER_NOTIFICATION = "filter_notification"
+CONF_ROOM_NAMES = "room_names"
 FILTER_NOTIFICATION_ID = "proxon_filter_wechsel"
 
 # Modbus register types

@@ -22,7 +22,7 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN
+from .const import CONF_ROOM_NAMES, DOMAIN
 from .coordinator import ProxonCoordinator
 from .entity import DEVICE_FWT, DEVICE_T300, ProxonEntity
 
@@ -110,32 +110,6 @@ SENSORS: tuple[ProxonSensorDescription, ...] = (
     ),
     ProxonSensorDescription(
         key="temp_hnbe", data_key="temp_hnbe", name="Temperatur HNBE",
-        device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-    ),
-
-    # NBE room temperatures
-    ProxonSensorDescription(
-        key="temp_klavierzimmer", data_key="temp_klavierzimmer", name="Raumtemperatur Klavierzimmer",
-        device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-    ),
-    ProxonSensorDescription(
-        key="temp_flur", data_key="temp_flur", name="Raumtemperatur Flur",
-        device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-    ),
-    ProxonSensorDescription(
-        key="temp_schlafzimmer", data_key="temp_schlafzimmer", name="Raumtemperatur Schlafen",
-        device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-    ),
-    ProxonSensorDescription(
-        key="temp_office", data_key="temp_office", name="Raumtemperatur Office",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
@@ -405,13 +379,41 @@ SENSORS: tuple[ProxonSensorDescription, ...] = (
 )
 
 
+# NBE room temperature sensors: (data_key, nbe_index, fallback_name)
+# nbe_index matches the key used in CONF_ROOM_NAMES stored during config flow
+_NBE_SENSOR_DEFS: tuple[tuple[str, str, str], ...] = (
+    ("temp_klavierzimmer", "0", "Klavierzimmer"),
+    ("temp_flur",          "1", "Flur"),
+    ("temp_schlafzimmer",  "2", "Schlafzimmer"),
+    ("temp_office",        "4", "Office"),
+)
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     coordinator: ProxonCoordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities(ProxonSensor(coordinator, desc) for desc in SENSORS)
+    room_names: dict[str, str] = entry.data.get(CONF_ROOM_NAMES, {})
+
+    nbe_sensors = [
+        ProxonSensor(
+            coordinator,
+            ProxonSensorDescription(
+                key=data_key,
+                data_key=data_key,
+                name=f"Raumtemperatur {room_names.get(nbe_idx, fallback)}",
+                device_class=SensorDeviceClass.TEMPERATURE,
+                state_class=SensorStateClass.MEASUREMENT,
+                native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+            ),
+        )
+        for data_key, nbe_idx, fallback in _NBE_SENSOR_DEFS
+    ]
+    async_add_entities(
+        [ProxonSensor(coordinator, desc) for desc in SENSORS] + nbe_sensors
+    )
 
 
 class ProxonSensor(ProxonEntity, SensorEntity):
