@@ -158,10 +158,22 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 return {}
             if len(result.registers) != count:
                 _LOGGER.warning(
-                    "Block read short: fc=%s start=%d expected=%d got=%d",
+                    "Block read short: fc=%s start=%d expected=%d got=%d – retrying",
                     fc, start, count, len(result.registers),
                 )
-                # Accept partial response rather than discarding everything
+                # Short reads are typically stale RS485 frames from other bus devices.
+                # Wait briefly to flush stale data, then retry once.
+                await asyncio.sleep(0.3)
+                if fc == REG_INPUT:
+                    result = await client.read_input_registers(start, count=count, device_id=self.slave)
+                else:
+                    result = await client.read_holding_registers(start, count=count, device_id=self.slave)
+                if result.isError() or len(result.registers) != count:
+                    _LOGGER.warning(
+                        "Block read short after retry: fc=%s start=%d expected=%d got=%d",
+                        fc, start, count, 0 if result.isError() else len(result.registers),
+                    )
+                    return {start + i: result.registers[i] for i in range(len(result.registers))} if not result.isError() else {}
             return {start + i: result.registers[i] for i in range(len(result.registers))}
         except Exception as exc:
             _LOGGER.warning(

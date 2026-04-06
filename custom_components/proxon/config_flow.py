@@ -28,6 +28,7 @@ STEP_SCHEMA = vol.Schema(
         vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): vol.All(
             int, vol.Range(min=10, max=300)
         ),
+        vol.Optional(CONF_FILTER_NOTIFICATION, default=True): bool,
     }
 )
 
@@ -83,6 +84,7 @@ class ProxonConfigFlow(ConfigFlow, domain=DOMAIN):
                     return self.async_create_entry(
                         title=f"Proxon FWT ({host})",
                         data={**user_input, CONF_SLAVE: slave},
+                        options={CONF_FILTER_NOTIFICATION: user_input.get(CONF_FILTER_NOTIFICATION, True)},
                     )
             except (ModbusException, OSError):
                 errors["base"] = "cannot_connect"

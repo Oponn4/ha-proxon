@@ -56,10 +56,10 @@ def _setup_filter_notification(
 
     @callback
     def _on_coordinator_update() -> None:
-        filter_due: bool = coordinator.data.get("filter_wechsel_faellig", False) is True
+        filter_status = coordinator.data.get("filter_wechsel_faellig")
         notify_enabled: bool = entry.options.get(CONF_FILTER_NOTIFICATION, True)
 
-        if filter_due and notify_enabled:
+        if filter_status is True and notify_enabled:
             async_create(
                 hass,
                 message=(
@@ -72,7 +72,9 @@ def _setup_filter_notification(
                 title="Proxon FWT – Filterwechsel fällig",
                 notification_id=notification_id,
             )
-        else:
+        elif filter_status is False or not notify_enabled:
+            # Only dismiss when filter is confirmed OK, or user disabled notifications.
+            # When filter_status is None (short read / unknown), leave current state.
             async_dismiss(hass, notification_id)
 
     entry.async_on_unload(coordinator.async_add_listener(_on_coordinator_update))

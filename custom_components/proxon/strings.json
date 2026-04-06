@@ -18,7 +18,8 @@
           "host": "IP-Adresse oder Hostname",
           "port": "Modbus TCP Port",
           "slave": "Modbus Slave ID",
-          "scan_interval": "Abfrageintervall (Sekunden)"
+          "scan_interval": "Abfrageintervall (Sekunden)",
+          "filter_notification": "Filterwechsel-Benachrichtigung aktivieren"
         }
       }
     },
