@@ -1,99 +1,99 @@
 # Proxon FWT – Home Assistant Integration
 
-Custom component for the **Proxon FWT 2.0** heat pump / ventilation unit and the **T300** domestic hot-water heat pump.
+Custom Component für die **Proxon FWT 2.0** Wärmepumpe / Lüftungsanlage und die **T300** Warmwasser-Wärmepumpe.
 
-Connects locally via Modbus RTU-over-TCP using a USR RS485-to-LAN adapter (no cloud, no Nabto).
+Verbindung erfolgt lokal über Modbus RTU-over-TCP via USR RS485-to-LAN Adapter – keine Cloud, kein Nabto.
 
 ---
 
-## Supported Hardware
+## Unterstützte Geräte
 
-| Device | Role |
+| Gerät | Funktion |
 |---|---|
-| **Proxon FWT 2.0** | Main unit – heating, cooling, ventilation |
-| **Proxon T300** | Domestic hot-water heat pump (separate Modbus slave on the same bus) |
-| **NBE / HNBE room panels** | Up to 7 room temperature sensors + individual offsets |
+| **Proxon FWT 2.0** | Hauptgerät – Heizen, Kühlen, Lüften |
+| **Proxon T300** | Warmwasser-Wärmepumpe (separater Modbus-Slave am gleichen Bus) |
+| **NBE / HNBE Raumbediengeräte** | Bis zu 7 Raumtemperatursensoren mit individuellen Offsets |
 
 ---
 
-## Features
+## Funktionen
 
-### Climate
-- **Zone 1 (main zone)**: Full thermostat control – set target temperature 10–30 °C. HVAC action reflects actual compressor/heating state.
-- **Room panels (NBE)**: Individual ±3 °C temperature offset per room panel, shown as climate entities. Rooms are discovered automatically from the device at setup time.
+### Klimasteuerung
+- **Zone 1 (Hauptzone)**: Voller Thermostat – Solltemperatur 10–30 °C einstellbar. HVAC-Aktion spiegelt den tatsächlichen Kompressor- und Heizbetrieb wider.
+- **Raumbediengeräte (NBE)**: Individueller Temperatur-Offset ±3 °C pro Raum als Climate-Entity. Räume werden beim Einrichten automatisch vom Gerät erkannt.
 
-### Sensors
-- **FWT**: Supply/return/outdoor/evaporator temperatures (T1–T13), compressor speed & power, fan speeds, air volume flow, CO₂, humidity, power consumption, JAZ/COP values, filter runtime hours
-- **T300**: Tank temperatures (top/middle/bottom), compressor data, power consumption, COP
-- **Room panels**: Current room temperature per NBE device
+### Sensoren
+- **FWT**: Vor-/Rücklauf-/Außen-/Verdampfertemperaturen (T1–T13), Kompressordrehzahl & -leistung, Lüfterdrehzahlen, Luftvolumenstrom, CO₂, Luftfeuchtigkeit, Stromverbrauch, JAZ/COP, Filterlaufzeit
+- **T300**: Speichertemperaturen (oben/mitte/unten), Kompressordaten, Stromverbrauch, COP
+- **Raumbediengeräte**: Aktuelle Raumtemperatur je NBE-Gerät
 
-### Controls
+### Steuerung
 
 | Platform | Entities |
 |---|---|
-| **Select** | FWT operating mode (Off / Eco Summer / Eco Winter / Comfort) · T300 operating mode |
-| **Fan** | Ventilation level (4 speeds: 25 / 50 / 75 / 100 %) |
-| **Switch** | Cooling enable · T300 electric heater · T300 legionella protection · T300 PV mode · PTC release per room (disabled by default) · Ventilation schedule · Night setback (disabled by default) |
-| **Number** | NBE temperature offsets per room (disabled by default) · Zone 2 setpoint (disabled by default) · Intensive ventilation timer · Night temperature · T300 target temperature · T300 electric heater temperature |
-| **Binary Sensor** | Fault active · Compressor active · Bypass open · Filter change due · T300 relay states |
-| **Button** | Reset filter runtime counter |
-| **Text** | Room name per panel – writes directly to device memory (disabled by default) |
+| **Select** | FWT Betriebsart (Aus / Eco Sommer / Eco Winter / Komfort) · T300 Betriebsart |
+| **Fan** | Lüftungsstufe (4 Stufen: 25 / 50 / 75 / 100 %) |
+| **Switch** | Kühlung freigeben · T300 Elektroheizung · T300 Legionellenschutz · T300 PV-Modus · PTC-Freigabe je Raum (deaktiviert) · Zeitprogramm Lüftung · Nachtabsenkung (deaktiviert) |
+| **Number** | NBE Temperatur-Offsets je Raum (deaktiviert) · Zone-2-Solltemperatur (deaktiviert) · Intensivlüftung Timer · Nachttemperatur · T300 Solltemperatur · T300 Elektroheizungstemperatur |
+| **Binary Sensor** | Störung aktiv · Kompressor aktiv · Bypass offen · Filterwechsel fällig · T300 Relais-Zustände |
+| **Button** | Filterlaufzeit zurücksetzen |
+| **Text** | Raumname je Bediengerät – schreibt direkt in den Gerätespeicher (deaktiviert) |
 
 ---
 
 ## Installation
 
-### Via HACS (recommended)
+### Über HACS (empfohlen)
 
-1. Open HACS → **Integrations** → ⋮ menu → **Custom repositories**
-2. Add `https://github.com/Oponn4/proxon_homeassistant` as an **Integration**
-3. Search for **Proxon FWT** and install
-4. Restart Home Assistant
+1. HACS öffnen → **Integrationen** → ⋮ Menü → **Benutzerdefinierte Repositories**
+2. `https://github.com/Oponn4/proxon_homeassistant` als **Integration** hinzufügen
+3. Nach **Proxon FWT** suchen und installieren
+4. Home Assistant neu starten
 
-### Manual
+### Manuell
 
-Copy `custom_components/proxon/` into your Home Assistant `config/custom_components/` directory and restart HA.
+`custom_components/proxon/` in das Verzeichnis `config/custom_components/` von Home Assistant kopieren und HA neu starten.
 
 ---
 
-## Setup
+## Einrichtung
 
-1. Go to **Settings → Devices & Services → Add Integration**
-2. Search for **Proxon FWT**
-3. Enter:
-   - **Host**: IP address of your RS485-to-LAN adapter
-   - **Port**: Modbus TCP port (default: `502`)
-   - **Slave ID**: Modbus slave address (default: `41`)
-4. After setup, room panels are discovered automatically. To re-run discovery (e.g. after adding a room panel), use **Reconfigure** in the integration card.
+1. **Einstellungen → Geräte & Dienste → Integration hinzufügen**
+2. Nach **Proxon FWT** suchen
+3. Eingaben:
+   - **Host**: IP-Adresse des RS485-to-LAN Adapters
+   - **Port**: Modbus TCP Port (Standard: `502`)
+   - **Slave ID**: Modbus Slave-Adresse (Standard: `41`)
+4. Raumbediengeräte werden nach der Verbindung automatisch erkannt. Um die Erkennung erneut durchzuführen (z. B. nach dem Hinzufügen eines Raums), **Neu konfigurieren** in der Integrationskarte verwenden.
 
-### Options
+### Optionen
 
-After setup, click **Configure** to adjust:
-- **Scan interval** (default: 30 s) – how often registers are polled
-- **Filter notification** – days before filter change to show a persistent notification
+Nach der Einrichtung über **Konfigurieren** anpassbar:
+- **Abfrageintervall** (Standard: 30 s) – wie oft die Register abgefragt werden
+- **Filterwechsel-Benachrichtigung** – Tage vor fälligem Filterwechsel für eine Persistent Notification
 
 ---
 
 ## Modbus Details
 
-| Parameter | Value |
+| Parameter | Wert |
 |---|---|
-| Protocol | Modbus RTU-over-TCP |
-| Default slave ID | 41 |
-| RS485 baud rate | 19200 (factory default) |
-| Register types | Input (3x, read-only) · Holding (4x, read/write) |
+| Protokoll | Modbus RTU-over-TCP |
+| Standard Slave ID | 41 |
+| RS485 Baudrate | 19200 (Werkseinstellung) |
+| Registertypen | Input (3x, read-only) · Holding (4x, lesen/schreiben) |
 
-The integration always opens a fresh TCP connection per poll cycle and closes it afterwards. This keeps the framer state clean and avoids stale-frame accumulation from internal RS485 bus traffic forwarded by the adapter.
+Die Integration öffnet pro Abfragezyklus eine neue TCP-Verbindung und schließt sie danach wieder. Das hält den Framer-Zustand sauber und verhindert die Ansammlung von veralteten Frames aus dem internen RS485-Bus-Verkehr des Adapters.
 
-### Write Access
+### Schreibzugriff
 
-The Proxon unit requires an unlock code before holding registers can be written. This integration writes `55555` to register `438` once per HA session to enable write access – avoiding repeated flash writes on the device.
+Die Proxon-Einheit erfordert einen Freischaltcode bevor Holding-Register geschrieben werden können. Die Integration schreibt einmalig pro HA-Session den Wert `55555` in Register `438` – um wiederholte Flash-Schreibvorgänge am Gerät zu vermeiden.
 
 ---
 
-## Notes
+## Hinweise
 
-- **Nabto / cloud**: Not supported. This integration uses local Modbus only.
-- **Operating mode "Test"** (mode 9): Not exposed – intended for service technicians only.
-- **Zone 2**: Exposed as a `number` entity (disabled by default) – only relevant for systems without NBE room panels.
-- **Room names**: Writing room names via the `text` entities modifies device memory directly (FC6 preset write, Latin-1 encoded). Use with care.
+- **Nabto / Cloud**: Nicht unterstützt. Diese Integration verwendet ausschließlich lokales Modbus.
+- **Betriebsart „Test"** (Modus 9): Nicht verfügbar – ausschließlich für Servicetechniker vorgesehen.
+- **Zone 2**: Als `number`-Entity verfügbar (deaktiviert) – nur relevant für Anlagen ohne NBE-Raumbediengeräte.
+- **Raumnamen**: Das Schreiben über die `text`-Entities ändert den Gerätespeicher direkt (FC6 Preset Write, Latin-1 kodiert). Mit Bedacht verwenden.
