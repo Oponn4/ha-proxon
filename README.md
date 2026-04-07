@@ -2,7 +2,7 @@
 
 Custom Component für die **Proxon FWT 2.0** Wärmepumpe / Lüftungsanlage und die **T300** Warmwasser-Wärmepumpe.
 
-Verbindung erfolgt lokal über Modbus RTU-over-TCP via USR RS485-to-LAN Adapter – keine Cloud, kein Nabto.
+Verbindung erfolgt lokal über Modbus RTU-over-TCP via USR RS485-to-LAN Adapter.
 
 ---
 
@@ -93,7 +93,6 @@ Die Proxon-Einheit erfordert einen Freischaltcode bevor Holding-Register geschri
 
 ## Hinweise
 
-- **Nabto / Cloud**: Nicht unterstützt. Diese Integration verwendet ausschließlich lokales Modbus.
 - **Betriebsart „Test"** (Modus 9): Nicht verfügbar – ausschließlich für Servicetechniker vorgesehen.
 - **Zone 2**: Als `number`-Entity verfügbar (deaktiviert) – nur relevant für Anlagen ohne NBE-Raumbediengeräte.
 - **Raumnamen**: Das Schreiben über die `text`-Entities ändert den Gerätespeicher direkt (FC6 Preset Write, Latin-1 kodiert). Mit Bedacht verwenden.
