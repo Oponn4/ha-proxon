@@ -7,7 +7,7 @@ from datetime import timedelta
 from typing import Any
 
 from pymodbus.client import AsyncModbusTcpClient
-from pymodbus.exceptions import ModbusException
+from pymodbus.exceptions import ModbusException, ModbusIOException
 from pymodbus.framer import FramerType
 
 from homeassistant.core import HomeAssistant
@@ -25,19 +25,68 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
+# Suppress spurious pymodbus noise caused by the USR RS485-LAN adapter forwarding
+# all internal RS485 bus traffic to our TCP connection.  These frames arrive without
+# a matching pending request and pymodbus logs them at ERROR/WARNING level even
+# though they are harmless – our stale-frame mitigations already handle them.
+class _SuppressModbusNoise(logging.Filter):
+    _NOISE = (
+        "received pdu without a corresponding",
+        "receive_data_chunk",
+        # Repeated-warning suppression message from pymodbus
+        "Repeating....",
+        # Wrong slave-ID responses from other devices on the RS485 bus
+        "request ask for id=",
+        "request ask for transaction_id=",
+        # RTU frame decode failure (bus noise byte e.g. 0x80 = exception flag)
+        "Unable to decode frame",
+    )
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        msg = record.getMessage()
+        if any(noise in msg for noise in self._NOISE):
+            record.levelno = logging.DEBUG
+            record.levelname = "DEBUG"
+        return True
+
+
+# Apply to both pymodbus and its child loggers (filters don't propagate downward).
+for _modbus_logger in ("pymodbus", "pymodbus.logging", "pymodbus.client"):
+    logging.getLogger(_modbus_logger).addFilter(_SuppressModbusNoise())
+
+# Pymodbus 3.x raises ModbusIOException inside datagram_received() when it cannot
+# decode an RTU frame (e.g. a raw 0x80 exception byte from another bus device).
+# That exception propagates to asyncio which logs it as a fatal "protocol.data_received()
+# call failed" error – even though it is harmless RS485 bus noise.
+# Patching datagram_received to absorb these exceptions prevents the false alarm.
+from pymodbus.transport import transport as _pymodbus_transport  # noqa: E402
+
+_orig_datagram_received = _pymodbus_transport.ModbusProtocol.datagram_received
+
+
+def _safe_datagram_received(self, data: bytes, addr: tuple | None) -> None:  # type: ignore[override]
+    try:
+        _orig_datagram_received(self, data, addr)
+    except ModbusIOException as exc:
+        _LOGGER.debug("RTU frame decode error (RS485 bus noise, ignored): %s", exc)
+
+
+_pymodbus_transport.ModbusProtocol.datagram_received = _safe_datagram_received
+
 # Bulk read blocks: (start_address, count, fc)
 # Only ranges the Proxon device+adapter actually responds to.
 # Large blocks with register gaps cause Modbus errors on this USR RS485-LAN adapter.
 _READ_BLOCKS: list[tuple[int, int, str]] = [
     (0,    52, REG_INPUT),   # FWT input:    0–51
     (154, 112, REG_INPUT),   # FWT input:  154–265
-    (590,  13, REG_INPUT),   # NBE input:  590–602
+    (590,  21, REG_INPUT),   # NBE input:  590–610  (7 physical devices × 3 regs)
     (811,  90, REG_INPUT),   # T300 input: 811–900
     (16,    7, "holding"),   # FWT holding:  16–22  (sollbetriebsart, luefterstufe)
     (41,  103, "holding"),   # FWT holding:  41–143
     (187,   1, "holding"),   # FWT holding: 187     (hbde_ptc_freigabe)
-    (213,   5, "holding"),   # FWT holding: 213–217 (NBE offsets)
-    (233,   5, "holding"),   # FWT holding: 233–237 (Mitteltemperaturen NBE)
+    (213,   7, "holding"),   # FWT holding: 213–219 (NBE offsets,        7 physical devices)
+    (233,   7, "holding"),   # FWT holding: 233–239 (Mitteltemperaturen, 7 physical devices)
+    (253,   7, "holding"),   # FWT holding: 253–259 (PTC Freigabe,       7 physical devices)
     (460,   1, "holding"),   # FWT holding: 460     (geraetefilter standzeit, requires unlock)
     (467,   3, "holding"),   # FWT holding: 467–469 (stundenzähler FWT/umluft/geraetefilter)
     (613,   7, "holding"),   # FWT holding: 613–619 (zeitprogramm_luft, nacht_temperatur, nachtabsenkung)
@@ -158,7 +207,7 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 )
                 return {}
             if len(result.registers) != count:
-                _LOGGER.warning(
+                _LOGGER.debug(
                     "Block read short: fc=%s start=%d expected=%d got=%d – retrying",
                     fc, start, count, len(result.registers),
                 )
@@ -253,6 +302,35 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         else:
             data["geraetefilter_remaining_days"] = None
 
+        # Dynamic NBE room data for all 7 possible physical devices (0–6).
+        # Keys: nbe_temp_N, nbe_offset_N, nbe_mittel_N
+        # Populated regardless of which rooms are actually configured so that
+        # climate/sensor/number platforms can simply look up by physical_idx.
+        for n in range(7):
+            raw_temp = raw.get((REG_INPUT, 590 + n * 3))
+            raw_offset = raw.get(("holding", 213 + n))
+            raw_mittel = raw.get(("holding", 233 + n))
+
+            if raw_temp is not None and 100 <= raw_temp <= 400:
+                data[f"nbe_temp_{n}"] = round(raw_temp / 10, 1)
+            else:
+                data[f"nbe_temp_{n}"] = None
+
+            if raw_offset is not None:
+                v = _to_signed16(raw_offset)
+                data[f"nbe_offset_{n}"] = v if -10 <= v <= 10 else None
+            else:
+                data[f"nbe_offset_{n}"] = None
+
+            if raw_mittel is not None:
+                v = _to_signed16(raw_mittel)
+                data[f"nbe_mittel_{n}"] = v if 10 <= v <= 35 else None
+            else:
+                data[f"nbe_mittel_{n}"] = None
+
+            raw_ptc = raw.get(("holding", 253 + n))
+            data[f"nbe_ptc_{n}"] = int(raw_ptc) if raw_ptc is not None else None
+
         # Connection is deliberately NOT kept open; it will be reopened next cycle.
         self._close_client()
 
@@ -265,6 +343,14 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         try:
             if self._client is None:
                 self._client = await self._open_client()
+            # Unlock write access if not yet done (e.g. first write before first poll).
+            if not self._write_access_unlocked:
+                try:
+                    unlock = await self._client.write_register(438, 55555, device_id=self.slave)
+                    if not unlock.isError():
+                        self._write_access_unlocked = True
+                except Exception:
+                    pass  # Best-effort; the actual write below will fail if device rejects it
             result = await self._client.write_register(
                 address, value, device_id=self.slave
             )
