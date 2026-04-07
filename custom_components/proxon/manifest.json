@@ -2,7 +2,6 @@
   "domain": "proxon",
   "name": "Proxon FWT",
   "version": "0.2.0",
-  "icon": "mdi:heat-pump",
   "config_flow": true,
   "documentation": "https://github.com/Oponn4/ha-proxon",
   "issue_tracker": "https://github.com/Oponn4/ha-proxon/issues",
