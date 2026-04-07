@@ -96,3 +96,4 @@ Die Proxon-Einheit erfordert einen Freischaltcode bevor Holding-Register geschri
 - **Betriebsart „Test"** (Modus 9): Nicht verfügbar – ausschließlich für Servicetechniker vorgesehen.
 - **Zone 2**: Als `number`-Entity verfügbar (deaktiviert) – nur relevant für Anlagen ohne NBE-Raumbediengeräte.
 - **Raumnamen**: Das Schreiben über die `text`-Entities ändert den Gerätespeicher direkt (FC6 Preset Write, Latin-1 kodiert). Mit Bedacht verwenden.
+- **Entwicklung**: Diese Integration entstand mit Unterstützung von [Claude Code](https://claude.ai/code) – auf Basis manuell definierter Modbus-Sensoren und -Schalter, die in Home Assistant über Jahre gewachsen sind.
