@@ -1,0 +1,61 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up Proxon FWT",
+        "description": "Enter connection details for the Proxon RS485-to-LAN adapter. Room names will be read from the device automatically after the connection test.",
+        "data": {
+          "host": "IP Address / Hostname",
+          "port": "Modbus TCP Port",
+          "slave": "Modbus Slave ID",
+          "scan_interval": "Scan Interval (seconds)",
+          "filter_notification": "Filter Change Notification"
+        },
+        "data_description": {
+          "host": "IP address of the USR RS485-LAN adapter (e.g. 10.42.20.2)",
+          "port": "TCP port of the adapter – default 502, only change if configured differently",
+          "slave": "Modbus device ID of the Proxon FWT – default 41, configurable on the device",
+          "scan_interval": "How often all registers are read from the device (10–300 s). Shorter intervals increase RS485 bus load.",
+          "filter_notification": "Show a notification in Home Assistant when the device filter needs to be replaced"
+        }
+      },
+      "reconfigure": {
+        "title": "Proxon FWT – Reconfigure Connection",
+        "description": "Change connection parameters and re-discover rooms from the device.",
+        "data": {
+          "host": "IP Address / Hostname",
+          "port": "Modbus TCP Port",
+          "slave": "Modbus Slave ID"
+        },
+        "data_description": {
+          "host": "IP address of the USR RS485-LAN adapter",
+          "port": "TCP port of the adapter – default 502",
+          "slave": "Modbus device ID of the Proxon FWT – default 41"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Connection failed – check IP address, port and slave ID",
+      "unknown": "Unknown error during connection setup"
+    },
+    "abort": {
+      "already_configured": "This device is already configured",
+      "reconfigure_successful": "Connection reconfigured, rooms updated"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Proxon FWT – Options",
+        "data": {
+          "filter_notification": "Enable filter change notification",
+          "scan_interval": "Scan Interval (seconds)"
+        },
+        "data_description": {
+          "filter_notification": "Show a persistent notification in HA when the device filter needs to be replaced. Dismissed automatically after the filter has been acknowledged.",
+          "scan_interval": "How often all registers are read from the device (10–300 s). Takes effect immediately after saving."
+        }
+      }
+    }
+  }
+}

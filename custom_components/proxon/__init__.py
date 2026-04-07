@@ -8,14 +8,13 @@ from homeassistant.core import HomeAssistant, callback
 
 from .const import (
     CONF_FILTER_NOTIFICATION,
+    CONF_SLAVE,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_SLAVE,
     DOMAIN,
     FILTER_NOTIFICATION_ID,
 )
 from .coordinator import ProxonCoordinator
-
-CONF_SLAVE = "slave"
 
 PLATFORMS = [
     Platform.CLIMATE,
@@ -26,6 +25,7 @@ PLATFORMS = [
     Platform.SWITCH,
     Platform.BINARY_SENSOR,
     Platform.BUTTON,
+    Platform.TEXT,
 ]
 
 
@@ -36,7 +36,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         host=entry.data[CONF_HOST],
         port=entry.data.get(CONF_PORT, 502),
         slave=int(entry.data.get(CONF_SLAVE, DEFAULT_SLAVE)),
-        scan_interval=entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
+        # Prefer options (new entries); fall back to data (entries created before this fix).
+        scan_interval=entry.options.get(CONF_SCAN_INTERVAL)
+        or entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
     )
     await coordinator.async_config_entry_first_refresh()
 
@@ -44,7 +46,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     _setup_filter_notification(hass, entry, coordinator)
+    entry.async_on_unload(entry.add_update_listener(_async_reload_entry))
     return True
+
+
+async def _async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Reload the integration when options change (e.g. scan_interval)."""
+    await hass.config_entries.async_reload(entry.entry_id)
 
 
 def _setup_filter_notification(
@@ -86,6 +94,5 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok:
         coordinator: ProxonCoordinator = hass.data[DOMAIN].pop(entry.entry_id)
-        if coordinator._client:
-            coordinator._client.close()
+        coordinator._close_client()
     return unload_ok

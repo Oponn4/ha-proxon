@@ -14,38 +14,27 @@ from homeassistant.const import UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, FWT_HOLDING_REGISTERS, T300_HOLDING_REGISTERS
+from .const import CONF_ROOMS, DOMAIN, FWT_HOLDING_REGISTERS, T300_HOLDING_REGISTERS
 from .coordinator import ProxonCoordinator
 from .entity import DEVICE_FWT, DEVICE_T300, ProxonEntity
 
 
 @dataclass(frozen=True, kw_only=True)
 class ProxonNumberDescription(NumberEntityDescription):
-    data_key: str
-    register_key: str
+    data_key: str | None = None  # None → falls back to key
+    register_key: str = ""
+    direct_address: int | None = None  # used instead of register_key for dynamic entities
     scale: float = 1.0   # multiply HA value by this before writing
     device: str = DEVICE_FWT
 
 
 NUMBERS: tuple[ProxonNumberDescription, ...] = (
-    ProxonNumberDescription(
-        key="soll_temp_zone1",
-        data_key="soll_temp_zone1",
-        register_key="soll_temp_zone1",
-        name="Solltemperatur EG",
-        device_class=NumberDeviceClass.TEMPERATURE,
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        native_min_value=10,
-        native_max_value=30,
-        native_step=0.5,
-        mode=NumberMode.BOX,
-        scale=100.0,
-    ),
+    # soll_temp_zone1 entfernt – wird von climate.zone_1 (Wohnen/Essen) abgelöst.
     ProxonNumberDescription(
         key="soll_temp_zone2",
         data_key="soll_temp_zone2",
         register_key="soll_temp_zone2",
-        name="Solltemperatur OG",
+        name="Solltemperatur Zone 2 (nur ohne HNBE)",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         native_min_value=10,
@@ -53,61 +42,6 @@ NUMBERS: tuple[ProxonNumberDescription, ...] = (
         native_step=0.5,
         mode=NumberMode.BOX,
         scale=100.0,
-    ),
-    ProxonNumberDescription(
-        key="nbe_offset_haupt",
-        data_key="nbe_offset_haupt",
-        register_key="nbe_offset_haupt",
-        name="NBE Offset Büro",
-        device_class=NumberDeviceClass.TEMPERATURE,
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        native_min_value=-3,
-        native_max_value=3,
-        native_step=1,
-        mode=NumberMode.BOX,
-        scale=1.0,
-        entity_registry_enabled_default=False,
-    ),
-    ProxonNumberDescription(
-        key="nbe_offset_1",
-        data_key="nbe_offset_1",
-        register_key="nbe_offset_1",
-        name="NBE Offset Diele",
-        device_class=NumberDeviceClass.TEMPERATURE,
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        native_min_value=-3,
-        native_max_value=3,
-        native_step=1,
-        mode=NumberMode.BOX,
-        scale=1.0,
-        entity_registry_enabled_default=False,
-    ),
-    ProxonNumberDescription(
-        key="nbe_offset_2",
-        data_key="nbe_offset_2",
-        register_key="nbe_offset_2",
-        name="NBE Offset Schlafen",
-        device_class=NumberDeviceClass.TEMPERATURE,
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        native_min_value=-3,
-        native_max_value=3,
-        native_step=1,
-        mode=NumberMode.BOX,
-        scale=1.0,
-        entity_registry_enabled_default=False,
-    ),
-    ProxonNumberDescription(
-        key="nbe_offset_4",
-        data_key="nbe_offset_4",
-        register_key="nbe_offset_4",
-        name="NBE Offset Kreativ",
-        device_class=NumberDeviceClass.TEMPERATURE,
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        native_min_value=-3,
-        native_max_value=3,
-        native_step=1,
-        mode=NumberMode.BOX,
-        scale=1.0,
         entity_registry_enabled_default=False,
     ),
     ProxonNumberDescription(
@@ -176,7 +110,31 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     coordinator: ProxonCoordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities(ProxonNumber(coordinator, desc) for desc in NUMBERS)
+    rooms: list[dict] = entry.data.get(CONF_ROOMS, [])
+
+    # Dynamic NBE offset number entities (one per discovered NBE room).
+    nbe_offset_numbers = [
+        ProxonNumber(coordinator, ProxonNumberDescription(
+            key=f"nbe_offset_{room['physical_idx']}",
+            data_key=f"nbe_offset_{room['physical_idx']}",
+            direct_address=213 + room["physical_idx"],
+            name=f"NBE Offset {room['name']}",
+            device_class=NumberDeviceClass.TEMPERATURE,
+            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+            native_min_value=-3,
+            native_max_value=3,
+            native_step=1,
+            mode=NumberMode.BOX,
+            scale=1.0,
+            entity_registry_enabled_default=False,
+        ))
+        for room in rooms
+        if room.get("physical_idx") is not None
+    ]
+
+    async_add_entities(
+        [ProxonNumber(coordinator, desc) for desc in NUMBERS] + nbe_offset_numbers
+    )
 
 
 class ProxonNumber(ProxonEntity, NumberEntity):
@@ -194,11 +152,18 @@ class ProxonNumber(ProxonEntity, NumberEntity):
 
     @property
     def native_value(self) -> float | None:
-        return self.coordinator.data.get(self.entity_description.data_key)
+        data_key = self.entity_description.data_key or self.entity_description.key
+        return self.coordinator.data.get(data_key)
 
     async def async_set_native_value(self, value: float) -> None:
         raw = int(round(value * self.entity_description.scale))
-        key = self.entity_description.register_key
-        reg = FWT_HOLDING_REGISTERS.get(key) or T300_HOLDING_REGISTERS[key]
-        await self.coordinator.write_register(reg.address, raw)
+        if raw < 0:
+            raw += 65536  # int16 → uint16 for signed registers (e.g. NBE offsets)
+        if self.entity_description.direct_address is not None:
+            address = self.entity_description.direct_address
+        else:
+            key = self.entity_description.register_key
+            reg = FWT_HOLDING_REGISTERS.get(key) or T300_HOLDING_REGISTERS[key]
+            address = reg.address
+        await self.coordinator.write_register(address, raw)
         await self.coordinator.async_request_refresh()

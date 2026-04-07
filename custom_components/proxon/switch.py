@@ -9,15 +9,15 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, FWT_HOLDING_REGISTERS, T300_HOLDING_REGISTERS
+from .const import CONF_ROOMS, DOMAIN, FWT_HOLDING_REGISTERS, T300_HOLDING_REGISTERS
 from .coordinator import ProxonCoordinator
 from .entity import DEVICE_FWT, DEVICE_T300, ProxonEntity
 
 
 @dataclass(frozen=True, kw_only=True)
 class ProxonSwitchDescription(SwitchEntityDescription):
-    data_key: str
-    register_key: str
+    data_key: str | None = None  # None → falls back to key
+    register_key: str = ""
     device: str = DEVICE_FWT
 
 
@@ -30,13 +30,7 @@ SWITCHES: tuple[ProxonSwitchDescription, ...] = (
         name="Kühlung Freigabe",
         icon="mdi:snowflake",
     ),
-    ProxonSwitchDescription(
-        key="hbde_ptc_freigabe",
-        data_key="hbde_ptc_freigabe",
-        register_key="hbde_ptc_freigabe",
-        name="HBDE PTC Freigabe (Wohnzimmer)",
-        icon="mdi:radiator",
-    ),
+    # hbde_ptc_freigabe entfernt – jetzt als aux_heat in climate.zone_1 (Wohnen/Essen)
     # FWT – disabled by default (schedule/config settings)
     ProxonSwitchDescription(
         key="zeitprogramm_luft",
@@ -88,7 +82,33 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     coordinator: ProxonCoordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities(ProxonSwitch(coordinator, desc) for desc in SWITCHES)
+    rooms: list[dict] = entry.data.get(CONF_ROOMS, [])
+
+    # Dynamic PTC switches: HBDE (reg 187) + one per NBE room (reg 253 + physical_idx)
+    ptc_switches = []
+    for room in rooms:
+        n = room.get("physical_idx")
+        if n is None:
+            # HBDE primary – PTC at reg 187, data key hbde_ptc_freigabe
+            ptc_switches.append(ProxonDynamicSwitch(
+                coordinator,
+                key=f"ptc_{room['name_idx']}",
+                data_key="hbde_ptc_freigabe",
+                address=187,
+                name=f"PTC {room['name']}",
+            ))
+        else:
+            ptc_switches.append(ProxonDynamicSwitch(
+                coordinator,
+                key=f"ptc_{room['name_idx']}",
+                data_key=f"nbe_ptc_{n}",
+                address=253 + n,
+                name=f"PTC {room['name']}",
+            ))
+
+    async_add_entities(
+        [ProxonSwitch(coordinator, desc) for desc in SWITCHES] + ptc_switches
+    )
 
 
 class ProxonSwitch(ProxonEntity, SwitchEntity):
@@ -106,13 +126,14 @@ class ProxonSwitch(ProxonEntity, SwitchEntity):
 
     @property
     def is_on(self) -> bool | None:
-        val = self.coordinator.data.get(self.entity_description.data_key)
+        data_key = self.entity_description.data_key or self.entity_description.key
+        val = self.coordinator.data.get(data_key)
         if val is None:
             return None
         return int(val) == 1
 
     def _reg(self):
-        key = self.entity_description.register_key
+        key = self.entity_description.register_key or self.entity_description.key
         return FWT_HOLDING_REGISTERS.get(key) or T300_HOLDING_REGISTERS[key]
 
     async def async_turn_on(self, **kwargs: Any) -> None:
@@ -121,4 +142,36 @@ class ProxonSwitch(ProxonEntity, SwitchEntity):
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         await self.coordinator.write_register(self._reg().address, 0)
+        await self.coordinator.async_request_refresh()
+
+
+class ProxonDynamicSwitch(ProxonEntity, SwitchEntity):
+    """Switch with a directly specified address (for dynamically discovered entities)."""
+
+    _attr_icon = "mdi:radiator"
+
+    def __init__(
+        self,
+        coordinator: ProxonCoordinator,
+        key: str,
+        data_key: str,
+        address: int,
+        name: str,
+    ) -> None:
+        super().__init__(coordinator, key, DEVICE_FWT)
+        self._data_key = data_key
+        self._address = address
+        self._attr_name = name
+
+    @property
+    def is_on(self) -> bool | None:
+        val = self.coordinator.data.get(self._data_key)
+        return None if val is None else int(val) == 1
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        await self.coordinator.write_register(self._address, 1)
+        await self.coordinator.async_request_refresh()
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        await self.coordinator.write_register(self._address, 0)
         await self.coordinator.async_request_refresh()

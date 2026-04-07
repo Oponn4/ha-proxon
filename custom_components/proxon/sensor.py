@@ -22,7 +22,7 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import CONF_ROOM_NAMES, DOMAIN
+from .const import CONF_ROOMS, DOMAIN
 from .coordinator import ProxonCoordinator
 from .entity import DEVICE_FWT, DEVICE_T300, ProxonEntity
 
@@ -30,7 +30,7 @@ from .entity import DEVICE_FWT, DEVICE_T300, ProxonEntity
 @dataclass(frozen=True, kw_only=True)
 class ProxonSensorDescription(SensorEntityDescription):
     """Extended sensor description with the coordinator data key."""
-    data_key: str
+    data_key: str | None = None  # None → falls back to key
     device: str = DEVICE_FWT
 
 
@@ -83,6 +83,7 @@ SENSORS: tuple[ProxonSensorDescription, ...] = (
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        entity_registry_enabled_default=False,  # in climate.zone_1 current_temperature
     ),
     ProxonSensorDescription(
         key="t22_zone2", data_key="t22_zone2", name="Zonentemperatur OG",
@@ -90,18 +91,7 @@ SENSORS: tuple[ProxonSensorDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
     ),
-    ProxonSensorDescription(
-        key="soll_zone1", data_key="soll_zone1", name="Solltemperatur EG",
-        device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-    ),
-    ProxonSensorDescription(
-        key="soll_zone2", data_key="soll_zone2", name="Solltemperatur OG",
-        device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-    ),
+    # soll_zone1 / soll_zone2 entfernt – wird von den Climate-Entitäten (Zone 1 / NBE) angezeigt
     ProxonSensorDescription(
         key="temp_hbde", data_key="temp_hbde", name="Temperatur HBDE",
         device_class=SensorDeviceClass.TEMPERATURE,
@@ -357,6 +347,13 @@ SENSORS: tuple[ProxonSensorDescription, ...] = (
 
     # Filter + Betriebsstunden
     ProxonSensorDescription(
+        key="umluft_betriebsstunden", name="Umluft Betriebsstunden",
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        native_unit_of_measurement="h",
+        icon="mdi:rotate-3d-variant",
+        entity_registry_enabled_default=False,
+    ),
+    ProxonSensorDescription(
         key="geraetefilter_stunden", data_key="geraetefilter_stunden", name="Gerätefilter Betriebsstunden",
         state_class=SensorStateClass.TOTAL_INCREASING,
         native_unit_of_measurement="h",
@@ -379,37 +376,30 @@ SENSORS: tuple[ProxonSensorDescription, ...] = (
 )
 
 
-# NBE room temperature sensors: (data_key, nbe_index, fallback_name)
-# nbe_index matches the key used in CONF_ROOM_NAMES stored during config flow
-_NBE_SENSOR_DEFS: tuple[tuple[str, str, str], ...] = (
-    ("temp_klavierzimmer", "0", "Klavierzimmer"),
-    ("temp_flur",          "1", "Flur"),
-    ("temp_schlafzimmer",  "2", "Schlafzimmer"),
-    ("temp_office",        "4", "Office"),
-)
-
-
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     coordinator: ProxonCoordinator = hass.data[DOMAIN][entry.entry_id]
-    room_names: dict[str, str] = entry.data.get(CONF_ROOM_NAMES, {})
+    rooms: list[dict] = entry.data.get(CONF_ROOMS, [])
 
+    # One temperature sensor per discovered NBE room (physical_idx is not None).
     nbe_sensors = [
         ProxonSensor(
             coordinator,
             ProxonSensorDescription(
-                key=data_key,
-                data_key=data_key,
-                name=f"Raumtemperatur {room_names.get(nbe_idx, fallback)}",
+                key=f"nbe_temp_{room['physical_idx']}",
+                data_key=f"nbe_temp_{room['physical_idx']}",
+                name=f"Raumtemperatur {room['name']}",
                 device_class=SensorDeviceClass.TEMPERATURE,
                 state_class=SensorStateClass.MEASUREMENT,
                 native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+                entity_registry_enabled_default=False,  # in climate.room current_temperature
             ),
         )
-        for data_key, nbe_idx, fallback in _NBE_SENSOR_DEFS
+        for room in rooms
+        if room.get("physical_idx") is not None
     ]
     async_add_entities(
         [ProxonSensor(coordinator, desc) for desc in SENSORS] + nbe_sensors
@@ -431,4 +421,5 @@ class ProxonSensor(ProxonEntity, SensorEntity):
 
     @property
     def native_value(self) -> Any:
-        return self.coordinator.data.get(self.entity_description.data_key)
+        data_key = self.entity_description.data_key or self.entity_description.key
+        return self.coordinator.data.get(data_key)

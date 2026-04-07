@@ -8,9 +8,10 @@ DOMAIN = "proxon"
 DEFAULT_PORT = 502
 DEFAULT_SLAVE = 41
 DEFAULT_SCAN_INTERVAL = 30
+CONF_SLAVE = "slave"
 
 CONF_FILTER_NOTIFICATION = "filter_notification"
-CONF_ROOM_NAMES = "room_names"
+CONF_ROOMS = "rooms"          # list of discovered room dicts in entry.data
 FILTER_NOTIFICATION_ID = "proxon_filter_wechsel"
 
 # Modbus register types
@@ -102,12 +103,6 @@ FWT_INPUT_REGISTERS: dict[str, ModbusRegister] = {
     "erdwaerme_aktiv": ModbusRegister(220, REG_INPUT, "Erdwärme Zustand", "", 1, "int16"),
     "vierwege_ventil": ModbusRegister(223, REG_INPUT, "4-Wegeventil (0=Heizen 1=Kühlen)", "", 1, "int16"),
 
-    # Room temperatures via NBE sensors (scale 0.1 → divide by 10, valid 10–40°C)
-    "temp_klavierzimmer": ModbusRegister(590, REG_INPUT, "Temperatur Klavierzimmer", "°C", 10, "uint16", min_raw=100, max_raw=400),
-    "temp_flur": ModbusRegister(593, REG_INPUT, "Temperatur Flur", "°C", 10, "uint16", min_raw=100, max_raw=400),
-    "temp_schlafzimmer": ModbusRegister(596, REG_INPUT, "Temperatur Schlafzimmer", "°C", 10, "uint16", min_raw=100, max_raw=400),
-    "temp_office": ModbusRegister(602, REG_INPUT, "Temperatur Office", "°C", 10, "uint16", min_raw=100, max_raw=400),
-
     # Errors
     "stoerung": ModbusRegister(47, REG_INPUT, "Störung", "", 1, "int16"),
     "error_status1": ModbusRegister(48, REG_INPUT, "Fehlerstatus 1", "", 1, "int16"),
@@ -155,31 +150,8 @@ FWT_HOLDING_REGISTERS: dict[str, ModbusRegister] = {
     "wp_kuehlschwelle": ModbusRegister(41, REG_HOLDING, "WP Kühlschwelle", "°C", 100, "int16"),
     # Write permissions register (read current level)
     "schreibrechte": ModbusRegister(438, REG_HOLDING, "Schreibrechte", "", 1, "uint16"),
-    # NBE offsets (write level 1)
-    "nbe_offset_haupt": ModbusRegister(
-        213, REG_HOLDING, "NBE Offset Hauptbedienteil (Büro)", "°C", 1, "int16",
-        writable=WRITE_SOME, min_raw=-3, max_raw=3,
-    ),
-    "nbe_offset_1": ModbusRegister(
-        214, REG_HOLDING, "NBE 1 Offset (Diele)", "°C", 1, "int16",
-        writable=WRITE_SOME, min_raw=-3, max_raw=3,
-    ),
-    "nbe_offset_2": ModbusRegister(
-        215, REG_HOLDING, "NBE 2 Offset (Schlafen)", "°C", 1, "int16",
-        writable=WRITE_SOME, min_raw=-3, max_raw=3,
-    ),
-    "nbe_offset_4": ModbusRegister(
-        217, REG_HOLDING, "NBE 4 Offset (Kreativ)", "°C", 1, "int16",
-        writable=WRITE_SOME, min_raw=-3, max_raw=3,
-    ),
     # Actual heat pump operating mode (read-only holding)
     "betriebsart_wp": ModbusRegister(69, REG_HOLDING, "Betriebsart Wärmepumpe", "", 1, "uint16"),
-
-    # NBE average zone temperatures (no scale = raw integer °C)
-    "mitteltemp_klavierzimmer": ModbusRegister(233, REG_HOLDING, "Mitteltemperatur Klavierzimmer", "°C", 1, "int16"),
-    "mitteltemp_flur": ModbusRegister(234, REG_HOLDING, "Mitteltemperatur Flur", "°C", 1, "int16"),
-    "mitteltemp_schlafzimmer": ModbusRegister(235, REG_HOLDING, "Mitteltemperatur Schlafzimmer", "°C", 1, "int16"),
-    "mitteltemp_office": ModbusRegister(237, REG_HOLDING, "Mitteltemperatur Office", "°C", 1, "int16"),
 
     # Filter + Stundenzähler (requires write access unlock via reg 438 = 55555)
     "geraetefilter_standzeit_monate": ModbusRegister(
@@ -188,14 +160,17 @@ FWT_HOLDING_REGISTERS: dict[str, ModbusRegister] = {
     "fwt_betriebsstunden": ModbusRegister(
         467, REG_HOLDING, "FWT Betriebsstunden gesamt", "h", 1, "uint16", min_raw=0, max_raw=65535,
     ),
+    "umluft_betriebsstunden": ModbusRegister(
+        468, REG_HOLDING, "Umluft Betriebsstunden", "h", 1, "uint16", min_raw=0, max_raw=65535,
+    ),
     "geraetefilter_stunden": ModbusRegister(
         469, REG_HOLDING, "Gerätefilter Betriebsstunden", "h", 1, "uint16", min_raw=0, max_raw=65535,
     ),
 
-    # HBDE PTC (write level 1)
+    # HBDE PTC (write level 1) – no min_raw/max_raw so stale frames don't cause None
     "hbde_ptc_freigabe": ModbusRegister(
         187, REG_HOLDING, "HBDE PTC Freigabe (Wohnzimmer)", "", 1, "uint16",
-        writable=WRITE_SOME, min_raw=0, max_raw=1,
+        writable=WRITE_SOME,
     ),
 
     # Nachtabsenkung (write level 1) – requires new READ_BLOCK (613, 7)
@@ -221,7 +196,7 @@ BETRIEBSART_MAP: dict[int, str] = {
     2: "Winterbetrieb",
     3: "Komfortbetrieb",
     4: "Ofenmodus",
-    9: "Test",
+    # 9: "Test" absichtlich weggelassen – Technikermode, nicht über HA setzen
 }
 BETRIEBSART_REVERSE: dict[str, int] = {v: k for k, v in BETRIEBSART_MAP.items()}
 

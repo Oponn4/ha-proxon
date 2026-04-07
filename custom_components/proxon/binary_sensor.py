@@ -19,7 +19,7 @@ from .entity import DEVICE_FWT, DEVICE_T300, ProxonEntity
 
 @dataclass(frozen=True, kw_only=True)
 class ProxonBinarySensorDescription(BinarySensorEntityDescription):
-    data_key: str
+    data_key: str | None = None  # None → falls back to key
     on_value: int = 1   # raw value considered "on"
     device: str = DEVICE_FWT
 
@@ -148,7 +148,8 @@ class ProxonBinarySensor(ProxonEntity, BinarySensorEntity):
 
     @property
     def is_on(self) -> bool | None:
-        val = self.coordinator.data.get(self.entity_description.data_key)
+        data_key = self.entity_description.data_key or self.entity_description.key
+        val = self.coordinator.data.get(data_key)
         if val is None:
             return None
         # Boolean values (e.g. filter_wechsel_faellig computed in coordinator)
