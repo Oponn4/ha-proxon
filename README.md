@@ -46,7 +46,7 @@ Verbindung erfolgt lokal über Modbus RTU-over-TCP via USR RS485-to-LAN Adapter.
 ### Über HACS (empfohlen)
 
 1. HACS öffnen → **Integrationen** → ⋮ Menü → **Benutzerdefinierte Repositories**
-2. `https://github.com/Oponn4/proxon_homeassistant` als **Integration** hinzufügen
+2. `https://github.com/Oponn4/ha-proxon` als **Integration** hinzufügen
 3. Nach **Proxon FWT** suchen und installieren
 4. Home Assistant neu starten
 
