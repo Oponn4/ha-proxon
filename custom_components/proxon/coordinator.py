@@ -201,7 +201,7 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     start, count=count, device_id=self.slave
                 )
             if result.isError():
-                _LOGGER.warning(
+                _LOGGER.debug(
                     "Block read error: fc=%s start=%d count=%d → %s",
                     fc, start, count, result,
                 )
@@ -219,14 +219,14 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 else:
                     result = await client.read_holding_registers(start, count=count, device_id=self.slave)
                 if result.isError() or len(result.registers) != count:
-                    _LOGGER.warning(
+                    _LOGGER.debug(
                         "Block read short after retry: fc=%s start=%d expected=%d got=%d",
                         fc, start, count, 0 if result.isError() else len(result.registers),
                     )
                     return {start + i: result.registers[i] for i in range(len(result.registers))} if not result.isError() else {}
             return {start + i: result.registers[i] for i in range(len(result.registers))}
         except Exception as exc:
-            _LOGGER.warning(
+            _LOGGER.debug(
                 "Block read exception: fc=%s start=%d count=%d: %s",
                 fc, start, count, exc,
             )
@@ -252,9 +252,9 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     self._write_access_unlocked = True
                     _LOGGER.debug("Modbus write access unlocked (reg 438 = 55555)")
                 else:
-                    _LOGGER.warning("Failed to unlock Modbus write access: %s", result)
+                    _LOGGER.debug("Failed to unlock Modbus write access: %s", result)
             except Exception as exc:
-                _LOGGER.warning("Exception unlocking Modbus write access: %s", exc)
+                _LOGGER.debug("Exception unlocking Modbus write access: %s", exc)
 
         # Read all blocks with inter-request pauses.
         raw: dict[tuple[str, int], int] = {}
