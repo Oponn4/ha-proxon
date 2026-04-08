@@ -153,6 +153,10 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # Written once per HA session to unlock service register access (addr 438 = 55555).
         # Avoids repeated flash writes on the device; re-unlocks automatically after HA restart.
         self._write_access_unlocked = False
+        # Last successfully-read raw register values. Used to avoid unavailable
+        # entities on transient block read failures (RS485 noise/bus contention).
+        # Entities only go unavailable on complete connection loss (UpdateFailed).
+        self._prev_raw: dict[tuple[str, int], int] = {}
 
         super().__init__(
             hass,
@@ -257,7 +261,9 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 _LOGGER.debug("Exception unlocking Modbus write access: %s", exc)
 
         # Read all blocks with inter-request pauses.
-        raw: dict[tuple[str, int], int] = {}
+        # Seed raw with last known good values so failed blocks don't cause
+        # unavailable entities – only a complete connection loss does (UpdateFailed).
+        raw: dict[tuple[str, int], int] = dict(self._prev_raw)
         errors: list[str] = []
 
         for i, (start, count, fc) in enumerate(_READ_BLOCKS):
@@ -266,11 +272,13 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             block = await self._read_block(self._client, start, count, fc)
             if not block:
                 errors.append(f"{fc}@{start}+{count}")
-            for addr, val in block.items():
-                raw[(fc, addr)] = val
+            else:
+                for addr, val in block.items():
+                    raw[(fc, addr)] = val
+                    self._prev_raw[(fc, addr)] = val
 
         if errors:
-            _LOGGER.debug("Block read failures this cycle: %s", ", ".join(errors))
+            _LOGGER.debug("Block read failures this cycle (using last known values): %s", ", ".join(errors))
 
         # Decode raw values into the data dict.
         # _decode() returns None for out-of-range raws (stale-frame guard).
