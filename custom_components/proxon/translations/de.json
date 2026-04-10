@@ -8,14 +8,15 @@
           "host": "IP-Adresse / Hostname",
           "port": "Modbus TCP Port",
           "slave": "Modbus Slave ID",
-          "scan_interval": "Abfrageintervall (Sekunden)",
+          "has_t300": "T300 Warmwasser-Wärmepumpe angeschlossen",
+          "scan_interval": "Abfrageintervall (Sekunden, 10–120)",
           "filter_notification": "Filterwechsel-Benachrichtigung"
         },
         "data_description": {
           "host": "IP-Adresse des USR RS485-LAN Adapters (z. B. 10.42.20.2)",
           "port": "TCP-Port des Adapters – Standard 502, nur ändern wenn der Adapter abweichend konfiguriert ist",
           "slave": "Modbus Geräte-ID der Proxon FWT – Standard 41, auf dem Gerät einstellbar",
-          "scan_interval": "Wie oft alle Register vom Gerät gelesen werden (10–300 s). Kürzere Intervalle belasten den RS485-Bus stärker.",
+          "has_t300": "Aktivieren, wenn eine Proxon T300 Brauchwasser-Wärmepumpe am selben RS485-Bus angeschlossen ist. Fügt alle T300-Sensoren, Schalter und Steuerelemente hinzu.",
           "filter_notification": "Zeigt eine Benachrichtigung in Home Assistant an, wenn der Gerätefilter gewechselt werden muss"
         }
       },
@@ -25,12 +26,14 @@
         "data": {
           "host": "IP-Adresse / Hostname",
           "port": "Modbus TCP Port",
-          "slave": "Modbus Slave ID"
+          "slave": "Modbus Slave ID",
+          "has_t300": "T300 Warmwasser-Wärmepumpe angeschlossen"
         },
         "data_description": {
           "host": "IP-Adresse des USR RS485-LAN Adapters",
           "port": "TCP-Port des Adapters – Standard 502",
-          "slave": "Modbus Geräte-ID der Proxon FWT – Standard 41"
+          "slave": "Modbus Geräte-ID der Proxon FWT – Standard 41",
+          "has_t300": "Aktivieren, wenn eine Proxon T300 am selben RS485-Bus angeschlossen ist."
         }
       }
     },
@@ -49,11 +52,10 @@
         "title": "Proxon FWT – Optionen",
         "data": {
           "filter_notification": "Filterwechsel-Benachrichtigung aktivieren",
-          "scan_interval": "Abfrageintervall (Sekunden)"
+          "scan_interval": "Abfrageintervall (Sekunden, 10–120)"
         },
         "data_description": {
-          "filter_notification": "Zeigt eine Persistent-Notification in HA an, wenn der Gerätefilter gewechselt werden muss. Wird automatisch ausgeblendet, nachdem der Filter quittiert wurde.",
-          "scan_interval": "Wie oft alle Register vom Gerät gelesen werden (10–300 s). Änderung wird nach dem Speichern sofort aktiv."
+          "filter_notification": "Zeigt eine Persistent-Notification in HA an, wenn der Gerätefilter gewechselt werden muss. Wird automatisch ausgeblendet, nachdem der Filter quittiert wurde."
         }
       }
     }

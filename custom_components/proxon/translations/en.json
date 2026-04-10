@@ -8,14 +8,15 @@
           "host": "IP Address / Hostname",
           "port": "Modbus TCP Port",
           "slave": "Modbus Slave ID",
-          "scan_interval": "Scan Interval (seconds)",
+          "has_t300": "T300 hot-water heat pump connected",
+          "scan_interval": "Scan Interval (seconds, 10–120)",
           "filter_notification": "Filter Change Notification"
         },
         "data_description": {
           "host": "IP address of the USR RS485-LAN adapter (e.g. 10.42.20.2)",
           "port": "TCP port of the adapter – default 502, only change if configured differently",
           "slave": "Modbus device ID of the Proxon FWT – default 41, configurable on the device",
-          "scan_interval": "How often all registers are read from the device (10–300 s). Shorter intervals increase RS485 bus load.",
+          "has_t300": "Enable if a Proxon T300 domestic hot-water heat pump is on the same RS485 bus. Adds all T300 sensors, switches and controls.",
           "filter_notification": "Show a notification in Home Assistant when the device filter needs to be replaced"
         }
       },
@@ -25,12 +26,14 @@
         "data": {
           "host": "IP Address / Hostname",
           "port": "Modbus TCP Port",
-          "slave": "Modbus Slave ID"
+          "slave": "Modbus Slave ID",
+          "has_t300": "T300 hot-water heat pump connected"
         },
         "data_description": {
           "host": "IP address of the USR RS485-LAN adapter",
           "port": "TCP port of the adapter – default 502",
-          "slave": "Modbus device ID of the Proxon FWT – default 41"
+          "slave": "Modbus device ID of the Proxon FWT – default 41",
+          "has_t300": "Enable if a Proxon T300 domestic hot-water heat pump is on the same RS485 bus."
         }
       }
     },
@@ -49,11 +52,10 @@
         "title": "Proxon FWT – Options",
         "data": {
           "filter_notification": "Enable filter change notification",
-          "scan_interval": "Scan Interval (seconds)"
+          "scan_interval": "Scan Interval (seconds, 10–120)"
         },
         "data_description": {
-          "filter_notification": "Show a persistent notification in HA when the device filter needs to be replaced. Dismissed automatically after the filter has been acknowledged.",
-          "scan_interval": "How often all registers are read from the device (10–300 s). Takes effect immediately after saving."
+          "filter_notification": "Show a persistent notification in HA when the device filter needs to be replaced. Dismissed automatically after the filter has been acknowledged."
         }
       }
     }

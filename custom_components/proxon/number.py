@@ -26,6 +26,7 @@ class ProxonNumberDescription(NumberEntityDescription):
     direct_address: int | None = None  # used instead of register_key for dynamic entities
     scale: float = 1.0   # multiply HA value by this before writing
     device: str = DEVICE_FWT
+    note: str | None = None  # shown as extra state attribute "Hinweis"
 
 
 NUMBERS: tuple[ProxonNumberDescription, ...] = (
@@ -34,7 +35,8 @@ NUMBERS: tuple[ProxonNumberDescription, ...] = (
         key="soll_temp_zone2",
         data_key="soll_temp_zone2",
         register_key="soll_temp_zone2",
-        name="Solltemperatur Zone 2 (nur ohne HNBE)",
+        name="Solltemperatur Zone 2",
+        note="Nur relevant wenn keine HNBE (Nebenbedieneinheit) verbaut ist",
         device_class=NumberDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         native_min_value=10,
@@ -118,7 +120,7 @@ async def async_setup_entry(
             key=f"nbe_offset_{room['physical_idx']}",
             data_key=f"nbe_offset_{room['physical_idx']}",
             direct_address=213 + room["physical_idx"],
-            name=f"NBE Offset {room['name']}",
+            name=f"Offset {room['name']}",
             device_class=NumberDeviceClass.TEMPERATURE,
             native_unit_of_measurement=UnitOfTemperature.CELSIUS,
             native_min_value=-3,
@@ -132,9 +134,12 @@ async def async_setup_entry(
         if room.get("physical_idx") is not None
     ]
 
-    async_add_entities(
-        [ProxonNumber(coordinator, desc) for desc in NUMBERS] + nbe_offset_numbers
-    )
+    numbers = [
+        ProxonNumber(coordinator, desc)
+        for desc in NUMBERS
+        if coordinator.has_t300 or desc.device != DEVICE_T300
+    ]
+    async_add_entities(numbers + nbe_offset_numbers)
 
 
 class ProxonNumber(ProxonEntity, NumberEntity):
@@ -154,6 +159,12 @@ class ProxonNumber(ProxonEntity, NumberEntity):
     def native_value(self) -> float | None:
         data_key = self.entity_description.data_key or self.entity_description.key
         return self.coordinator.data.get(data_key)
+
+    @property
+    def extra_state_attributes(self) -> dict | None:
+        if self.entity_description.note:
+            return {"Hinweis": self.entity_description.note}
+        return None
 
     async def async_set_native_value(self, value: float) -> None:
         raw = int(round(value * self.entity_description.scale))

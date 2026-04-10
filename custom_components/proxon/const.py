@@ -11,6 +11,7 @@ DEFAULT_SCAN_INTERVAL = 30
 CONF_SLAVE = "slave"
 
 CONF_FILTER_NOTIFICATION = "filter_notification"
+CONF_HAS_T300 = "has_t300"   # whether a T300 hot-water heat pump is on the same bus
 CONF_ROOMS = "rooms"          # list of discovered room dicts in entry.data
 FILTER_NOTIFICATION_ID = "proxon_filter_wechsel"
 

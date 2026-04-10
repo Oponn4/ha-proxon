@@ -130,7 +130,11 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     coordinator: ProxonCoordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities(ProxonBinarySensor(coordinator, desc) for desc in BINARY_SENSORS)
+    async_add_entities(
+        ProxonBinarySensor(coordinator, desc)
+        for desc in BINARY_SENSORS
+        if coordinator.has_t300 or desc.device != DEVICE_T300
+    )
 
 
 class ProxonBinarySensor(ProxonEntity, BinarySensorEntity):

@@ -21,10 +21,10 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     coordinator: ProxonCoordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities([
-        ProxonBetriebsartSelect(coordinator),
-        ProxonT300BetriebsartSelect(coordinator),
-    ])
+    entities = [ProxonBetriebsartSelect(coordinator)]
+    if coordinator.has_t300:
+        entities.append(ProxonT300BetriebsartSelect(coordinator))
+    async_add_entities(entities)
 
 
 class ProxonBetriebsartSelect(ProxonEntity, SelectEntity):

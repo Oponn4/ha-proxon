@@ -27,7 +27,7 @@ SWITCHES: tuple[ProxonSwitchDescription, ...] = (
         key="kuehlung_freigabe",
         data_key="kuehlung_freigabe",
         register_key="kuehlung_freigabe",
-        name="Kühlung Freigabe",
+        name="Kühlung",
         icon="mdi:snowflake",
     ),
     # hbde_ptc_freigabe entfernt – jetzt als aux_heat in climate.zone_1 (Wohnen/Essen)
@@ -95,7 +95,7 @@ async def async_setup_entry(
                 key=f"ptc_{room['name_idx']}",
                 data_key="hbde_ptc_freigabe",
                 address=187,
-                name=f"PTC {room['name']}",
+                name=f"Heizelement {room['name']}",
             ))
         else:
             ptc_switches.append(ProxonDynamicSwitch(
@@ -103,12 +103,15 @@ async def async_setup_entry(
                 key=f"ptc_{room['name_idx']}",
                 data_key=f"nbe_ptc_{n}",
                 address=253 + n,
-                name=f"PTC {room['name']}",
+                name=f"Heizelement {room['name']}",
             ))
 
-    async_add_entities(
-        [ProxonSwitch(coordinator, desc) for desc in SWITCHES] + ptc_switches
-    )
+    switches = [
+        ProxonSwitch(coordinator, desc)
+        for desc in SWITCHES
+        if coordinator.has_t300 or desc.device != DEVICE_T300
+    ]
+    async_add_entities(switches + ptc_switches)
 
 
 class ProxonSwitch(ProxonEntity, SwitchEntity):

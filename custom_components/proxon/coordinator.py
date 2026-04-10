@@ -79,11 +79,10 @@ _pymodbus_transport.ModbusProtocol.datagram_received = _safe_datagram_received
 # Bulk read blocks: (start_address, count, fc)
 # Only ranges the Proxon device+adapter actually responds to.
 # Large blocks with register gaps cause Modbus errors on this USR RS485-LAN adapter.
-_READ_BLOCKS: list[tuple[int, int, str]] = [
+_FWT_READ_BLOCKS: list[tuple[int, int, str]] = [
     (0,    52, REG_INPUT),   # FWT input:    0–51
     (154, 112, REG_INPUT),   # FWT input:  154–265
     (590,  21, REG_INPUT),   # NBE input:  590–610  (7 physical devices × 3 regs)
-    (811,  90, REG_INPUT),   # T300 input: 811–900
     (16,    7, "holding"),   # FWT holding:  16–22  (sollbetriebsart, luefterstufe)
     (41,  103, "holding"),   # FWT holding:  41–143
     (187,   1, "holding"),   # FWT holding: 187     (hbde_ptc_freigabe)
@@ -93,6 +92,10 @@ _READ_BLOCKS: list[tuple[int, int, str]] = [
     (460,   1, "holding"),   # FWT holding: 460     (geraetefilter standzeit, requires unlock)
     (467,   3, "holding"),   # FWT holding: 467–469 (stundenzähler FWT/umluft/geraetefilter)
     (613,   7, "holding"),   # FWT holding: 613–619 (zeitprogramm_luft, nacht_temperatur, nachtabsenkung)
+]
+
+_T300_READ_BLOCKS: list[tuple[int, int, str]] = [
+    (811,  90, REG_INPUT),   # T300 input: 811–900
     (2000, 26, "holding"),   # T300 holding: 2000–2025
 ]
 
@@ -151,10 +154,13 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         port: int,
         slave: int,
         scan_interval: int,
+        has_t300: bool = True,
     ) -> None:
         self.host = host
         self.port = port
         self.slave = slave
+        self.has_t300 = has_t300
+        self._read_blocks = _FWT_READ_BLOCKS + (_T300_READ_BLOCKS if has_t300 else [])
         self._client: AsyncModbusTcpClient | None = None
         # Written once per HA session to unlock service register access (addr 438 = 55555).
         # Avoids repeated flash writes on the device; re-unlocks automatically after HA restart.
@@ -276,7 +282,7 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         raw: dict[tuple[str, int], int] = dict(self._prev_raw)
         errors: list[str] = []
 
-        for i, (start, count, fc) in enumerate(_READ_BLOCKS):
+        for i, (start, count, fc) in enumerate(self._read_blocks):
             if i > 0:
                 await asyncio.sleep(_INTER_BLOCK_DELAY)
             block = await self._read_block(self._client, start, count, fc)
@@ -290,7 +296,7 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if errors:
             _LOGGER.debug("Block read failures this cycle (using last known values): %s", ", ".join(errors))
 
-        if len(errors) == len(_READ_BLOCKS):
+        if len(errors) == len(self._read_blocks):
             # Every single block failed this cycle – device/adapter unreachable.
             if self._failure_start is None:
                 self._failure_start = datetime.now()
@@ -308,12 +314,16 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # Decode raw values into the data dict.
         # _decode() returns None for out-of-range raws (stale-frame guard).
         data: dict[str, Any] = {}
-        for reg_dict, fc in [
+        reg_dicts: list[tuple[dict, str]] = [
             (FWT_INPUT_REGISTERS,   REG_INPUT),
             (FWT_HOLDING_REGISTERS, "holding"),
-            (T300_INPUT_REGISTERS,  REG_INPUT),
-            (T300_HOLDING_REGISTERS, "holding"),
-        ]:
+        ]
+        if self.has_t300:
+            reg_dicts += [
+                (T300_INPUT_REGISTERS,  REG_INPUT),
+                (T300_HOLDING_REGISTERS, "holding"),
+            ]
+        for reg_dict, fc in reg_dicts:
             for key, reg in reg_dict.items():
                 raw_val = raw.get((fc, reg.address))
                 data[key] = _decode(reg, raw_val) if raw_val is not None else None

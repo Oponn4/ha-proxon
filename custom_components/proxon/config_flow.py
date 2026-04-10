@@ -16,7 +16,7 @@ from homeassistant.const import CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL  # noqa
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.selector import NumberSelector, NumberSelectorConfig, NumberSelectorMode
 
-from .const import CONF_FILTER_NOTIFICATION, CONF_ROOMS, CONF_SLAVE, DOMAIN, DEFAULT_PORT, DEFAULT_SLAVE, DEFAULT_SCAN_INTERVAL
+from .const import CONF_FILTER_NOTIFICATION, CONF_HAS_T300, CONF_ROOMS, CONF_SLAVE, DOMAIN, DEFAULT_PORT, DEFAULT_SLAVE, DEFAULT_SCAN_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -25,8 +25,9 @@ STEP_SCHEMA = vol.Schema(
         vol.Required(CONF_HOST): str,
         vol.Optional(CONF_PORT, default=DEFAULT_PORT): cv.port,
         vol.Optional(CONF_SLAVE, default=DEFAULT_SLAVE): NumberSelector(NumberSelectorConfig(min=1, max=247, mode=NumberSelectorMode.BOX)),
-        vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): vol.All(
-            int, vol.Range(min=10, max=300)
+        vol.Optional(CONF_HAS_T300, default=True): bool,
+        vol.Required(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): vol.All(
+            int, vol.Range(min=10, max=120)
         ),
         vol.Optional(CONF_FILTER_NOTIFICATION, default=True): bool,
     }
@@ -108,8 +109,8 @@ class ProxonOptionsFlow(OptionsFlow):
             data_schema=vol.Schema(
                 {
                     vol.Optional(CONF_FILTER_NOTIFICATION, default=current_filter): bool,
-                    vol.Optional(CONF_SCAN_INTERVAL, default=current_interval): vol.All(
-                        int, vol.Range(min=10, max=300)
+                    vol.Required(CONF_SCAN_INTERVAL, default=current_interval): vol.All(
+                        int, vol.Range(min=10, max=120)
                     ),
                 }
             ),
@@ -154,6 +155,7 @@ class ProxonConfigFlow(ConfigFlow, domain=DOMAIN):
                             CONF_HOST: host,
                             CONF_PORT: port,
                             CONF_SLAVE: slave,
+                            CONF_HAS_T300: user_input.get(CONF_HAS_T300, True),
                             CONF_ROOMS: rooms,
                         },
                         options={
@@ -200,6 +202,7 @@ class ProxonConfigFlow(ConfigFlow, domain=DOMAIN):
                             CONF_HOST: host,
                             CONF_PORT: port,
                             CONF_SLAVE: slave,
+                            CONF_HAS_T300: user_input.get(CONF_HAS_T300, entry.data.get(CONF_HAS_T300, True)),
                             CONF_ROOMS: rooms,
                         },
                     )
@@ -218,6 +221,7 @@ class ProxonConfigFlow(ConfigFlow, domain=DOMAIN):
                     vol.Optional(CONF_SLAVE, default=entry.data.get(CONF_SLAVE, DEFAULT_SLAVE)): NumberSelector(
                         NumberSelectorConfig(min=1, max=247, mode=NumberSelectorMode.BOX)
                     ),
+                    vol.Optional(CONF_HAS_T300, default=entry.data.get(CONF_HAS_T300, True)): bool,
                 }
             ),
             errors=errors,
