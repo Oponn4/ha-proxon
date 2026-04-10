@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Any
 
 from pymodbus.client import AsyncModbusTcpClient
@@ -40,6 +40,9 @@ class _SuppressModbusNoise(logging.Filter):
         "request ask for transaction_id=",
         # RTU frame decode failure (bus noise byte e.g. 0x80 = exception flag)
         "Unable to decode frame",
+        # Transient timeout after pymodbus internal retries – we handle this
+        # ourselves with a 10-minute grace period (see ProxonCoordinator._failure_start).
+        "No response received after",
     )
 
     def filter(self, record: logging.LogRecord) -> bool:
@@ -111,6 +114,9 @@ _READ_BLOCKS: list[tuple[int, int, str]] = [
 _INTER_BLOCK_DELAY = 0.15   # seconds between block reads
 _POST_CONNECT_DRAIN = 0.30  # seconds to wait after connect before first read
 _MODBUS_TIMEOUT = 5         # seconds per request (pymodbus default is 3)
+# Only log an ERROR for persistent block-read failures after this grace period.
+# Transient timeouts (e.g. bus contention, short adapter hiccup) are suppressed.
+_FAILURE_ERROR_THRESHOLD = timedelta(minutes=10)
 
 
 def _to_signed16(value: int) -> int:
@@ -157,6 +163,10 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # entities on transient block read failures (RS485 noise/bus contention).
         # Entities only go unavailable on complete connection loss (UpdateFailed).
         self._prev_raw: dict[tuple[str, int], int] = {}
+        # Timestamp of the first poll cycle where ALL blocks failed.
+        # None when at least one block succeeded recently.
+        # We only log an ERROR once this exceeds _FAILURE_ERROR_THRESHOLD.
+        self._failure_start: datetime | None = None
 
         super().__init__(
             hass,
@@ -279,6 +289,21 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         if errors:
             _LOGGER.debug("Block read failures this cycle (using last known values): %s", ", ".join(errors))
+
+        if len(errors) == len(_READ_BLOCKS):
+            # Every single block failed this cycle – device/adapter unreachable.
+            if self._failure_start is None:
+                self._failure_start = datetime.now()
+            elapsed = datetime.now() - self._failure_start
+            if elapsed >= _FAILURE_ERROR_THRESHOLD:
+                _LOGGER.error(
+                    "Proxon device unreachable for %d minutes – no register data received",
+                    int(elapsed.total_seconds() / 60),
+                )
+        else:
+            if self._failure_start is not None:
+                _LOGGER.info("Proxon device reachable again after outage")
+            self._failure_start = None
 
         # Decode raw values into the data dict.
         # _decode() returns None for out-of-range raws (stale-frame guard).
