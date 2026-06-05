@@ -95,5 +95,6 @@ Die Proxon-Einheit erfordert einen Freischaltcode bevor Holding-Register geschri
 
 - **Betriebsart „Test"** (Modus 9): Nicht verfügbar – ausschließlich für Servicetechniker vorgesehen.
 - **Zone 2**: Als `number`-Entity verfügbar (deaktiviert) – nur relevant für Anlagen ohne NBE-Raumbediengeräte.
+- **Frischluft-Leistungsbegrenzung** (Sensoren *obere/untere Leistungsgrenze*, deaktiviert): Die WP begrenzt ihre Kompressorleistung temperaturabhängig über eine 2-Punkt-Rampe (Register 95–98) – „ober/unter" bezeichnet dabei das Leistungspaar, nicht die Temperaturreihenfolge, weshalb die Obergrenze-Temperatur unter der Untergrenze liegen darf.
 - **Raumnamen**: Das Schreiben über die `text`-Entities ändert den Gerätespeicher direkt (FC6 Preset Write, Latin-1 kodiert). Mit Bedacht verwenden.
 - **Entwicklung**: Diese Integration entstand mit Unterstützung von [Claude Code](https://claude.ai/code) – auf Basis manuell definierter Modbus-Sensoren und -Schalter, die in Home Assistant über Jahre gewachsen sind.

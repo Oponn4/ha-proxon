@@ -244,14 +244,14 @@ SENSORS: tuple[ProxonSensorDescription, ...] = (
         entity_registry_enabled_default=False,
     ),
     ProxonSensorDescription(
-        key="frischluft_obergrenze", data_key="frischluft_obergrenze", name="Frischlufttemperatur Obergrenze",
+        key="frischluft_obergrenze", data_key="frischluft_obergrenze", name="Frischlufttemp. obere Leistungsgrenze",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         entity_registry_enabled_default=False,
     ),
     ProxonSensorDescription(
-        key="frischluft_untergrenze", data_key="frischluft_untergrenze", name="Frischlufttemperatur Untergrenze",
+        key="frischluft_untergrenze", data_key="frischluft_untergrenze", name="Frischlufttemp. untere Leistungsgrenze",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,

@@ -72,6 +72,30 @@ Vollständige Register-Referenz für die HA Custom Integration.
 
 ---
 
+## Temperaturabhängige Leistungsbegrenzung (B14–B17)
+
+Die Kompressorleistung der FWT wird abhängig von der **Frischlufttemperatur** begrenzt.
+Vier Holding-Register bilden paarweise eine 2-Punkt-Rampe:
+
+| Reg | Parameter | Gruppe | Einheit |
+|----:|-----------|--------|---------|
+| 95 | Leistungsbegrenzung obere Grenze | B15 | % |
+| 96 | Leistungsbegrenzung untere Grenze | B14 | % |
+| 97 | Frischlufttemperatur obere Grenze | B17 | °C |
+| 98 | Frischlufttemperatur untere Grenze | B16 | °C |
+
+- Bei Frischluft = **Reg 98** (untere Grenze) gilt die Leistungsgrenze aus **Reg 96**.
+- Bei Frischluft = **Reg 97** (obere Grenze) gilt die Leistungsgrenze aus **Reg 95**.
+- Dazwischen wird linear interpoliert.
+
+Das „ober/unter" bezeichnet das **Leistungs**-Paar (B14/B15), **nicht** eine
+Temperaturreihenfolge – deshalb darf die Obergrenze-Temperatur unter der
+Untergrenze liegen. Beispielanlage: Obergrenze −2 °C, Untergrenze 15 °C → je
+kälter die Frischluft, desto stärker rampt die WP zur oberen Leistungsgrenze
+(Kaltwetter-Leistungssteuerung des Kompressors).
+
+---
+
 ## Bekannte Probleme & Untersuchungen
 
 ### JAZ-Sensoren immer 0
