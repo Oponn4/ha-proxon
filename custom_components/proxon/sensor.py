@@ -243,6 +243,20 @@ SENSORS: tuple[ProxonSensorDescription, ...] = (
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         entity_registry_enabled_default=False,
     ),
+    ProxonSensorDescription(
+        key="frischluft_obergrenze", data_key="frischluft_obergrenze", name="Frischlufttemperatur Obergrenze",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        entity_registry_enabled_default=False,
+    ),
+    ProxonSensorDescription(
+        key="frischluft_untergrenze", data_key="frischluft_untergrenze", name="Frischlufttemperatur Untergrenze",
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        entity_registry_enabled_default=False,
+    ),
 
     # ── T300 Warmwasser-Wärmepumpe ──────────────────────────────────────
     ProxonSensorDescription(

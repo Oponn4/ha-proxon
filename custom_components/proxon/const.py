@@ -147,8 +147,12 @@ FWT_HOLDING_REGISTERS: dict[str, ModbusRegister] = {
     ),
     # Thresholds (read-only at level 0 / 1)
     "wp_einschaltschwelle": ModbusRegister(42, REG_HOLDING, "WP Einschaltschwelle", "°C", 100, "int16"),
-    "wp_ausschaltschwelle": ModbusRegister(143, REG_HOLDING, "WP Ausschaltschwelle", "°C", 100, "int16"),
+    # FIX 2026-06-05: war Reg 143 (undokumentiert), korrekt ist Reg 134 (A06) laut Modbus-Liste
+    "wp_ausschaltschwelle": ModbusRegister(134, REG_HOLDING, "WP Ausschaltschwelle", "°C", 100, "int16"),
     "wp_kuehlschwelle": ModbusRegister(41, REG_HOLDING, "WP Kühlschwelle", "°C", 100, "int16"),
+    # Frischlufttemperatur-Grenzen Kompressorfreigabe (B16/B17), int16 *100; liegen in Read-Block (41,103)
+    "frischluft_obergrenze": ModbusRegister(97, REG_HOLDING, "Frischlufttemperatur Obergrenze", "°C", 100, "int16"),
+    "frischluft_untergrenze": ModbusRegister(98, REG_HOLDING, "Frischlufttemperatur Untergrenze", "°C", 100, "int16"),
     # Write permissions register (read current level)
     "schreibrechte": ModbusRegister(438, REG_HOLDING, "Schreibrechte", "", 1, "uint16"),
     # Actual heat pump operating mode (read-only holding)

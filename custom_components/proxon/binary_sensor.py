@@ -89,6 +89,15 @@ BINARY_SENSORS: tuple[ProxonBinarySensorDescription, ...] = (
         device=DEVICE_T300,
     ),
     ProxonBinarySensorDescription(
+        key="t300_solar_aktiv",
+        data_key="t300_r3_solar",
+        name="Solar aktiv",
+        icon="mdi:solar-power-variant",
+        on_value=1,
+        entity_registry_enabled_default=False,  # nur relevant bei Solar-Anbindung
+        device=DEVICE_T300,
+    ),
+    ProxonBinarySensorDescription(
         key="filter_wechsel_faellig",
         data_key="filter_wechsel_faellig",
         name="Filtertausch fällig",
