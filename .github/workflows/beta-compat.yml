@@ -1,0 +1,63 @@
+name: HA Beta Compatibility
+
+# Frühwarnsystem: installiert die Manifest-Requirements zusammen mit der
+# aktuellen HA-Beta (und Stable als Referenz). Ein Resolver-Konflikt wie
+# pymodbus==3.11.2 vs. HA-Core-Pin (2026-07-06) wird so eine Woche vor dem
+# Monatsrelease als rote CI sichtbar — nicht als tote Integration.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # montags 06:00 UTC
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  beta-compat:
+    name: HA ${{ matrix.channel }} — resolve + import
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        channel: [stable, beta]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Extract manifest requirements
+        run: |
+          python -c "
+          import json
+          reqs = json.load(open('custom_components/proxon/manifest.json'))['requirements']
+          open('requirements-manifest.txt', 'w').write('\n'.join(reqs) + '\n')
+          "
+          cat requirements-manifest.txt
+
+      - name: Install HA (${{ matrix.channel }}) + manifest requirements
+        run: |
+          pip install --quiet uv
+          PRE=""
+          if [ "${{ matrix.channel }}" = "beta" ]; then
+            PRE="--prerelease=allow"
+          fi
+          uv pip install --system $PRE homeassistant -r requirements-manifest.txt
+
+      - name: Import smoke test
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          python - <<'EOF'
+          from homeassistant.const import __version__
+          print(f"Home Assistant {__version__}")
+          # Modul-Import zieht pymodbus-Imports + datagram_received-Monkeypatch —
+          # bricht die pymodbus-Version eine dieser Stellen, failt der Job hier.
+          import custom_components.proxon
+          import custom_components.proxon.coordinator
+          import custom_components.proxon.config_flow
+          print("proxon imports OK")
+          EOF
