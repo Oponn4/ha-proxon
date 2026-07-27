@@ -192,6 +192,25 @@ FWT_HOLDING_REGISTERS: dict[str, ModbusRegister] = {
         writable=WRITE_SOME, min_raw=0, max_raw=1,
     ),
 
+    # Sommerbypass (Menü G01–G03 + T05) – Adressen liegen in den bestehenden
+    # Read-Blöcken (16,7) bzw. (41,103), es ist kein neuer Block nötig.
+    "bypass_min_frischluft": ModbusRegister(
+        19, REG_HOLDING, "Bypass Minimum Frischlufttemperatur", "°C", 100, "int16",
+        writable=WRITE_SOME, min_raw=800, max_raw=2000,
+    ),
+    "bypass_hysterese": ModbusRegister(
+        102, REG_HOLDING, "Bypass Temperatur Hysterese", "K", 100, "int16",
+        writable=WRITE_SOME, min_raw=0, max_raw=1000,
+    ),
+    "bypass_laufzeit": ModbusRegister(
+        107, REG_HOLDING, "Bypass Laufzeit", "s", 1, "uint16",
+        writable=WRITE_SOME, min_raw=10, max_raw=20,
+    ),
+    # Reg 21 liegt im Testmenü T05: 1/2 hebeln die Automatik dauerhaft aus.
+    "bypass_modus": ModbusRegister(
+        21, REG_HOLDING, "Bypass Modus", "", 1, "uint16",
+        writable=WRITE_SOME, min_raw=0, max_raw=2,
+    ),
 }
 
 # Operating mode mapping
@@ -204,6 +223,16 @@ BETRIEBSART_MAP: dict[int, str] = {
     # 9: "Test" absichtlich weggelassen – Technikermode, nicht über HA setzen
 }
 BETRIEBSART_REVERSE: dict[str, int] = {v: k for k, v in BETRIEBSART_MAP.items()}
+
+# Bypass mode mapping (Holding 21, Menü T05:Test)
+# "Geregelt" ist der Normalbetrieb (automatischer Sommerbypass).
+# "Geschlossen"/"Geöffnet" sind Zwangsstellungen und deaktivieren die Regelung.
+BYPASS_MODUS_MAP: dict[int, str] = {
+    0: "Geregelt",
+    1: "Geschlossen",
+    2: "Geöffnet",
+}
+BYPASS_MODUS_REVERSE: dict[str, int] = {v: k for k, v in BYPASS_MODUS_MAP.items()}
 
 # ─────────────────────────────────────────────
 # T300 Warmwasser-Wärmepumpe

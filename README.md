@@ -31,10 +31,10 @@ Verbindung erfolgt lokal über Modbus RTU-over-TCP via USR RS485-to-LAN Adapter.
 
 | Platform | Entities |
 |---|---|
-| **Select** | FWT Betriebsart (Aus / Eco Sommer / Eco Winter / Komfort) · T300 Betriebsart |
+| **Select** | FWT Betriebsart (Aus / Eco Sommer / Eco Winter / Komfort) · Bypass Modus (Geregelt / Geschlossen / Geöffnet, deaktiviert) · T300 Betriebsart |
 | **Fan** | Lüftungsstufe (4 Stufen: 25 / 50 / 75 / 100 %) |
 | **Switch** | Kühlung freigeben · T300 Elektroheizung · T300 Legionellenschutz · T300 PV-Modus · PTC-Freigabe je Raum (deaktiviert) · Zeitprogramm Lüftung · Nachtabsenkung (deaktiviert) |
-| **Number** | NBE Temperatur-Offsets je Raum (deaktiviert) · Zone-2-Solltemperatur (deaktiviert) · Intensivlüftung Timer · Nachttemperatur · T300 Solltemperatur · T300 Elektroheizungstemperatur |
+| **Number** | NBE Temperatur-Offsets je Raum (deaktiviert) · Zone-2-Solltemperatur (deaktiviert) · Intensivlüftung Timer · Nachttemperatur · Bypass Minimum Frischlufttemperatur (G01) · Bypass Hysterese (G02) · Bypass Laufzeit (G03, deaktiviert) · T300 Solltemperatur · T300 Elektroheizungstemperatur |
 | **Binary Sensor** | Störung aktiv · Kompressor aktiv · Bypass offen · Filterwechsel fällig · T300 Relais-Zustände |
 | **Button** | Filterlaufzeit zurücksetzen |
 | **Text** | Raumname je Bediengerät – schreibt direkt in den Gerätespeicher (deaktiviert) |

@@ -10,7 +10,7 @@ from homeassistant.components.number import (
     NumberMode,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import UnitOfTemperature
+from homeassistant.const import EntityCategory, UnitOfTemperature, UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -71,6 +71,56 @@ NUMBERS: tuple[ProxonNumberDescription, ...] = (
         native_step=0.5,
         mode=NumberMode.BOX,
         scale=100.0,
+        entity_registry_enabled_default=False,
+    ),
+
+    # ── Sommerbypass (Menü G01–G03) ─────────────────────────────────────
+    ProxonNumberDescription(
+        key="bypass_min_frischluft",
+        data_key="bypass_min_frischluft",
+        register_key="bypass_min_frischluft",
+        name="Bypass Minimum Frischlufttemperatur",
+        note="G01: Unterhalb dieser Frischlufttemperatur bleibt der Sommerbypass zu",
+        device_class=NumberDeviceClass.TEMPERATURE,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        native_min_value=8,
+        native_max_value=20,
+        native_step=0.5,
+        mode=NumberMode.BOX,
+        entity_category=EntityCategory.CONFIG,
+        icon="mdi:valve",
+        scale=100.0,
+    ),
+    ProxonNumberDescription(
+        key="bypass_hysterese",
+        data_key="bypass_hysterese",
+        register_key="bypass_hysterese",
+        name="Bypass Hysterese",
+        note="G02: Schaltabstand zwischen Bypass AUF und ZU",
+        # Kein device_class: K ist hier ein Temperatur-Delta, keine Absoluttemperatur.
+        native_unit_of_measurement="K",
+        native_min_value=0,
+        native_max_value=10,
+        native_step=0.5,
+        mode=NumberMode.BOX,
+        entity_category=EntityCategory.CONFIG,
+        icon="mdi:arrow-expand-vertical",
+        scale=100.0,
+    ),
+    ProxonNumberDescription(
+        key="bypass_laufzeit",
+        data_key="bypass_laufzeit",
+        register_key="bypass_laufzeit",
+        name="Bypass Laufzeit",
+        note="G03: Verfahrzeit der Bypassklappe AUF/ZU",
+        native_unit_of_measurement=UnitOfTime.SECONDS,
+        native_min_value=10,
+        native_max_value=20,
+        native_step=1,
+        mode=NumberMode.BOX,
+        entity_category=EntityCategory.CONFIG,
+        icon="mdi:timer-cog-outline",
+        scale=1.0,
         entity_registry_enabled_default=False,
     ),
 

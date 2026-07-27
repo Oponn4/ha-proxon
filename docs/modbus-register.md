@@ -51,6 +51,8 @@ Vollständige Register-Referenz für die HA Custom Integration.
 | Addr | Key | Einheit | Bemerkung |
 |-----:|-----|---------|-----------|
 | 16 | sollbetriebsart | — | R/W |
+| 19 | bypass_min_frischluft | °C | R/W, G01 – Bypass bleibt darunter zu |
+| 21 | bypass_modus | — | R/W, T05:Test – 0=Geregelt, 1=Zu, 2=Auf (1/2 killt Automatik) |
 | 22 | luefterstufe | — | R/W |
 | 41 | wp_kuehlschwelle | °C | |
 | 42 | wp_einschaltschwelle | °C | |
@@ -58,6 +60,8 @@ Vollständige Register-Referenz für die HA Custom Integration.
 | 69 | betriebsart_wp | — | |
 | 70 | soll_temp_zone1 | °C | R/W |
 | 75 | soll_temp_zone2 | °C | R/W |
+| 102 | bypass_hysterese | K | R/W, G02 – Delta, kein device_class |
+| 107 | bypass_laufzeit | s | R/W, G03 – Klappen-Verfahrzeit |
 | 133 | intensivlueftung | min | R/W |
 | 143 | wp_ausschaltschwelle | °C | |
 | 187 | hbde_ptc_freigabe | — | R/W |
