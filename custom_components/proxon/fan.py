@@ -67,7 +67,9 @@ class ProxonFan(ProxonEntity, FanEntity):
     async def async_set_percentage(self, percentage: int) -> None:
         level = _pct_to_level(percentage)
         reg = FWT_HOLDING_REGISTERS["luefterstufe"]
-        await self.coordinator.write_register(reg.address, level)
+        await self.coordinator.async_write(
+            reg.address, level, optimistic={"luefterstufe": level},
+        )
         await self.coordinator.async_request_refresh()
 
     async def async_turn_on(
@@ -79,5 +81,7 @@ class ProxonFan(ProxonEntity, FanEntity):
     async def async_turn_off(self, **kwargs: Any) -> None:
         # Turning off the fan means switching to "Aus" operating mode
         reg = FWT_HOLDING_REGISTERS["sollbetriebsart"]
-        await self.coordinator.write_register(reg.address, 0)
+        await self.coordinator.async_write(
+            reg.address, 0, optimistic={"sollbetriebsart": 0},
+        )
         await self.coordinator.async_request_refresh()

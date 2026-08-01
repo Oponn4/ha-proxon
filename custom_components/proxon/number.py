@@ -226,5 +226,6 @@ class ProxonNumber(ProxonEntity, NumberEntity):
             key = self.entity_description.register_key
             reg = FWT_HOLDING_REGISTERS.get(key) or T300_HOLDING_REGISTERS[key]
             address = reg.address
-        await self.coordinator.write_register(address, raw)
+        data_key = self.entity_description.data_key or self.entity_description.key
+        await self.coordinator.async_write(address, raw, optimistic={data_key: value})
         await self.coordinator.async_request_refresh()

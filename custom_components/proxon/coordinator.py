@@ -11,8 +11,10 @@ from pymodbus.exceptions import ModbusException, ModbusIOException
 from pymodbus.framer import FramerType
 
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
+from .optimistic import OptimisticCache
 from .const import (
     DOMAIN,
     FWT_INPUT_REGISTERS,
@@ -173,6 +175,11 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # None when at least one block succeeded recently.
         # We only log an ERROR once this exceeds _FAILURE_ERROR_THRESHOLD.
         self._failure_start: datetime | None = None
+        # Values written but not yet confirmed by a poll. Held for two cycles
+        # plus slack: long enough that a poll started right after the write
+        # cannot bounce the UI back, short enough that a rejected write shows
+        # the truth again quickly.
+        self._optimistic = OptimisticCache(hold_seconds=2 * scan_interval + 30)
 
         super().__init__(
             hass,
@@ -377,7 +384,43 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # Connection is deliberately NOT kept open; it will be reopened next cycle.
         self._close_client()
 
-        return data
+        # Just-written values win until this poll confirms them (or the hold
+        # window runs out). A cycle that started before the write landed would
+        # otherwise report the old register content and bounce the UI back.
+        return self._optimistic.apply(data)
+
+    async def async_write(
+        self, address: int, value: int, optimistic: dict[str, Any] | None = None,
+    ) -> None:
+        """Write a register and show the result immediately.
+
+        `optimistic` sind die dekodierten Werte, die die Entities anzeigen sollen
+        (also `coordinator.data`-Keys, nicht Rohregister). Sie werden VOR dem
+        Modbus-Write gesetzt und sofort an alle Entities gemeldet: der Write
+        selbst dauert je nach Verbindungsaufbau bis zu ~1,5 s, der bestätigende
+        Poll nochmal ~3 s. Genau diese Wartezeit sah im Frontend aus wie „Tap
+        reagiert nicht".
+
+        Schlägt der Write fehl, wird die Vormerkung zurückgenommen und ein
+        HomeAssistantError geworfen — vorher wurde ein fehlgeschlagener Write
+        stillschweigend geschluckt und die UI sprang nur wortlos zurück.
+        """
+        previous: dict[str, Any] = {}
+        if optimistic and self.data is not None:
+            previous = {key: self.data.get(key) for key in optimistic}
+            self._optimistic.set(optimistic)
+            self.async_set_updated_data({**self.data, **optimistic})
+
+        if await self.write_register(address, value):
+            return
+
+        if optimistic:
+            self._optimistic.drop(optimistic)
+            if previous and self.data is not None:
+                self.async_set_updated_data({**self.data, **previous})
+        raise HomeAssistantError(
+            f"Proxon: Schreiben auf Register {address} (Wert {value}) fehlgeschlagen"
+        )
 
     async def write_register(self, address: int, value: int) -> bool:
         """Write a single holding register. Returns True on success."""

@@ -1,0 +1,25 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+    branches: [main]
+
+jobs:
+  pytest:
+    name: pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install pytest
+        run: pip install pytest
+
+      # Die Testsuite läuft bewusst ohne Home-Assistant-Installation: getestet
+      # werden die HA-freien Logikmodule (custom_components/proxon/optimistic.py).
+      - name: Run tests
+        run: python -m pytest tests/ -q
