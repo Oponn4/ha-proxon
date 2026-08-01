@@ -143,14 +143,19 @@ class ProxonRoomClimate(ProxonEntity, ClimateEntity):
         if mittel is None:
             return
         offset = max(_OFFSET_MIN, min(_OFFSET_MAX, round(float(temp) - float(mittel))))
-        await self.coordinator.write_register(213 + self._n, _offset_to_raw(offset))
+        await self.coordinator.async_write(
+            213 + self._n, _offset_to_raw(offset),
+            optimistic={f"nbe_offset_{self._n}": offset},
+        )
         await self.coordinator.async_request_refresh()
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         if hvac_mode == HVACMode.OFF:
-            await self.coordinator.write_register(16, 0)   # Betriebsart: Aus
+            # Betriebsart: Aus
+            await self.coordinator.async_write(16, 0, optimistic={"sollbetriebsart": 0})
         elif hvac_mode == HVACMode.AUTO:
-            await self.coordinator.write_register(16, 3)   # Komfortbetrieb
+            # Komfortbetrieb
+            await self.coordinator.async_write(16, 3, optimistic={"sollbetriebsart": 3})
         await self.coordinator.async_request_refresh()
 
 
@@ -218,14 +223,16 @@ class ProxonZoneClimate(ProxonEntity, ClimateEntity):
         if temp is None:
             return
         raw = int(round(float(temp) * 100))
-        await self.coordinator.write_register(self._target_addr, raw)
+        await self.coordinator.async_write(
+            self._target_addr, raw, optimistic={self._target_key: float(temp)},
+        )
         await self.coordinator.async_request_refresh()
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         if hvac_mode == HVACMode.OFF:
-            await self.coordinator.write_register(16, 0)
+            await self.coordinator.async_write(16, 0, optimistic={"sollbetriebsart": 0})
         elif hvac_mode == HVACMode.AUTO:
-            await self.coordinator.write_register(16, 3)
+            await self.coordinator.async_write(16, 3, optimistic={"sollbetriebsart": 3})
         await self.coordinator.async_request_refresh()
 
 

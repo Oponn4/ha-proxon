@@ -51,7 +51,9 @@ class ProxonBetriebsartSelect(ProxonEntity, SelectEntity):
         if raw is None:
             return
         reg = FWT_HOLDING_REGISTERS["sollbetriebsart"]
-        await self.coordinator.write_register(reg.address, raw)
+        await self.coordinator.async_write(
+            reg.address, raw, optimistic={"sollbetriebsart": raw},
+        )
         await self.coordinator.async_request_refresh()
 
 
@@ -94,7 +96,9 @@ class ProxonBypassModusSelect(ProxonEntity, SelectEntity):
         if raw is None:
             return
         reg = FWT_HOLDING_REGISTERS["bypass_modus"]
-        await self.coordinator.write_register(reg.address, raw)
+        await self.coordinator.async_write(
+            reg.address, raw, optimistic={"bypass_modus": raw},
+        )
         await self.coordinator.async_request_refresh()
 
 
@@ -120,5 +124,7 @@ class ProxonT300BetriebsartSelect(ProxonEntity, SelectEntity):
         if raw is None:
             return
         reg = T300_HOLDING_REGISTERS["t300_betriebsart"]
-        await self.coordinator.write_register(reg.address, raw)
+        await self.coordinator.async_write(
+            reg.address, raw, optimistic={"t300_betriebsart": raw},
+        )
         await self.coordinator.async_request_refresh()

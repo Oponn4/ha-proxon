@@ -139,13 +139,18 @@ class ProxonSwitch(ProxonEntity, SwitchEntity):
         key = self.entity_description.register_key or self.entity_description.key
         return FWT_HOLDING_REGISTERS.get(key) or T300_HOLDING_REGISTERS[key]
 
-    async def async_turn_on(self, **kwargs: Any) -> None:
-        await self.coordinator.write_register(self._reg().address, 1)
+    async def _async_set(self, value: int) -> None:
+        data_key = self.entity_description.data_key or self.entity_description.key
+        await self.coordinator.async_write(
+            self._reg().address, value, optimistic={data_key: value},
+        )
         await self.coordinator.async_request_refresh()
 
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        await self._async_set(1)
+
     async def async_turn_off(self, **kwargs: Any) -> None:
-        await self.coordinator.write_register(self._reg().address, 0)
-        await self.coordinator.async_request_refresh()
+        await self._async_set(0)
 
 
 class ProxonDynamicSwitch(ProxonEntity, SwitchEntity):
@@ -171,10 +176,14 @@ class ProxonDynamicSwitch(ProxonEntity, SwitchEntity):
         val = self.coordinator.data.get(self._data_key)
         return None if val is None else int(val) == 1
 
-    async def async_turn_on(self, **kwargs: Any) -> None:
-        await self.coordinator.write_register(self._address, 1)
+    async def _async_set(self, value: int) -> None:
+        await self.coordinator.async_write(
+            self._address, value, optimistic={self._data_key: value},
+        )
         await self.coordinator.async_request_refresh()
 
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        await self._async_set(1)
+
     async def async_turn_off(self, **kwargs: Any) -> None:
-        await self.coordinator.write_register(self._address, 0)
-        await self.coordinator.async_request_refresh()
+        await self._async_set(0)

@@ -91,6 +91,42 @@ Die Proxon-Einheit erfordert einen Freischaltcode bevor Holding-Register geschri
 
 ---
 
+## Entwicklung
+
+### Tests
+
+```bash
+python -m pytest tests/ -q
+```
+
+Läuft ohne Home-Assistant-Installation: getestet werden die HA-freien Logikmodule.
+
+### Simulator statt echter Anlage
+
+Damit Schreibpfade nicht an der laufenden Wärmepumpe ausprobiert werden müssen:
+
+```bash
+# 1. Registerabzug der echten Anlage — ausschließlich lesend
+python tools/dump_registers.py --host 10.42.20.2 --out proxon_dump.json
+
+# 2. Simulator starten (spricht RTU-over-TCP wie der USR-Adapter)
+python tools/proxon_sim.py --dump proxon_dump.json --port 5020
+```
+
+Danach eine zweite Integrations-Instanz auf `host:5020` einrichten.
+
+Drei Schalter stellen das reale Verhalten nach:
+
+| Option | Wirkung |
+|---|---|
+| `--latency 0.15` | Antwortzeit pro Registerzugriff — über 15 Blöcke ergibt das den ~3-s-Poll des echten Adapters |
+| `--lazy 62:8` | Register übernimmt den Wert erst nach 8 s: ein Poll dazwischen liefert noch den alten Stand |
+| `--reject 2001` | Write wird mit Modbus-Exception beantwortet — prüft die Fehlerbehandlung |
+
+Der Abzug enthält die Raumnamen des Geräts und gehört deshalb nicht ins Repository.
+
+---
+
 ## Hinweise
 
 - **Betriebsart „Test"** (Modus 9): Nicht verfügbar – ausschließlich für Servicetechniker vorgesehen.
