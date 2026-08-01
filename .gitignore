@@ -4,3 +4,6 @@ __pycache__/
 *.egg-info/
 dist/
 .DS_Store
+proxon_dump*.json
+__pycache__/
+.pytest_cache/
