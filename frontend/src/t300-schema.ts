@@ -121,6 +121,8 @@ export interface T300Ctx {
   /** Helper entities that are not part of the proxon integration. */
   extras: { power?: string; energy_daily?: string; pv_surplus?: string };
   animate: boolean;
+  /** Multiplier on all animation rates. 1 = default, 0.5 = half speed. */
+  speed: number;
   onEntityClick: (entityId: string) => void;
 }
 
@@ -150,8 +152,9 @@ export function renderT300(ctx: T300Ctx): SVGTemplateResult {
 
   // Same mapping as the FWT card: more throughput, shorter cycle.
   const pct = Number.isFinite(fanPct) ? Math.min(100, Math.max(0, fanPct)) : 60;
-  const dur = 6 - (pct / 100) * (6 - 1.8);
+  const dur = (10 - (pct / 100) * (10 - 3.5)) / ctx.speed;
   const dotsOn = animate && running;
+  const bladeDur = dur / 2;
 
   const values: Array<{
     entityId?: string; x: number; y: number; color: string; size: "core" | "detail";
@@ -217,7 +220,7 @@ export function renderT300(ctx: T300Ctx): SVGTemplateResult {
       ${dotsOn ? flowDots("flow-air-in", dur) : nothing}
       ${dotsOn ? flowDots("flow-air-out", dur) : nothing}
 
-      ${fan(FAN_X, Y_AIR_IN, "fan-t300", part, animate && running ? dur / 3 : undefined)}
+      ${fan(FAN_X, Y_AIR_IN, "fan-t300", part, animate && running ? bladeDur : undefined)}
       ${lamellaeH(EVAP_Y, DEV_X0 + 60, DEV_X1 - 60, "evaporator", part)}
 
       <g id="refrigerant" opacity=${op}>
@@ -234,7 +237,7 @@ export function renderT300(ctx: T300Ctx): SVGTemplateResult {
           ${animate && running
             ? svg`<animateTransform attributeName="transform" type="rotate"
                 from=${`0 ${COMP_X} ${COMP_Y}`} to=${`360 ${COMP_X} ${COMP_Y}`}
-                dur="1.1s" repeatCount="indefinite"/>`
+                dur=${`${1.8 / ctx.speed}s`} repeatCount="indefinite"/>`
             : nothing}
         </g>
         <circle cx=${COMP_X} cy=${COMP_Y} r="7" fill=${C_TEXT}/>

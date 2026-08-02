@@ -112,6 +112,8 @@ export interface FwtCtx {
   hass: HassLike;
   map: EntityMap;
   animate: boolean;
+  /** Multiplier on all animation rates. 1 = default, 0.5 = half speed. */
+  speed: number;
   onEntityClick: (entityId: string) => void;
 }
 
@@ -133,11 +135,16 @@ function formatState(hass: HassLike, id?: string): string {
 /**
  * Fan speed -> seconds per animation cycle, same linear mapping
  * power-flow-card-plus applies to power: more throughput, shorter duration.
+ *
+ * Deliberately unhurried: a schematic that is glanced at on a wall tablet
+ * should read as "air is moving", not flicker. Divide by `speed` so a larger
+ * multiplier means faster.
  */
-function flowDuration(pct: number | undefined, min = 1.6, max = 6): number {
-  if (pct === undefined || pct <= 0) return max;
-  const clamped = Math.min(100, Math.max(0, pct));
-  return max - (clamped / 100) * (max - min);
+function flowDuration(pct: number | undefined, speed: number, min = 3.5, max = 10): number {
+  const base = pct === undefined || pct <= 0
+    ? max
+    : max - (Math.min(100, Math.max(0, pct)) / 100) * (max - min);
+  return base / speed;
 }
 
 const VALUES: Array<{
@@ -179,8 +186,10 @@ export function renderFwt(ctx: FwtCtx): SVGTemplateResult {
   const bpOp = bypassOpen ? 1.0 : 0.6;
   const wtOp = bypassOpen ? 0.18 : 1.0;
 
-  const dur = flowDuration(fanOn ? (fanPct ?? 50) : undefined);
+  const dur = flowDuration(fanOn ? (fanPct ?? 50) : undefined, ctx.speed);
   const dotsOn = animate && fanOn;
+  // Blades turn slower than the dots travel; a blurred fan reads as noise.
+  const bladeDur = dur / 2;
 
   const supply: Pt[] = [[X_A, Y_TOP], [X_L, Y_TOP], [X_R, Y_BOT], [X_B, Y_BOT]];
   const gap = HB + 14;
@@ -246,8 +255,8 @@ export function renderFwt(ctx: FwtCtx): SVGTemplateResult {
         <circle cx=${BP_X_IN} cy=${Y_TOP + HB} r="10" fill=${C_TEXT} stroke="#FFFFFF" stroke-width="3"/>
       </g>
 
-      ${fan(FAN_L, "fan-supply", animate && fanOn ? dur / 3 : undefined)}
-      ${fan(FAN_R, "fan-extract", animate && fanOn ? dur / 3 : undefined)}
+      ${fan(FAN_L, "fan-supply", animate && fanOn ? bladeDur : undefined)}
+      ${fan(FAN_R, "fan-extract", animate && fanOn ? bladeDur : undefined)}
       ${plate(PRE_X, Y_TOP - 95, Y_TOP + 95, "preheater")}
       ${plate(EVAP_X, Y_BOT - 110, 700, "evaporator")}
       ${plate(COND_X, Y_BOT - 110, 700, "condenser")}
@@ -265,7 +274,7 @@ export function renderFwt(ctx: FwtCtx): SVGTemplateResult {
           ${animate && compressorRpm
             ? svg`<animateTransform attributeName="transform" type="rotate"
                 from=${`0 ${COMP_X} ${CIRC_Y}`} to=${`360 ${COMP_X} ${CIRC_Y}`}
-                dur=${`${Math.max(0.4, 120 / compressorRpm)}s`} repeatCount="indefinite"/>`
+                dur=${`${Math.max(1.2, 240 / compressorRpm) / ctx.speed}s`} repeatCount="indefinite"/>`
             : nothing}
         </g>
         <circle cx=${COMP_X} cy=${CIRC_Y} r="7" fill=${C_TEXT}/>

@@ -23,11 +23,18 @@ import {
   type Variant,
 } from "./entities";
 
+import "./editor";
+
 export interface ProxonSchemaCardConfig {
   type: string;
   device_id?: string;
   variant?: Variant;
   animate?: boolean;
+  /**
+   * Multiplier on every animation rate. 1 = default, 0.5 = half speed,
+   * 2 = twice as fast. Clamped to 0.1 .. 5.
+   */
+  animation_speed?: number;
   title?: string;
   /**
    * T300 only: entities that do not belong to the integration (power meter,
@@ -65,6 +72,10 @@ class ProxonSchemaCard extends LitElement {
 
   static getStubConfig(hass: HassLike): Partial<ProxonSchemaCardConfig> {
     return { device_id: guessDevice(hass, "fwt") };
+  }
+
+  static getConfigElement(): HTMLElement {
+    return document.createElement("proxon-schema-card-editor");
   }
 
   private _variant(): Variant {
@@ -144,10 +155,14 @@ class ProxonSchemaCard extends LitElement {
       return html`<ha-card><div class="error">Entities werden aufgelöst …</div></ha-card>`;
     }
 
+    const raw = Number(this._config.animation_speed);
+    const speed = Number.isFinite(raw) && raw > 0 ? Math.min(5, Math.max(0.1, raw)) : 1;
+
     const common = {
       hass: this.hass,
       map: this._map,
       animate: this._config.animate !== false,
+      speed,
       onEntityClick: this._showMoreInfo,
     };
 
