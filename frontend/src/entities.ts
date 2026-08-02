@@ -53,6 +53,10 @@ export const FWT_KEYS = [
   "kompressor_leistung",
   "bypass_offen",
   "bypass_min_frischluft",
+  "kuehlung_freigabe",
+  // Reversing valve = the plant is actually cooling. Disabled by default in
+  // the integration, so the card must cope with it being absent.
+  "vierwege_ventil",
 ] as const;
 
 /** Keys the T300 schematic needs. */
