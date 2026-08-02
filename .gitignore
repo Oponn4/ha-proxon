@@ -7,3 +7,8 @@ dist/
 proxon_dump*.json
 __pycache__/
 .pytest_cache/
+
+# Frontend build (the bundle in custom_components/proxon/www/ IS committed --
+# HACS ships what is in the repo and does not build anything)
+frontend/node_modules/
+frontend/.vite/

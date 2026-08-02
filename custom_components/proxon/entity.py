@@ -35,6 +35,14 @@ class ProxonEntity(CoordinatorEntity[ProxonCoordinator]):
     ) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"proxon_{coordinator.host}_{unique_suffix}"
+        # The suffix doubles as the translation key. It lands in the entity
+        # registry's display data (`tk`), which is what lets the dashboard card
+        # find entities by meaning instead of by hard-coded entity_id.
+        # Entities with a runtime name (per-room thermostats, room-name texts)
+        # keep their _attr_name / description name -- both win over a missing
+        # translation in Entity._name_internal, so no translation is defined
+        # for those keys.
+        self._attr_translation_key = unique_suffix
         info = _DEVICE_INFO[device]
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"{coordinator.host}_{device}")},

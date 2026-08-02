@@ -32,7 +32,6 @@ async def async_setup_entry(
 class ProxonBetriebsartSelect(ProxonEntity, SelectEntity):
     """Select entity for the operating mode (Betriebsart)."""
 
-    _attr_name = "Betriebsart"
     _attr_icon = "mdi:heat-pump"
     _attr_options = list(BETRIEBSART_MAP.values())
 
@@ -66,7 +65,6 @@ class ProxonBypassModusSelect(ProxonEntity, SelectEntity):
     until the mode is set back to "Geregelt".
     """
 
-    _attr_name = "Bypass Modus"
     _attr_icon = "mdi:valve"
     _attr_options = list(BYPASS_MODUS_MAP.values())
     _attr_entity_category = EntityCategory.CONFIG
@@ -105,7 +103,6 @@ class ProxonBypassModusSelect(ProxonEntity, SelectEntity):
 class ProxonT300BetriebsartSelect(ProxonEntity, SelectEntity):
     """Select entity for the T300 operating mode."""
 
-    _attr_name = "Betriebsart"
     _attr_icon = "mdi:water-boiler"
     _attr_options = list(T300_BETRIEBSART_MAP.values())
 
