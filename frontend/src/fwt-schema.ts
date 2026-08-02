@@ -220,6 +220,10 @@ export function renderFwt(ctx: FwtCtx): SVGTemplateResult {
   // With the bypass open the air does not cross the heat exchanger, so the
   // dots must not either. Invisible path, drawn only to give animateMotion
   // something to follow.
+  // Same stroke the bypass ducts are interrupted by, so the dot disappears
+  // exactly where the drawn duct does.
+  const exhaustRoute = path([[X_B, Y_TOP], [X_R, Y_TOP], [X_L, Y_BOT], [X_A, Y_BOT]]);
+
   const bypassRoute = path([
     [X_A, Y_TOP], [BP_X_IN, Y_TOP], [BP_X_IN, BP_Y],
     [BP_X_OUT, BP_Y], [BP_X_OUT, Y_BOT], [X_B, Y_BOT],
@@ -237,6 +241,13 @@ export function renderFwt(ctx: FwtCtx): SVGTemplateResult {
           <stop offset="0%" stop-color=${C_ORANGE}/><stop offset=${`${S1}%`} stop-color=${C_ORANGE}/>
           <stop offset=${`${S2}%`} stop-color=${C_BROWN}/><stop offset="100%" stop-color=${C_BROWN}/>
         </linearGradient>
+        ${bypassOpen
+          ? svg`<mask id="dotsBehindExhaust" maskUnits="userSpaceOnUse" x="0" y="0" width=${W} height=${H}>
+              <rect width=${W} height=${H} fill="white"/>
+              <path d=${exhaustRoute} stroke="black" stroke-width=${gap * 2} fill="none"
+                stroke-linejoin="round" stroke-linecap="butt"/>
+            </mask>`
+          : nothing}
       </defs>
 
       <rect id="backdrop" width=${W} height=${H} fill="#FFFFFF"/>
@@ -326,9 +337,13 @@ export function renderFwt(ctx: FwtCtx): SVGTemplateResult {
            later -- the bypass duct alone is a 62-unit opaque stroke. -->
       <g id="flow-dots">
         ${dotsOn ? flowDots("flow-exhaust", dur) : nothing}
-        ${dotsOn
-          ? flowDots(bypassOpen ? "flow-supply-bypass" : "flow-supply", dur * (bypassOpen ? BYPASS_LEN_RATIO : 1))
-          : nothing}
+        ${!dotsOn
+          ? nothing
+          : bypassOpen
+            ? svg`<g mask="url(#dotsBehindExhaust)">
+                ${flowDots("flow-supply-bypass", dur * BYPASS_LEN_RATIO)}
+              </g>`
+            : flowDots("flow-supply", dur)}
       </g>
 
       ${coolActive
