@@ -44,7 +44,6 @@ async def async_setup_entry(
 class ProxonFan(ProxonEntity, FanEntity):
     """Fan entity controlling Proxon ventilation level."""
 
-    _attr_name = "Lüftung"
     _attr_icon = "mdi:fan"
     _attr_supported_features = FanEntityFeature.SET_SPEED
     _attr_speed_count = 4

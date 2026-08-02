@@ -1,10 +1,15 @@
 """Proxon FWT Home Assistant Integration."""
 from __future__ import annotations
 
+from pathlib import Path
+
+from homeassistant.components.frontend import add_extra_js_url
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.components.persistent_notification import async_create, async_dismiss
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL, Platform
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.loader import async_get_integration
 
 from .const import (
     CONF_FILTER_NOTIFICATION,
@@ -29,9 +34,42 @@ PLATFORMS = [
     Platform.TEXT,
 ]
 
+FRONTEND_URL_BASE = "/proxon_frontend"
+FRONTEND_CARD = "proxon-schema-card.js"
+FRONTEND_REGISTERED = f"{DOMAIN}_frontend_registered"
+
+
+async def _async_register_frontend(hass: HomeAssistant) -> None:
+    """Serve the bundled Lovelace card and load it on every dashboard.
+
+    Shipping the card with the integration means no separate HACS plugin, no
+    manual `resources:` entry, and cache busting tied to the integration
+    version instead of a hand-edited ?v= in the dashboard config.
+    """
+    if hass.data.get(FRONTEND_REGISTERED):
+        return
+    hass.data[FRONTEND_REGISTERED] = True
+
+    await hass.http.async_register_static_paths(
+        [
+            StaticPathConfig(
+                FRONTEND_URL_BASE,
+                str(Path(__file__).parent / "www"),
+                # Long cache is safe: the ?v= below changes with every release.
+                True,
+            )
+        ]
+    )
+    integration = await async_get_integration(hass, DOMAIN)
+    add_extra_js_url(
+        hass, f"{FRONTEND_URL_BASE}/{FRONTEND_CARD}?v={integration.version}"
+    )
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Proxon FWT from a config entry."""
+    await _async_register_frontend(hass)
+
     coordinator = ProxonCoordinator(
         hass,
         host=entry.data[CONF_HOST],

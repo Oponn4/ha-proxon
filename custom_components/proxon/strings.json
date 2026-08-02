@@ -59,5 +59,267 @@
         }
       }
     }
+  },
+  "entity": {
+    "sensor": {
+      "co2_sensor1": {
+        "name": "CO₂"
+      },
+      "drehzahl_abluft": {
+        "name": "Extract fan speed"
+      },
+      "drehzahl_zuluft": {
+        "name": "Supply fan speed"
+      },
+      "druckventilator_pa": {
+        "name": "Fan pressure P18"
+      },
+      "frischluft_obergrenze": {
+        "name": "Fresh air temp. upper power limit"
+      },
+      "frischluft_untergrenze": {
+        "name": "Fresh air temp. lower power limit"
+      },
+      "fwt_betriebsstunden": {
+        "name": "Total operating hours"
+      },
+      "geraetefilter_remaining_days": {
+        "name": "Unit filter days remaining"
+      },
+      "geraetefilter_stunden": {
+        "name": "Unit filter operating hours"
+      },
+      "jaz_komp_1h": {
+        "name": "COP compressor (1 h)"
+      },
+      "jaz_komp_24h": {
+        "name": "COP compressor (24 h)"
+      },
+      "jaz_total_1h": {
+        "name": "COP total (1 h)"
+      },
+      "jaz_total_24h": {
+        "name": "COP total (24 h)"
+      },
+      "kompressor_drehzahl": {
+        "name": "Compressor speed"
+      },
+      "kompressor_leistung": {
+        "name": "Compressor power"
+      },
+      "luftmenge_m3h": {
+        "name": "Air flow"
+      },
+      "power_fu": {
+        "name": "Inverter power"
+      },
+      "power_pcb": {
+        "name": "PCB power"
+      },
+      "power_total": {
+        "name": "Total power"
+      },
+      "rf_sensor1": {
+        "name": "Relative humidity"
+      },
+      "stufe_abluft": {
+        "name": "Extract fan stage"
+      },
+      "t13_kompressor": {
+        "name": "Compressor temperature T13"
+      },
+      "t1_zuluft": {
+        "name": "Supply air temperature T01"
+      },
+      "t21_zone1": {
+        "name": "Zone temperature ground floor"
+      },
+      "t22_zone2": {
+        "name": "Zone temperature upper floor"
+      },
+      "t300_behaelter_avg": {
+        "name": "Tank average"
+      },
+      "t300_solltemperatur": {
+        "name": "Target temperature"
+      },
+      "t300_solltemperatur_akt": {
+        "name": "Current setpoint"
+      },
+      "t300_t11_sauggas": {
+        "name": "Suction gas temperature T11"
+      },
+      "t300_t13_kompressor": {
+        "name": "Compressor temperature T13"
+      },
+      "t300_t20_behaelter_unten": {
+        "name": "Tank bottom temperature T20"
+      },
+      "t300_t21_behaelter_mitte": {
+        "name": "Tank middle temperature T21"
+      },
+      "t300_t5_vorverdampfer": {
+        "name": "Pre-evaporator temperature T05"
+      },
+      "t300_t6_verdampfer": {
+        "name": "Evaporator temperature T06"
+      },
+      "t300_t9_extern": {
+        "name": "External temperature T09"
+      },
+      "t300_temp_eheiz": {
+        "name": "Electric heater temperature"
+      },
+      "t300_ventilator_pct": {
+        "name": "Fan"
+      },
+      "t300_ventilator_rpm": {
+        "name": "Fan RPM"
+      },
+      "t3_frischluft": {
+        "name": "Fresh air temperature T03"
+      },
+      "t4_fortluft": {
+        "name": "Exhaust air temperature T04"
+      },
+      "t5_vorverdampfer": {
+        "name": "Pre-evaporator temperature T05"
+      },
+      "t6_verdampfer": {
+        "name": "Evaporator temperature T06"
+      },
+      "t7_abluft": {
+        "name": "Extract air temperature T07"
+      },
+      "t9_aussenluft": {
+        "name": "Outdoor air temperature T09 before GHX"
+      },
+      "temp_hbde": {
+        "name": "Main control unit temperature"
+      },
+      "temp_hnbe": {
+        "name": "Secondary control unit temperature"
+      },
+      "umluft_betriebsstunden": {
+        "name": "Recirculation operating hours"
+      },
+      "wp_ausschaltschwelle": {
+        "name": "Heat pump cut-out threshold"
+      },
+      "wp_einschaltschwelle": {
+        "name": "Heat pump cut-in threshold"
+      },
+      "wp_kuehlschwelle": {
+        "name": "Heat pump cooling threshold"
+      }
+    },
+    "binary_sensor": {
+      "bypass_offen": {
+        "name": "Bypass open"
+      },
+      "erdwaerme_aktiv": {
+        "name": "Geothermal active"
+      },
+      "filter_wechsel_faellig": {
+        "name": "Filter change due"
+      },
+      "kompressor_aktiv": {
+        "name": "Compressor active"
+      },
+      "stoerung": {
+        "name": "Fault"
+      },
+      "t300_abtau_aktiv": {
+        "name": "Defrost active"
+      },
+      "t300_eheiz_aktiv": {
+        "name": "Electric heater active"
+      },
+      "t300_kompressor_aktiv": {
+        "name": "Compressor active"
+      },
+      "t300_pv_wp": {
+        "name": "PV heat pump active"
+      },
+      "t300_solar_aktiv": {
+        "name": "Solar active"
+      },
+      "t300_stoerung": {
+        "name": "Fault"
+      },
+      "umluft_aktiv": {
+        "name": "Recirculation active"
+      },
+      "vierwege_ventil": {
+        "name": "Four-way valve (cooling)"
+      }
+    },
+    "number": {
+      "bypass_hysterese": {
+        "name": "Bypass hysteresis"
+      },
+      "bypass_laufzeit": {
+        "name": "Bypass runtime"
+      },
+      "bypass_min_frischluft": {
+        "name": "Bypass minimum fresh air temperature"
+      },
+      "intensivlueftung": {
+        "name": "Boost ventilation"
+      },
+      "nacht_temperatur": {
+        "name": "Night temperature"
+      },
+      "soll_temp_zone2": {
+        "name": "Target temperature zone 2"
+      },
+      "t300_solltemperatur": {
+        "name": "Target temperature"
+      },
+      "t300_temp_eheiz": {
+        "name": "Electric heater temperature"
+      }
+    },
+    "switch": {
+      "kuehlung_freigabe": {
+        "name": "Cooling"
+      },
+      "nachtabsenkung": {
+        "name": "Night setback"
+      },
+      "t300_eheiz_freigabe": {
+        "name": "Electric heating element"
+      },
+      "t300_legionella": {
+        "name": "Legionella protection"
+      },
+      "t300_pv_funktion": {
+        "name": "PV function"
+      },
+      "zeitprogramm_luft": {
+        "name": "Air flow schedule"
+      }
+    },
+    "button": {
+      "geraetefilter_reset": {
+        "name": "Reset unit filter"
+      }
+    },
+    "select": {
+      "betriebsart": {
+        "name": "Operating mode"
+      },
+      "bypass_modus": {
+        "name": "Bypass mode"
+      },
+      "t300_betriebsart": {
+        "name": "Operating mode"
+      }
+    },
+    "fan": {
+      "lueftung": {
+        "name": "Ventilation"
+      }
+    }
   }
 }

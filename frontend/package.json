@@ -1,0 +1,18 @@
+{
+  "name": "proxon-schema-card",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Lovelace card rendering the Proxon FWT plant schematic from the proxon integration",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "watch": "vite build --watch"
+  },
+  "dependencies": {
+    "lit": "^3.2.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  }
+}

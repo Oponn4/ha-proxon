@@ -59,5 +59,267 @@
         }
       }
     }
+  },
+  "entity": {
+    "sensor": {
+      "co2_sensor1": {
+        "name": "CO₂"
+      },
+      "drehzahl_abluft": {
+        "name": "Drehzahl Abluft"
+      },
+      "drehzahl_zuluft": {
+        "name": "Drehzahl Zuluft"
+      },
+      "druckventilator_pa": {
+        "name": "Druckventilator P18"
+      },
+      "frischluft_obergrenze": {
+        "name": "Frischlufttemp. obere Leistungsgrenze"
+      },
+      "frischluft_untergrenze": {
+        "name": "Frischlufttemp. untere Leistungsgrenze"
+      },
+      "fwt_betriebsstunden": {
+        "name": "Betriebsstunden gesamt"
+      },
+      "geraetefilter_remaining_days": {
+        "name": "Gerätefilter verbleibende Tage"
+      },
+      "geraetefilter_stunden": {
+        "name": "Gerätefilter Betriebsstunden"
+      },
+      "jaz_komp_1h": {
+        "name": "JAZ Kompressor (1h)"
+      },
+      "jaz_komp_24h": {
+        "name": "JAZ Kompressor (24h)"
+      },
+      "jaz_total_1h": {
+        "name": "JAZ Gesamt (1h)"
+      },
+      "jaz_total_24h": {
+        "name": "JAZ Gesamt (24h)"
+      },
+      "kompressor_drehzahl": {
+        "name": "Kompressor Drehzahl"
+      },
+      "kompressor_leistung": {
+        "name": "Kompressor Leistung"
+      },
+      "luftmenge_m3h": {
+        "name": "Luftmenge"
+      },
+      "power_fu": {
+        "name": "Leistung FU"
+      },
+      "power_pcb": {
+        "name": "Leistung PCB"
+      },
+      "power_total": {
+        "name": "Leistung Gesamt"
+      },
+      "rf_sensor1": {
+        "name": "Relative Feuchte"
+      },
+      "stufe_abluft": {
+        "name": "Ventilator Stufe Abluft"
+      },
+      "t13_kompressor": {
+        "name": "Temperatur T13 Kompressor"
+      },
+      "t1_zuluft": {
+        "name": "Temperatur T01 Zuluft"
+      },
+      "t21_zone1": {
+        "name": "Zonentemperatur EG"
+      },
+      "t22_zone2": {
+        "name": "Zonentemperatur OG"
+      },
+      "t300_behaelter_avg": {
+        "name": "Behälter Ø"
+      },
+      "t300_solltemperatur": {
+        "name": "Solltemperatur"
+      },
+      "t300_solltemperatur_akt": {
+        "name": "Aktueller Sollwert"
+      },
+      "t300_t11_sauggas": {
+        "name": "Temperatur T11 Sauggas"
+      },
+      "t300_t13_kompressor": {
+        "name": "Temperatur T13 Kompressor"
+      },
+      "t300_t20_behaelter_unten": {
+        "name": "Temperatur T20 Behälter Unten"
+      },
+      "t300_t21_behaelter_mitte": {
+        "name": "Temperatur T21 Behälter Mitte"
+      },
+      "t300_t5_vorverdampfer": {
+        "name": "Temperatur T05 VorVerdampfer"
+      },
+      "t300_t6_verdampfer": {
+        "name": "Temperatur T06 Verdampfer"
+      },
+      "t300_t9_extern": {
+        "name": "Temperatur T09 Extern"
+      },
+      "t300_temp_eheiz": {
+        "name": "Temperatur E-Heiz"
+      },
+      "t300_ventilator_pct": {
+        "name": "Ventilator"
+      },
+      "t300_ventilator_rpm": {
+        "name": "Ventilator RPM"
+      },
+      "t3_frischluft": {
+        "name": "Temperatur T03 Frischluft"
+      },
+      "t4_fortluft": {
+        "name": "Temperatur T04 Fortluft"
+      },
+      "t5_vorverdampfer": {
+        "name": "Temperatur T05 VorVerdampfer"
+      },
+      "t6_verdampfer": {
+        "name": "Temperatur T06 Verdampfer"
+      },
+      "t7_abluft": {
+        "name": "Temperatur T07 Abluft"
+      },
+      "t9_aussenluft": {
+        "name": "Temperatur T09 Außenluft vor EWT"
+      },
+      "temp_hbde": {
+        "name": "Temperatur HBDE"
+      },
+      "temp_hnbe": {
+        "name": "Temperatur HNBE"
+      },
+      "umluft_betriebsstunden": {
+        "name": "Umluft Betriebsstunden"
+      },
+      "wp_ausschaltschwelle": {
+        "name": "WP Ausschaltschwelle"
+      },
+      "wp_einschaltschwelle": {
+        "name": "WP Einschaltschwelle"
+      },
+      "wp_kuehlschwelle": {
+        "name": "WP Kühlschwelle"
+      }
+    },
+    "binary_sensor": {
+      "bypass_offen": {
+        "name": "Bypass offen"
+      },
+      "erdwaerme_aktiv": {
+        "name": "Erdwärme aktiv"
+      },
+      "filter_wechsel_faellig": {
+        "name": "Filtertausch fällig"
+      },
+      "kompressor_aktiv": {
+        "name": "Kompressor aktiv"
+      },
+      "stoerung": {
+        "name": "Störung"
+      },
+      "t300_abtau_aktiv": {
+        "name": "Abtau aktiv"
+      },
+      "t300_eheiz_aktiv": {
+        "name": "E-Heiz aktiv"
+      },
+      "t300_kompressor_aktiv": {
+        "name": "Kompressor aktiv"
+      },
+      "t300_pv_wp": {
+        "name": "PV WP aktiv"
+      },
+      "t300_solar_aktiv": {
+        "name": "Solar aktiv"
+      },
+      "t300_stoerung": {
+        "name": "Störung"
+      },
+      "umluft_aktiv": {
+        "name": "Umluft aktiv"
+      },
+      "vierwege_ventil": {
+        "name": "4-Wegeventil (Kühlen)"
+      }
+    },
+    "number": {
+      "bypass_hysterese": {
+        "name": "Bypass Hysterese"
+      },
+      "bypass_laufzeit": {
+        "name": "Bypass Laufzeit"
+      },
+      "bypass_min_frischluft": {
+        "name": "Bypass Minimum Frischlufttemperatur"
+      },
+      "intensivlueftung": {
+        "name": "Intensivlüftung"
+      },
+      "nacht_temperatur": {
+        "name": "Nachttemperatur"
+      },
+      "soll_temp_zone2": {
+        "name": "Solltemperatur Zone 2"
+      },
+      "t300_solltemperatur": {
+        "name": "Solltemperatur"
+      },
+      "t300_temp_eheiz": {
+        "name": "Temperatur E-Heiz"
+      }
+    },
+    "switch": {
+      "kuehlung_freigabe": {
+        "name": "Kühlung"
+      },
+      "nachtabsenkung": {
+        "name": "Nachtabsenkung"
+      },
+      "t300_eheiz_freigabe": {
+        "name": "E-Heizstab"
+      },
+      "t300_legionella": {
+        "name": "Legionellafunktion"
+      },
+      "t300_pv_funktion": {
+        "name": "PV Funktion"
+      },
+      "zeitprogramm_luft": {
+        "name": "Zeitprogramm Luftmenge"
+      }
+    },
+    "button": {
+      "geraetefilter_reset": {
+        "name": "Gerätefilter zurücksetzen"
+      }
+    },
+    "select": {
+      "betriebsart": {
+        "name": "Betriebsart"
+      },
+      "bypass_modus": {
+        "name": "Bypass Modus"
+      },
+      "t300_betriebsart": {
+        "name": "Betriebsart"
+      }
+    },
+    "fan": {
+      "lueftung": {
+        "name": "Lüftung"
+      }
+    }
   }
 }
