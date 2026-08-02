@@ -247,7 +247,6 @@ export function renderFwt(ctx: FwtCtx): SVGTemplateResult {
         ${way([[X_B, Y_TOP], [X_R, Y_TOP], [X_L, Y_BOT], [X_A, Y_BOT]], "url(#gradExhaust)", "flow-exhaust")}
         ${chevrons(1325, Y_TOP, false)}
         ${chevrons(300, Y_BOT, false)}
-        ${dotsOn ? flowDots("flow-exhaust", dur) : nothing}
       </g>
 
       <g id="flow-fresh-supply">
@@ -260,9 +259,6 @@ export function renderFwt(ctx: FwtCtx): SVGTemplateResult {
         ${chevrons(1305, Y_BOT, true)}
         ${bypassOpen
           ? svg`<path id="flow-supply-bypass" fill="none" stroke="none" d=${bypassRoute}/>`
-          : nothing}
-        ${dotsOn
-          ? flowDots(bypassOpen ? "flow-supply-bypass" : "flow-supply", dur * (bypassOpen ? BYPASS_LEN_RATIO : 1))
           : nothing}
       </g>
 
@@ -324,6 +320,16 @@ export function renderFwt(ctx: FwtCtx): SVGTemplateResult {
       ] as Array<[string, number, number]>).map(
         ([label, x, y]) => svg`<text class="port" x=${x} y=${y} text-anchor="middle">${label}</text>`,
       )}
+
+      <!-- Flow dots live on their own layer above every duct and component.
+           Inside the air-path groups they were painted over by whatever came
+           later -- the bypass duct alone is a 62-unit opaque stroke. -->
+      <g id="flow-dots">
+        ${dotsOn ? flowDots("flow-exhaust", dur) : nothing}
+        ${dotsOn
+          ? flowDots(bypassOpen ? "flow-supply-bypass" : "flow-supply", dur * (bypassOpen ? BYPASS_LEN_RATIO : 1))
+          : nothing}
+      </g>
 
       ${coolActive
         ? svg`<text class="badge" x="1150" y="700" text-anchor="middle" fill=${C_COOL}>KÜHLEN</text>`
