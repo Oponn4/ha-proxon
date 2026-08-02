@@ -217,8 +217,6 @@ export function renderT300(ctx: T300Ctx): SVGTemplateResult {
       ${bandPath([[DEV_CX, EVAP_Y], [DEV_CX, Y_AIR_OUT], [W - 40, Y_AIR_OUT]], airOut, "flow-air-out", op)}
       ${chevrons(120, Y_AIR_IN, true)}
       ${chevrons(920, Y_AIR_OUT, true)}
-      ${dotsOn ? flowDots("flow-air-in", dur) : nothing}
-      ${dotsOn ? flowDots("flow-air-out", dur) : nothing}
 
       ${fan(FAN_X, Y_AIR_IN, "fan-t300", part, animate && running ? bladeDur : undefined)}
       ${lamellaeH(EVAP_Y, DEV_X0 + 60, DEV_X1 - 60, "evaporator", part)}
@@ -241,6 +239,12 @@ export function renderT300(ctx: T300Ctx): SVGTemplateResult {
             : nothing}
         </g>
         <circle cx=${COMP_X} cy=${COMP_Y} r="7" fill=${C_TEXT}/>
+      </g>
+
+      <!-- Same reason as on the FWT: above the lamellae block and the fan. -->
+      <g id="flow-dots">
+        ${dotsOn ? flowDots("flow-air-in", dur) : nothing}
+        ${dotsOn ? flowDots("flow-air-out", dur) : nothing}
       </g>
 
       <text class="port" x="40" y=${Y_AIR_IN - 48}>Luft an</text>
