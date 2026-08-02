@@ -43,6 +43,14 @@ const S2 = Math.round(((X_R - X_A) / (X_B - X_A)) * 100);
 
 type Pt = [number, number];
 
+/**
+ * The bypass route is longer than the path through the heat exchanger
+ * (~1580 vs ~1227 user units). animateMotion with calcMode="paced" moves at a
+ * constant rate, so without this the dots would visibly speed up whenever the
+ * bypass opens.
+ */
+const BYPASS_LEN_RATIO = 1.29;
+
 const path = (points: Pt[]) => "M " + points.map(([x, y]) => `${x},${y}`).join(" L ");
 
 function chevrons(x: number, y: number, toRight: boolean, count = 2, gap = 36) {
@@ -189,7 +197,11 @@ export function renderFwt(ctx: FwtCtx): SVGTemplateResult {
   // "not cooling" -- absent is its own state.
   const coolEntity = map.vierwege_ventil;
   const coolKnown = !!(coolEntity && hass.states[coolEntity]);
-  const coolActive = coolKnown && hass.states[coolEntity!].state === "on";
+  // A reversing-valve position only means anything while the compressor runs.
+  // Standing still it is just the last resting position -- and register 223 was
+  // observed reading "cooling" with the plant completely idle.
+  const coolActive =
+    coolKnown && hass.states[coolEntity!].state === "on" && (compressorRpm ?? 0) > 0;
   const circColor = coolActive ? C_COOL : C_FRAME;
 
   const flapAngle = bypassOpen ? 0 : 90;
@@ -204,6 +216,14 @@ export function renderFwt(ctx: FwtCtx): SVGTemplateResult {
 
   const supply: Pt[] = [[X_A, Y_TOP], [X_L, Y_TOP], [X_R, Y_BOT], [X_B, Y_BOT]];
   const gap = HB + 14;
+
+  // With the bypass open the air does not cross the heat exchanger, so the
+  // dots must not either. Invisible path, drawn only to give animateMotion
+  // something to follow.
+  const bypassRoute = path([
+    [X_A, Y_TOP], [BP_X_IN, Y_TOP], [BP_X_IN, BP_Y],
+    [BP_X_OUT, BP_Y], [BP_X_OUT, Y_BOT], [X_B, Y_BOT],
+  ]);
 
   return svg`
     <svg viewBox=${`0 0 ${W} ${H}`} id="proxon-fwt" data-bypass=${bypassOpen ? "open" : "closed"}
@@ -238,7 +258,12 @@ export function renderFwt(ctx: FwtCtx): SVGTemplateResult {
           : nothing}
         ${chevrons(275, Y_TOP, true)}
         ${chevrons(1305, Y_BOT, true)}
-        ${dotsOn ? flowDots("flow-supply", dur) : nothing}
+        ${bypassOpen
+          ? svg`<path id="flow-supply-bypass" fill="none" stroke="none" d=${bypassRoute}/>`
+          : nothing}
+        ${dotsOn
+          ? flowDots(bypassOpen ? "flow-supply-bypass" : "flow-supply", dur * (bypassOpen ? BYPASS_LEN_RATIO : 1))
+          : nothing}
       </g>
 
       <polygon id="heat-exchanger"
