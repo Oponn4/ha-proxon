@@ -3,10 +3,10 @@
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const _t = globalThis, It = _t.ShadowRoot && (_t.ShadyCSS === void 0 || _t.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, Dt = Symbol(), Xt = /* @__PURE__ */ new WeakMap();
+const yt = globalThis, It = yt.ShadowRoot && (yt.ShadyCSS === void 0 || yt.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, Bt = Symbol(), Xt = /* @__PURE__ */ new WeakMap();
 let Ce = class {
   constructor(t, e, s) {
-    if (this._$cssResult$ = !0, s !== Dt) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
+    if (this._$cssResult$ = !0, s !== Bt) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
     this.cssText = t, this.t = e;
   }
   get styleSheet() {
@@ -22,59 +22,59 @@ let Ce = class {
     return this.cssText;
   }
 };
-const Be = (r) => new Ce(typeof r == "string" ? r : r + "", void 0, Dt), Se = (r, ...t) => {
-  const e = r.length === 1 ? r[0] : t.reduce((s, i, o) => s + ((n) => {
+const je = (o) => new Ce(typeof o == "string" ? o : o + "", void 0, Bt), Se = (o, ...t) => {
+  const e = o.length === 1 ? o[0] : t.reduce((s, i, r) => s + ((n) => {
     if (n._$cssResult$ === !0) return n.cssText;
     if (typeof n == "number") return n;
     throw Error("Value passed to 'css' function must be a 'css' function result: " + n + ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.");
-  })(i) + r[o + 1], r[0]);
-  return new Ce(e, r, Dt);
-}, je = (r, t) => {
-  if (It) r.adoptedStyleSheets = t.map((e) => e instanceof CSSStyleSheet ? e : e.styleSheet);
+  })(i) + o[r + 1], o[0]);
+  return new Ce(e, o, Bt);
+}, We = (o, t) => {
+  if (It) o.adoptedStyleSheets = t.map((e) => e instanceof CSSStyleSheet ? e : e.styleSheet);
   else for (const e of t) {
-    const s = document.createElement("style"), i = _t.litNonce;
-    i !== void 0 && s.setAttribute("nonce", i), s.textContent = e.cssText, r.appendChild(s);
+    const s = document.createElement("style"), i = yt.litNonce;
+    i !== void 0 && s.setAttribute("nonce", i), s.textContent = e.cssText, o.appendChild(s);
   }
-}, Gt = It ? (r) => r : (r) => r instanceof CSSStyleSheet ? ((t) => {
+}, Gt = It ? (o) => o : (o) => o instanceof CSSStyleSheet ? ((t) => {
   let e = "";
   for (const s of t.cssRules) e += s.cssText;
-  return Be(e);
-})(r) : r;
+  return je(e);
+})(o) : o;
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const { is: We, defineProperty: Ye, getOwnPropertyDescriptor: Xe, getOwnPropertyNames: Ge, getOwnPropertySymbols: Ke, getPrototypeOf: Ve } = Object, xt = globalThis, Kt = xt.trustedTypes, qe = Kt ? Kt.emptyScript : "", Ze = xt.reactiveElementPolyfillSupport, Q = (r, t) => r, Pt = { toAttribute(r, t) {
+const { is: Ye, defineProperty: Xe, getOwnPropertyDescriptor: Ge, getOwnPropertyNames: Ke, getOwnPropertySymbols: Ve, getPrototypeOf: qe } = Object, bt = globalThis, Kt = bt.trustedTypes, Ze = Kt ? Kt.emptyScript : "", Je = bt.reactiveElementPolyfillSupport, et = (o, t) => o, Lt = { toAttribute(o, t) {
   switch (t) {
     case Boolean:
-      r = r ? qe : null;
+      o = o ? Ze : null;
       break;
     case Object:
     case Array:
-      r = r == null ? r : JSON.stringify(r);
+      o = o == null ? o : JSON.stringify(o);
   }
-  return r;
-}, fromAttribute(r, t) {
-  let e = r;
+  return o;
+}, fromAttribute(o, t) {
+  let e = o;
   switch (t) {
     case Boolean:
-      e = r !== null;
+      e = o !== null;
       break;
     case Number:
-      e = r === null ? null : Number(r);
+      e = o === null ? null : Number(o);
       break;
     case Object:
     case Array:
       try {
-        e = JSON.parse(r);
+        e = JSON.parse(o);
       } catch {
         e = null;
       }
   }
   return e;
-} }, Me = (r, t) => !We(r, t), Vt = { attribute: !0, type: String, converter: Pt, reflect: !1, useDefault: !1, hasChanged: Me };
-Symbol.metadata ??= Symbol("metadata"), xt.litPropertyMetadata ??= /* @__PURE__ */ new WeakMap();
+} }, Me = (o, t) => !Ye(o, t), Vt = { attribute: !0, type: String, converter: Lt, reflect: !1, useDefault: !1, hasChanged: Me };
+Symbol.metadata ??= Symbol("metadata"), bt.litPropertyMetadata ??= /* @__PURE__ */ new WeakMap();
 let D = class extends HTMLElement {
   static addInitializer(t) {
     this._$Ei(), (this.l ??= []).push(t);
@@ -85,32 +85,32 @@ let D = class extends HTMLElement {
   static createProperty(t, e = Vt) {
     if (e.state && (e.attribute = !1), this._$Ei(), this.prototype.hasOwnProperty(t) && ((e = Object.create(e)).wrapped = !0), this.elementProperties.set(t, e), !e.noAccessor) {
       const s = Symbol(), i = this.getPropertyDescriptor(t, s, e);
-      i !== void 0 && Ye(this.prototype, t, i);
+      i !== void 0 && Xe(this.prototype, t, i);
     }
   }
   static getPropertyDescriptor(t, e, s) {
-    const { get: i, set: o } = Xe(this.prototype, t) ?? { get() {
+    const { get: i, set: r } = Ge(this.prototype, t) ?? { get() {
       return this[e];
     }, set(n) {
       this[e] = n;
     } };
     return { get: i, set(n) {
       const l = i?.call(this);
-      o?.call(this, n), this.requestUpdate(t, l, s);
+      r?.call(this, n), this.requestUpdate(t, l, s);
     }, configurable: !0, enumerable: !0 };
   }
   static getPropertyOptions(t) {
     return this.elementProperties.get(t) ?? Vt;
   }
   static _$Ei() {
-    if (this.hasOwnProperty(Q("elementProperties"))) return;
-    const t = Ve(this);
+    if (this.hasOwnProperty(et("elementProperties"))) return;
+    const t = qe(this);
     t.finalize(), t.l !== void 0 && (this.l = [...t.l]), this.elementProperties = new Map(t.elementProperties);
   }
   static finalize() {
-    if (this.hasOwnProperty(Q("finalized"))) return;
-    if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(Q("properties"))) {
-      const e = this.properties, s = [...Ge(e), ...Ke(e)];
+    if (this.hasOwnProperty(et("finalized"))) return;
+    if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(et("properties"))) {
+      const e = this.properties, s = [...Ke(e), ...Ve(e)];
       for (const i of s) this.createProperty(i, e[i]);
     }
     const t = this[Symbol.metadata];
@@ -156,7 +156,7 @@ let D = class extends HTMLElement {
   }
   createRenderRoot() {
     const t = this.shadowRoot ?? this.attachShadow(this.constructor.shadowRootOptions);
-    return je(t, this.constructor.elementStyles), t;
+    return We(t, this.constructor.elementStyles), t;
   }
   connectedCallback() {
     this.renderRoot ??= this.createRenderRoot(), this.enableUpdating(!0), this._$EO?.forEach((t) => t.hostConnected?.());
@@ -172,29 +172,29 @@ let D = class extends HTMLElement {
   _$ET(t, e) {
     const s = this.constructor.elementProperties.get(t), i = this.constructor._$Eu(t, s);
     if (i !== void 0 && s.reflect === !0) {
-      const o = (s.converter?.toAttribute !== void 0 ? s.converter : Pt).toAttribute(e, s.type);
-      this._$Em = t, o == null ? this.removeAttribute(i) : this.setAttribute(i, o), this._$Em = null;
+      const r = (s.converter?.toAttribute !== void 0 ? s.converter : Lt).toAttribute(e, s.type);
+      this._$Em = t, r == null ? this.removeAttribute(i) : this.setAttribute(i, r), this._$Em = null;
     }
   }
   _$AK(t, e) {
     const s = this.constructor, i = s._$Eh.get(t);
     if (i !== void 0 && this._$Em !== i) {
-      const o = s.getPropertyOptions(i), n = typeof o.converter == "function" ? { fromAttribute: o.converter } : o.converter?.fromAttribute !== void 0 ? o.converter : Pt;
+      const r = s.getPropertyOptions(i), n = typeof r.converter == "function" ? { fromAttribute: r.converter } : r.converter?.fromAttribute !== void 0 ? r.converter : Lt;
       this._$Em = i;
-      const l = n.fromAttribute(e, o.type);
+      const l = n.fromAttribute(e, r.type);
       this[i] = l ?? this._$Ej?.get(i) ?? l, this._$Em = null;
     }
   }
-  requestUpdate(t, e, s, i = !1, o) {
+  requestUpdate(t, e, s, i = !1, r) {
     if (t !== void 0) {
       const n = this.constructor;
-      if (i === !1 && (o = this[t]), s ??= n.getPropertyOptions(t), !((s.hasChanged ?? Me)(o, e) || s.useDefault && s.reflect && o === this._$Ej?.get(t) && !this.hasAttribute(n._$Eu(t, s)))) return;
+      if (i === !1 && (r = this[t]), s ??= n.getPropertyOptions(t), !((s.hasChanged ?? Me)(r, e) || s.useDefault && s.reflect && r === this._$Ej?.get(t) && !this.hasAttribute(n._$Eu(t, s)))) return;
       this.C(t, e, s);
     }
     this.isUpdatePending === !1 && (this._$ES = this._$EP());
   }
-  C(t, e, { useDefault: s, reflect: i, wrapped: o }, n) {
-    s && !(this._$Ej ??= /* @__PURE__ */ new Map()).has(t) && (this._$Ej.set(t, n ?? e ?? this[t]), o !== !0 || n !== void 0) || (this._$AL.has(t) || (this.hasUpdated || s || (e = void 0), this._$AL.set(t, e)), i === !0 && this._$Em !== t && (this._$Eq ??= /* @__PURE__ */ new Set()).add(t));
+  C(t, e, { useDefault: s, reflect: i, wrapped: r }, n) {
+    s && !(this._$Ej ??= /* @__PURE__ */ new Map()).has(t) && (this._$Ej.set(t, n ?? e ?? this[t]), r !== !0 || n !== void 0) || (this._$AL.has(t) || (this.hasUpdated || s || (e = void 0), this._$AL.set(t, e)), i === !0 && this._$Em !== t && (this._$Eq ??= /* @__PURE__ */ new Set()).add(t));
   }
   async _$EP() {
     this.isUpdatePending = !0;
@@ -213,13 +213,13 @@ let D = class extends HTMLElement {
     if (!this.isUpdatePending) return;
     if (!this.hasUpdated) {
       if (this.renderRoot ??= this.createRenderRoot(), this._$Ep) {
-        for (const [i, o] of this._$Ep) this[i] = o;
+        for (const [i, r] of this._$Ep) this[i] = r;
         this._$Ep = void 0;
       }
       const s = this.constructor.elementProperties;
-      if (s.size > 0) for (const [i, o] of s) {
-        const { wrapped: n } = o, l = this[i];
-        n !== !0 || this._$AL.has(i) || l === void 0 || this.C(i, void 0, o, l);
+      if (s.size > 0) for (const [i, r] of s) {
+        const { wrapped: n } = r, l = this[i];
+        n !== !0 || this._$AL.has(i) || l === void 0 || this.C(i, void 0, r, l);
       }
     }
     let t = !1;
@@ -256,61 +256,61 @@ let D = class extends HTMLElement {
   firstUpdated(t) {
   }
 };
-D.elementStyles = [], D.shadowRootOptions = { mode: "open" }, D[Q("elementProperties")] = /* @__PURE__ */ new Map(), D[Q("finalized")] = /* @__PURE__ */ new Map(), Ze?.({ ReactiveElement: D }), (xt.reactiveElementVersions ??= []).push("2.1.2");
+D.elementStyles = [], D.shadowRootOptions = { mode: "open" }, D[et("elementProperties")] = /* @__PURE__ */ new Map(), D[et("finalized")] = /* @__PURE__ */ new Map(), Je?.({ ReactiveElement: D }), (bt.reactiveElementVersions ??= []).push("2.1.2");
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const Bt = globalThis, qt = (r) => r, mt = Bt.trustedTypes, Zt = mt ? mt.createPolicy("lit-html", { createHTML: (r) => r }) : void 0, Te = "$lit$", z = `lit$${Math.random().toFixed(9).slice(2)}$`, ze = "?" + z, Je = `<${ze}>`, R = document, et = () => R.createComment(""), st = (r) => r === null || typeof r != "object" && typeof r != "function", jt = Array.isArray, Qe = (r) => jt(r) || typeof r?.[Symbol.iterator] == "function", bt = `[ 	
-\f\r]`, K = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, Jt = /-->/g, Qt = />/g, O = RegExp(`>|${bt}(?:([^\\s"'>=/]+)(${bt}*=${bt}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), te = /'/g, ee = /"/g, Oe = /^(?:script|style|textarea|title)$/i, Pe = (r) => (t, ...e) => ({ _$litType$: r, strings: t, values: e }), yt = Pe(1), $ = Pe(2), Y = Symbol.for("lit-noChange"), h = Symbol.for("lit-nothing"), se = /* @__PURE__ */ new WeakMap(), N = R.createTreeWalker(R, 129);
-function Le(r, t) {
-  if (!jt(r) || !r.hasOwnProperty("raw")) throw Error("invalid template strings array");
+const Dt = globalThis, qt = (o) => o, vt = Dt.trustedTypes, Zt = vt ? vt.createPolicy("lit-html", { createHTML: (o) => o }) : void 0, Te = "$lit$", z = `lit$${Math.random().toFixed(9).slice(2)}$`, Oe = "?" + z, Qe = `<${Oe}>`, R = document, it = () => R.createComment(""), ot = (o) => o === null || typeof o != "object" && typeof o != "function", jt = Array.isArray, ts = (o) => jt(o) || typeof o?.[Symbol.iterator] == "function", kt = `[ 	
+\f\r]`, V = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, Jt = /-->/g, Qt = />/g, P = RegExp(`>|${kt}(?:([^\\s"'>=/]+)(${kt}*=${kt}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g"), te = /'/g, ee = /"/g, ze = /^(?:script|style|textarea|title)$/i, Pe = (o) => (t, ...e) => ({ _$litType$: o, strings: t, values: e }), mt = Pe(1), $ = Pe(2), X = Symbol.for("lit-noChange"), h = Symbol.for("lit-nothing"), se = /* @__PURE__ */ new WeakMap(), N = R.createTreeWalker(R, 129);
+function Le(o, t) {
+  if (!jt(o) || !o.hasOwnProperty("raw")) throw Error("invalid template strings array");
   return Zt !== void 0 ? Zt.createHTML(t) : t;
 }
-const ts = (r, t) => {
-  const e = r.length - 1, s = [];
-  let i, o = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", n = K;
+const es = (o, t) => {
+  const e = o.length - 1, s = [];
+  let i, r = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", n = V;
   for (let l = 0; l < e; l++) {
-    const a = r[l];
-    let c, p, d = -1, u = 0;
-    for (; u < a.length && (n.lastIndex = u, p = n.exec(a), p !== null); ) u = n.lastIndex, n === K ? p[1] === "!--" ? n = Jt : p[1] !== void 0 ? n = Qt : p[2] !== void 0 ? (Oe.test(p[2]) && (i = RegExp("</" + p[2], "g")), n = O) : p[3] !== void 0 && (n = O) : n === O ? p[0] === ">" ? (n = i ?? K, d = -1) : p[1] === void 0 ? d = -2 : (d = n.lastIndex - p[2].length, c = p[1], n = p[3] === void 0 ? O : p[3] === '"' ? ee : te) : n === ee || n === te ? n = O : n === Jt || n === Qt ? n = K : (n = O, i = void 0);
-    const m = n === O && r[l + 1].startsWith("/>") ? " " : "";
-    o += n === K ? a + Je : d >= 0 ? (s.push(c), a.slice(0, d) + Te + a.slice(d) + z + m) : a + z + (d === -2 ? l : m);
+    const a = o[l];
+    let c, p, d = -1, f = 0;
+    for (; f < a.length && (n.lastIndex = f, p = n.exec(a), p !== null); ) f = n.lastIndex, n === V ? p[1] === "!--" ? n = Jt : p[1] !== void 0 ? n = Qt : p[2] !== void 0 ? (ze.test(p[2]) && (i = RegExp("</" + p[2], "g")), n = P) : p[3] !== void 0 && (n = P) : n === P ? p[0] === ">" ? (n = i ?? V, d = -1) : p[1] === void 0 ? d = -2 : (d = n.lastIndex - p[2].length, c = p[1], n = p[3] === void 0 ? P : p[3] === '"' ? ee : te) : n === ee || n === te ? n = P : n === Jt || n === Qt ? n = V : (n = P, i = void 0);
+    const m = n === P && o[l + 1].startsWith("/>") ? " " : "";
+    r += n === V ? a + Qe : d >= 0 ? (s.push(c), a.slice(0, d) + Te + a.slice(d) + z + m) : a + z + (d === -2 ? l : m);
   }
-  return [Le(r, o + (r[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), s];
+  return [Le(o, r + (o[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), s];
 };
-class it {
+class rt {
   constructor({ strings: t, _$litType$: e }, s) {
     let i;
     this.parts = [];
-    let o = 0, n = 0;
-    const l = t.length - 1, a = this.parts, [c, p] = ts(t, e);
-    if (this.el = it.createElement(c, s), N.currentNode = this.el.content, e === 2 || e === 3) {
+    let r = 0, n = 0;
+    const l = t.length - 1, a = this.parts, [c, p] = es(t, e);
+    if (this.el = rt.createElement(c, s), N.currentNode = this.el.content, e === 2 || e === 3) {
       const d = this.el.content.firstChild;
       d.replaceWith(...d.childNodes);
     }
     for (; (i = N.nextNode()) !== null && a.length < l; ) {
       if (i.nodeType === 1) {
         if (i.hasAttributes()) for (const d of i.getAttributeNames()) if (d.endsWith(Te)) {
-          const u = p[n++], m = i.getAttribute(d).split(z), w = /([.?@])?(.*)/.exec(u);
-          a.push({ type: 1, index: o, name: w[2], strings: m, ctor: w[1] === "." ? ss : w[1] === "?" ? is : w[1] === "@" ? rs : At }), i.removeAttribute(d);
-        } else d.startsWith(z) && (a.push({ type: 6, index: o }), i.removeAttribute(d));
-        if (Oe.test(i.tagName)) {
-          const d = i.textContent.split(z), u = d.length - 1;
-          if (u > 0) {
-            i.textContent = mt ? mt.emptyScript : "";
-            for (let m = 0; m < u; m++) i.append(d[m], et()), N.nextNode(), a.push({ type: 2, index: ++o });
-            i.append(d[u], et());
+          const f = p[n++], m = i.getAttribute(d).split(z), k = /([.?@])?(.*)/.exec(f);
+          a.push({ type: 1, index: r, name: k[2], strings: m, ctor: k[1] === "." ? is : k[1] === "?" ? os : k[1] === "@" ? rs : wt }), i.removeAttribute(d);
+        } else d.startsWith(z) && (a.push({ type: 6, index: r }), i.removeAttribute(d));
+        if (ze.test(i.tagName)) {
+          const d = i.textContent.split(z), f = d.length - 1;
+          if (f > 0) {
+            i.textContent = vt ? vt.emptyScript : "";
+            for (let m = 0; m < f; m++) i.append(d[m], it()), N.nextNode(), a.push({ type: 2, index: ++r });
+            i.append(d[f], it());
           }
         }
-      } else if (i.nodeType === 8) if (i.data === ze) a.push({ type: 2, index: o });
+      } else if (i.nodeType === 8) if (i.data === Oe) a.push({ type: 2, index: r });
       else {
         let d = -1;
-        for (; (d = i.data.indexOf(z, d + 1)) !== -1; ) a.push({ type: 7, index: o }), d += z.length - 1;
+        for (; (d = i.data.indexOf(z, d + 1)) !== -1; ) a.push({ type: 7, index: r }), d += z.length - 1;
       }
-      o++;
+      r++;
     }
   }
   static createElement(t, e) {
@@ -318,13 +318,13 @@ class it {
     return s.innerHTML = t, s;
   }
 }
-function X(r, t, e = r, s) {
-  if (t === Y) return t;
+function G(o, t, e = o, s) {
+  if (t === X) return t;
   let i = s !== void 0 ? e._$Co?.[s] : e._$Cl;
-  const o = st(t) ? void 0 : t._$litDirective$;
-  return i?.constructor !== o && (i?._$AO?.(!1), o === void 0 ? i = void 0 : (i = new o(r), i._$AT(r, e, s)), s !== void 0 ? (e._$Co ??= [])[s] = i : e._$Cl = i), i !== void 0 && (t = X(r, i._$AS(r, t.values), i, s)), t;
+  const r = ot(t) ? void 0 : t._$litDirective$;
+  return i?.constructor !== r && (i?._$AO?.(!1), r === void 0 ? i = void 0 : (i = new r(o), i._$AT(o, e, s)), s !== void 0 ? (e._$Co ??= [])[s] = i : e._$Cl = i), i !== void 0 && (t = G(o, i._$AS(o, t.values), i, s)), t;
 }
-class es {
+class ss {
   constructor(t, e) {
     this._$AV = [], this._$AN = void 0, this._$AD = t, this._$AM = e;
   }
@@ -337,13 +337,13 @@ class es {
   u(t) {
     const { el: { content: e }, parts: s } = this._$AD, i = (t?.creationScope ?? R).importNode(e, !0);
     N.currentNode = i;
-    let o = N.nextNode(), n = 0, l = 0, a = s[0];
+    let r = N.nextNode(), n = 0, l = 0, a = s[0];
     for (; a !== void 0; ) {
       if (n === a.index) {
         let c;
-        a.type === 2 ? c = new rt(o, o.nextSibling, this, t) : a.type === 1 ? c = new a.ctor(o, a.name, a.strings, this, t) : a.type === 6 && (c = new os(o, this, t)), this._$AV.push(c), a = s[++l];
+        a.type === 2 ? c = new nt(r, r.nextSibling, this, t) : a.type === 1 ? c = new a.ctor(r, a.name, a.strings, this, t) : a.type === 6 && (c = new ns(r, this, t)), this._$AV.push(c), a = s[++l];
       }
-      n !== a?.index && (o = N.nextNode(), n++);
+      n !== a?.index && (r = N.nextNode(), n++);
     }
     return N.currentNode = R, i;
   }
@@ -352,7 +352,7 @@ class es {
     for (const s of this._$AV) s !== void 0 && (s.strings !== void 0 ? (s._$AI(t, s, e), e += s.strings.length - 2) : s._$AI(t[e])), e++;
   }
 }
-class rt {
+class nt {
   get _$AU() {
     return this._$AM?._$AU ?? this._$Cv;
   }
@@ -371,7 +371,7 @@ class rt {
     return this._$AB;
   }
   _$AI(t, e = this) {
-    t = X(this, t, e), st(t) ? t === h || t == null || t === "" ? (this._$AH !== h && this._$AR(), this._$AH = h) : t !== this._$AH && t !== Y && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : Qe(t) ? this.k(t) : this._(t);
+    t = G(this, t, e), ot(t) ? t === h || t == null || t === "" ? (this._$AH !== h && this._$AR(), this._$AH = h) : t !== this._$AH && t !== X && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : ts(t) ? this.k(t) : this._(t);
   }
   O(t) {
     return this._$AA.parentNode.insertBefore(t, this._$AB);
@@ -380,25 +380,25 @@ class rt {
     this._$AH !== t && (this._$AR(), this._$AH = this.O(t));
   }
   _(t) {
-    this._$AH !== h && st(this._$AH) ? this._$AA.nextSibling.data = t : this.T(R.createTextNode(t)), this._$AH = t;
+    this._$AH !== h && ot(this._$AH) ? this._$AA.nextSibling.data = t : this.T(R.createTextNode(t)), this._$AH = t;
   }
   $(t) {
-    const { values: e, _$litType$: s } = t, i = typeof s == "number" ? this._$AC(t) : (s.el === void 0 && (s.el = it.createElement(Le(s.h, s.h[0]), this.options)), s);
+    const { values: e, _$litType$: s } = t, i = typeof s == "number" ? this._$AC(t) : (s.el === void 0 && (s.el = rt.createElement(Le(s.h, s.h[0]), this.options)), s);
     if (this._$AH?._$AD === i) this._$AH.p(e);
     else {
-      const o = new es(i, this), n = o.u(this.options);
-      o.p(e), this.T(n), this._$AH = o;
+      const r = new ss(i, this), n = r.u(this.options);
+      r.p(e), this.T(n), this._$AH = r;
     }
   }
   _$AC(t) {
     let e = se.get(t.strings);
-    return e === void 0 && se.set(t.strings, e = new it(t)), e;
+    return e === void 0 && se.set(t.strings, e = new rt(t)), e;
   }
   k(t) {
     jt(this._$AH) || (this._$AH = [], this._$AR());
     const e = this._$AH;
     let s, i = 0;
-    for (const o of t) i === e.length ? e.push(s = new rt(this.O(et()), this.O(et()), this, this.options)) : s = e[i], s._$AI(o), i++;
+    for (const r of t) i === e.length ? e.push(s = new nt(this.O(it()), this.O(it()), this, this.options)) : s = e[i], s._$AI(r), i++;
     i < e.length && (this._$AR(s && s._$AB.nextSibling, i), e.length = i);
   }
   _$AR(t = this._$AA.nextSibling, e) {
@@ -411,24 +411,24 @@ class rt {
     this._$AM === void 0 && (this._$Cv = t, this._$AP?.(t));
   }
 }
-let At = class {
+let wt = class {
   get tagName() {
     return this.element.tagName;
   }
   get _$AU() {
     return this._$AM._$AU;
   }
-  constructor(t, e, s, i, o) {
-    this.type = 1, this._$AH = h, this._$AN = void 0, this.element = t, this.name = e, this._$AM = i, this.options = o, s.length > 2 || s[0] !== "" || s[1] !== "" ? (this._$AH = Array(s.length - 1).fill(new String()), this.strings = s) : this._$AH = h;
+  constructor(t, e, s, i, r) {
+    this.type = 1, this._$AH = h, this._$AN = void 0, this.element = t, this.name = e, this._$AM = i, this.options = r, s.length > 2 || s[0] !== "" || s[1] !== "" ? (this._$AH = Array(s.length - 1).fill(new String()), this.strings = s) : this._$AH = h;
   }
   _$AI(t, e = this, s, i) {
-    const o = this.strings;
+    const r = this.strings;
     let n = !1;
-    if (o === void 0) t = X(this, t, e, 0), n = !st(t) || t !== this._$AH && t !== Y, n && (this._$AH = t);
+    if (r === void 0) t = G(this, t, e, 0), n = !ot(t) || t !== this._$AH && t !== X, n && (this._$AH = t);
     else {
       const l = t;
       let a, c;
-      for (t = o[0], a = 0; a < o.length - 1; a++) c = X(this, l[s + a], e, a), c === Y && (c = this._$AH[a]), n ||= !st(c) || c !== this._$AH[a], c === h ? t = h : t !== h && (t += (c ?? "") + o[a + 1]), this._$AH[a] = c;
+      for (t = r[0], a = 0; a < r.length - 1; a++) c = G(this, l[s + a], e, a), c === X && (c = this._$AH[a]), n ||= !ot(c) || c !== this._$AH[a], c === h ? t = h : t !== h && (t += (c ?? "") + r[a + 1]), this._$AH[a] = c;
     }
     n && !i && this.j(t);
   }
@@ -436,7 +436,7 @@ let At = class {
     t === h ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t ?? "");
   }
 };
-class ss extends At {
+class is extends wt {
   constructor() {
     super(...arguments), this.type = 3;
   }
@@ -444,7 +444,7 @@ class ss extends At {
     this.element[this.name] = t === h ? void 0 : t;
   }
 }
-class is extends At {
+class os extends wt {
   constructor() {
     super(...arguments), this.type = 4;
   }
@@ -452,20 +452,20 @@ class is extends At {
     this.element.toggleAttribute(this.name, !!t && t !== h);
   }
 }
-class rs extends At {
-  constructor(t, e, s, i, o) {
-    super(t, e, s, i, o), this.type = 5;
+class rs extends wt {
+  constructor(t, e, s, i, r) {
+    super(t, e, s, i, r), this.type = 5;
   }
   _$AI(t, e = this) {
-    if ((t = X(this, t, e, 0) ?? h) === Y) return;
-    const s = this._$AH, i = t === h && s !== h || t.capture !== s.capture || t.once !== s.once || t.passive !== s.passive, o = t !== h && (s === h || i);
-    i && this.element.removeEventListener(this.name, this, s), o && this.element.addEventListener(this.name, this, t), this._$AH = t;
+    if ((t = G(this, t, e, 0) ?? h) === X) return;
+    const s = this._$AH, i = t === h && s !== h || t.capture !== s.capture || t.once !== s.once || t.passive !== s.passive, r = t !== h && (s === h || i);
+    i && this.element.removeEventListener(this.name, this, s), r && this.element.addEventListener(this.name, this, t), this._$AH = t;
   }
   handleEvent(t) {
     typeof this._$AH == "function" ? this._$AH.call(this.options?.host ?? this.element, t) : this._$AH.handleEvent(t);
   }
 }
-class os {
+class ns {
   constructor(t, e, s) {
     this.element = t, this.type = 6, this._$AN = void 0, this._$AM = e, this.options = s;
   }
@@ -473,19 +473,19 @@ class os {
     return this._$AM._$AU;
   }
   _$AI(t) {
-    X(this, t);
+    G(this, t);
   }
 }
-const ns = Bt.litHtmlPolyfillSupport;
-ns?.(it, rt), (Bt.litHtmlVersions ??= []).push("3.3.3");
-const as = (r, t, e) => {
+const as = Dt.litHtmlPolyfillSupport;
+as?.(rt, nt), (Dt.litHtmlVersions ??= []).push("3.3.3");
+const ls = (o, t, e) => {
   const s = e?.renderBefore ?? t;
   let i = s._$litPart$;
   if (i === void 0) {
-    const o = e?.renderBefore ?? null;
-    s._$litPart$ = i = new rt(t.insertBefore(et(), o), o, void 0, e ?? {});
+    const r = e?.renderBefore ?? null;
+    s._$litPart$ = i = new nt(t.insertBefore(it(), r), r, void 0, e ?? {});
   }
-  return i._$AI(r), i;
+  return i._$AI(o), i;
 };
 /**
  * @license
@@ -493,7 +493,7 @@ const as = (r, t, e) => {
  * SPDX-License-Identifier: BSD-3-Clause
  */
 const Wt = globalThis;
-class W extends D {
+class Y extends D {
   constructor() {
     super(...arguments), this.renderOptions = { host: this }, this._$Do = void 0;
   }
@@ -503,7 +503,7 @@ class W extends D {
   }
   update(t) {
     const e = this.render();
-    this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(t), this._$Do = as(e, this.renderRoot, this.renderOptions);
+    this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(t), this._$Do = ls(e, this.renderRoot, this.renderOptions);
   }
   connectedCallback() {
     super.connectedCallback(), this._$Do?.setConnected(!0);
@@ -512,78 +512,78 @@ class W extends D {
     super.disconnectedCallback(), this._$Do?.setConnected(!1);
   }
   render() {
-    return Y;
+    return X;
   }
 }
-W._$litElement$ = !0, W.finalized = !0, Wt.litElementHydrateSupport?.({ LitElement: W });
-const ls = Wt.litElementPolyfillSupport;
-ls?.({ LitElement: W });
+Y._$litElement$ = !0, Y.finalized = !0, Wt.litElementHydrateSupport?.({ LitElement: Y });
+const cs = Wt.litElementPolyfillSupport;
+cs?.({ LitElement: Y });
 (Wt.litElementVersions ??= []).push("4.2.2");
-const S = "#306291", cs = "#E2E8F2", lt = "#8DC63F", ie = "#F3B229", re = "#79593A", wt = "#D62631", oe = "#1A1A1A", hs = "#7A7A7A", ds = "#C3CEDE", ne = "#2F80ED", kt = 1600, Et = 900, ae = 210, le = 120, $s = 1390, ps = 800, us = 22, f = 315, y = 605, tt = 62, H = tt / 2, B = 800, ct = 460, j = 168, Ne = 450, Re = 1150, fs = 42, _s = 350, ht = 350, dt = 1250, A = 725, P = 900, k = 590, Ft = 690, $t = 1030, M = 240, L = 1360, Lt = B - j, Nt = B + j, ce = Math.round((Lt - M) / (L - M) * 100), he = Math.round((Nt - M) / (L - M) * 100), Rt = (r) => "M " + r.map(([t, e]) => `${t},${e}`).join(" L ");
-function pt(r, t, e, s = 2, i = 36) {
-  const o = e ? 21 : -21, n = 19, l = [];
+const M = "#306291", hs = "#E2E8F2", ht = "#8DC63F", ie = "#F3B229", oe = "#79593A", Et = "#D62631", re = "#1A1A1A", ds = "#7A7A7A", $s = "#C3CEDE", ne = "#2F80ED", Ft = 1600, Ct = 900, ae = 210, le = 120, ps = 1390, us = 800, fs = 22, u = 315, _ = 605, st = 62, H = st / 2, j = 800, dt = 460, W = 168, Ne = 450, Re = 1150, _s = 42, ys = 350, $t = 350, pt = 1250, A = 725, L = 900, b = 590, q = 690, I = 1030, E = 240, O = 1360, Nt = j - W, Rt = j + W, ce = Math.round((Nt - E) / (O - E) * 100), he = Math.round((Rt - E) / (O - E) * 100), ms = 1.29, gt = (o) => "M " + o.map(([t, e]) => `${t},${e}`).join(" L ");
+function ut(o, t, e, s = 2, i = 36) {
+  const r = e ? 21 : -21, n = 19, l = [];
   for (let a = 0; a < s; a++) {
-    const c = r + (e ? a * i : -a * i);
-    l.push($`<path d="M ${c - o},${t - n} L ${c},${t} L ${c - o},${t + n}" fill="none"
+    const c = o + (e ? a * i : -a * i);
+    l.push($`<path d="M ${c - r},${t - n} L ${c},${t} L ${c - r},${t + n}" fill="none"
       stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>`);
   }
   return l;
 }
-function ut(r, t, e, s = 1) {
-  return $`<path id=${e ?? h} d=${Rt(r)} fill="none" stroke=${t}
-    stroke-width=${tt} stroke-linejoin="round" stroke-linecap="butt" opacity=${s}/>`;
+function ft(o, t, e, s = 1) {
+  return $`<path id=${e ?? h} d=${gt(o)} fill="none" stroke=${t}
+    stroke-width=${st} stroke-linejoin="round" stroke-linecap="butt" opacity=${s}/>`;
 }
-function Ct(r, t, e, s) {
+function St(o, t, e, s) {
   return $`<g id=${s}>
-    <rect x=${r - 14} y=${t} width="28" height=${e - t} fill="#FFFFFF" stroke=${S} stroke-width="6"/>
-    <line x1=${r} y1=${t} x2=${r} y2=${e} stroke=${S} stroke-width="4"/>
+    <rect x=${o - 14} y=${t} width="28" height=${e - t} fill="#FFFFFF" stroke=${M} stroke-width="6"/>
+    <line x1=${o} y1=${t} x2=${o} y2=${e} stroke=${M} stroke-width="4"/>
   </g>`;
 }
-function de(r, t, e) {
-  const s = fs, i = f, o = s * 0.5, n = $`<path d="M ${r - s * 0.78},${i} A ${o} ${o} 0 0 1 ${r},${i}
-      A ${o} ${o} 0 0 0 ${r + s * 0.78},${i}" fill="none" stroke=${S}
+function de(o, t, e) {
+  const s = _s, i = u, r = s * 0.5, n = $`<path d="M ${o - s * 0.78},${i} A ${r} ${r} 0 0 1 ${o},${i}
+      A ${r} ${r} 0 0 0 ${o + s * 0.78},${i}" fill="none" stroke=${M}
       stroke-width=${Math.round(s * 0.14 * 10) / 10} stroke-linecap="round">
       ${e === void 0 ? h : $`<animateTransform attributeName="transform" type="rotate"
-            from=${`0 ${r} ${i}`} to=${`360 ${r} ${i}`} dur=${`${e}s`} repeatCount="indefinite"/>`}
+            from=${`0 ${o} ${i}`} to=${`360 ${o} ${i}`} dur=${`${e}s`} repeatCount="indefinite"/>`}
     </path>`;
   return $`<g id=${t}>
-    <circle cx=${r} cy=${i} r=${s} fill="#FFFFFF" fill-opacity="0.6" stroke=${S}
+    <circle cx=${o} cy=${i} r=${s} fill="#FFFFFF" fill-opacity="0.6" stroke=${M}
       stroke-width=${Math.round(s * 0.16 * 10) / 10}/>
     ${n}
   </g>`;
 }
-function $e(r, t, e = 4, s = "#FFFFFF") {
+function $e(o, t, e = 4, s = "#FFFFFF") {
   const i = [];
-  for (let o = 0; o < e; o++)
+  for (let r = 0; r < e; r++)
     i.push($`<circle r="9" fill=${s} opacity="0.75">
       <animateMotion dur=${`${t}s`} repeatCount="indefinite" calcMode="paced"
-        begin=${`${-(t / e) * o}s`}>
-        <mpath href=${`#${r}`} xlink:href=${`#${r}`}/>
+        begin=${`${-(t / e) * r}s`}>
+        <mpath href=${`#${o}`} xlink:href=${`#${o}`}/>
       </animateMotion>
     </circle>`);
   return i;
 }
-const ys = (r, t) => {
+const gs = (o, t) => {
   if (!t) return;
-  const e = Number(r.states[t]?.state);
+  const e = Number(o.states[t]?.state);
   return Number.isFinite(e) ? e : void 0;
 };
-function ms(r, t) {
+function vs(o, t) {
   if (!t) return "–";
-  const e = r.states[t];
+  const e = o.states[t];
   if (!e) return "–";
-  if (r.formatEntityState) return r.formatEntityState(e);
+  if (o.formatEntityState) return o.formatEntityState(e);
   const s = e.attributes?.unit_of_measurement;
   return s ? `${e.state} ${s}` : String(e.state);
 }
-function gs(r, t, e = 3.5, s = 10) {
-  return (r === void 0 || r <= 0 ? s : s - Math.min(100, Math.max(0, r)) / 100 * (s - e)) / t;
+function xs(o, t, e = 3.5, s = 10) {
+  return (o === void 0 || o <= 0 ? s : s - Math.min(100, Math.max(0, o)) / 100 * (s - e)) / t;
 }
-const vs = [
-  { key: "t3_frischluft", x: 120, y: f + 22, color: "green", size: "core" },
-  { key: "t4_fortluft", x: 120, y: y + 22, color: "brown", size: "core" },
-  { key: "t7_abluft", x: 1480, y: f + 22, color: "orange", size: "core" },
-  { key: "t1_zuluft", x: 1480, y: y + 22, color: "red", size: "core" },
+const As = [
+  { key: "t3_frischluft", x: 120, y: u + 22, color: "green", size: "core" },
+  { key: "t4_fortluft", x: 120, y: _ + 22, color: "brown", size: "core" },
+  { key: "t7_abluft", x: 1480, y: u + 22, color: "orange", size: "core" },
+  { key: "t1_zuluft", x: 1480, y: _ + 22, color: "red", size: "core" },
   { key: "betriebsart", x: 800, y: 165, color: "#1f4e79", size: "core" },
   { key: "lueftung", x: 800, y: 225, color: "dimgray", size: "detail" },
   { key: "geraetefilter_remaining_days", x: 430, y: 195, color: "dimgray", size: "core", prefix: "Filter " },
@@ -597,192 +597,200 @@ const vs = [
   { key: "bypass_min_frischluft", x: 1130, y: 855, color: "dimgray", size: "detail" },
   { key: "kuehlung_freigabe", x: 1400, y: 855, color: "dimgray", size: "detail", prefix: "Kühlung " }
 ];
-function xs(r) {
-  const { hass: t, map: e, animate: s } = r, i = t.states[e.bypass_offen ?? ""]?.state === "on", o = t.states[e.lueftung ?? ""], n = o?.state === "on", l = o?.attributes?.percentage, a = ys(t, e.kompressor_drehzahl), c = e.vierwege_ventil, d = !!(c && t.states[c]) && t.states[c].state === "on", u = d ? ne : S, m = i ? 0 : 90, w = i ? lt : ds, Yt = i ? 1 : 0.6, G = i ? 0.18 : 1, U = gs(n ? l ?? 50 : void 0, r.speed), ot = s && n, nt = U / 2, v = [[M, f], [Lt, f], [Nt, y], [L, y]], at = H + 14;
+function bs(o) {
+  const { hass: t, map: e, animate: s } = o, i = t.states[e.bypass_offen ?? ""]?.state === "on", r = t.states[e.lueftung ?? ""], n = r?.state === "on", l = r?.attributes?.percentage, a = gs(t, e.kompressor_drehzahl), c = e.vierwege_ventil, d = !!(c && t.states[c]) && t.states[c].state === "on" && (a ?? 0) > 0, f = d ? ne : M, m = i ? 0 : 90, k = i ? ht : $s, Yt = i ? 1 : 0.6, K = i ? 0.18 : 1, U = xs(n ? l ?? 50 : void 0, o.speed), at = s && n, lt = U / 2, v = [[E, u], [Nt, u], [Rt, _], [O, _]], ct = H + 14, Be = gt([
+    [E, u],
+    [b, u],
+    [b, q],
+    [I, q],
+    [I, _],
+    [O, _]
+  ]);
   return $`
-    <svg viewBox=${`0 0 ${kt} ${Et}`} id="proxon-fwt" data-bypass=${i ? "open" : "closed"}
-         style=${`aspect-ratio: ${kt} / ${Et}`} xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox=${`0 0 ${Ft} ${Ct}`} id="proxon-fwt" data-bypass=${i ? "open" : "closed"}
+         style=${`aspect-ratio: ${Ft} / ${Ct}`} xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="gradSupply" gradientUnits="userSpaceOnUse" x1=${M} y1="0" x2=${L} y2="0">
-          <stop offset="0%" stop-color=${lt}/><stop offset=${`${ce}%`} stop-color=${lt}/>
-          <stop offset=${`${he}%`} stop-color=${wt}/><stop offset="100%" stop-color=${wt}/>
+        <linearGradient id="gradSupply" gradientUnits="userSpaceOnUse" x1=${E} y1="0" x2=${O} y2="0">
+          <stop offset="0%" stop-color=${ht}/><stop offset=${`${ce}%`} stop-color=${ht}/>
+          <stop offset=${`${he}%`} stop-color=${Et}/><stop offset="100%" stop-color=${Et}/>
         </linearGradient>
-        <linearGradient id="gradExhaust" gradientUnits="userSpaceOnUse" x1=${L} y1="0" x2=${M} y2="0">
+        <linearGradient id="gradExhaust" gradientUnits="userSpaceOnUse" x1=${O} y1="0" x2=${E} y2="0">
           <stop offset="0%" stop-color=${ie}/><stop offset=${`${ce}%`} stop-color=${ie}/>
-          <stop offset=${`${he}%`} stop-color=${re}/><stop offset="100%" stop-color=${re}/>
+          <stop offset=${`${he}%`} stop-color=${oe}/><stop offset="100%" stop-color=${oe}/>
         </linearGradient>
       </defs>
 
-      <rect id="backdrop" width=${kt} height=${Et} fill="#FFFFFF"/>
-      <rect id="case" x=${ae} y=${le} width=${$s - ae} height=${ps - le} rx="12"
-        fill=${cs} stroke=${S} stroke-width=${us}/>
+      <rect id="backdrop" width=${Ft} height=${Ct} fill="#FFFFFF"/>
+      <rect id="case" x=${ae} y=${le} width=${ps - ae} height=${us - le} rx="12"
+        fill=${hs} stroke=${M} stroke-width=${fs}/>
 
       <g id="flow-extract-exhaust">
-        ${ut([[L, f], [Nt, f], [Lt, y], [M, y]], "url(#gradExhaust)", "flow-exhaust")}
-        ${pt(1325, f, !1)}
-        ${pt(300, y, !1)}
-        ${ot ? $e("flow-exhaust", U) : h}
+        ${ft([[O, u], [Rt, u], [Nt, _], [E, _]], "url(#gradExhaust)", "flow-exhaust")}
+        ${ut(1325, u, !1)}
+        ${ut(300, _, !1)}
+        ${at ? $e("flow-exhaust", U) : h}
       </g>
 
       <g id="flow-fresh-supply">
-        ${ut(v, "url(#gradSupply)", "flow-supply", G)}
-        ${i ? $`${ut([[M, f], [k, f]], lt, "flow-fresh-active")}
-                ${ut([[$t, y], [L, y]], wt, "flow-supply-active")}` : h}
-        ${pt(275, f, !0)}
-        ${pt(1305, y, !0)}
-        ${ot ? $e("flow-supply", U) : h}
+        ${ft(v, "url(#gradSupply)", "flow-supply", K)}
+        ${i ? $`${ft([[E, u], [b, u]], ht, "flow-fresh-active")}
+                ${ft([[I, _], [O, _]], Et, "flow-supply-active")}` : h}
+        ${ut(275, u, !0)}
+        ${ut(1305, _, !0)}
+        ${i ? $`<path id="flow-supply-bypass" fill="none" stroke="none" d=${Be}/>` : h}
+        ${at ? $e(i ? "flow-supply-bypass" : "flow-supply", U * (i ? ms : 1)) : h}
       </g>
 
       <polygon id="heat-exchanger"
-        points=${`${B},${ct - j} ${B + j},${ct} ${B},${ct + j} ${B - j},${ct}`}
-        fill="none" stroke=${S} stroke-width="10"/>
+        points=${`${j},${dt - W} ${j + W},${dt} ${j},${dt + W} ${j - W},${dt}`}
+        fill="none" stroke=${M} stroke-width="10"/>
 
       <g id="bypass" data-state=${i ? "open" : "closed"}>
         ${[
-    Rt([[k, f + H], [k, y - at]]),
-    Rt([[k, y + at], [k, Ft], [$t, Ft], [$t, y + H]])
+    gt([[b, u + H], [b, _ - ct]]),
+    gt([[b, _ + ct], [b, q], [I, q], [I, _ + H]])
   ].map(
     (x, T) => $`
             <path id=${T === 0 ? "bypass-duct-upper" : "bypass-duct-lower"} d=${x} fill="none"
-              stroke=${w} stroke-width=${tt} stroke-linejoin="round" opacity=${Yt}/>
-            <path d=${x} fill="none" stroke=${S} stroke-width="4" stroke-dasharray="18 12" opacity="0.8"/>`
+              stroke=${k} stroke-width=${st} stroke-linejoin="round" opacity=${Yt}/>
+            <path d=${x} fill="none" stroke=${M} stroke-width="4" stroke-dasharray="18 12" opacity="0.8"/>`
   )}
       </g>
 
       <g id="bypass-flap-group">
-        <g id="bypass-flap" transform=${`rotate(${m} ${k} ${f + H})`}
+        <g id="bypass-flap" transform=${`rotate(${m} ${b} ${u + H})`}
            style="transition: transform 600ms ease-in-out; transform-box: view-box;">
-          <rect x=${k - 9} y=${f + H - tt / 2 - 8} width="18" height=${tt + 16} rx="9"
-            fill=${S} stroke="#FFFFFF" stroke-width="4"/>
+          <rect x=${b - 9} y=${u + H - st / 2 - 8} width="18" height=${st + 16} rx="9"
+            fill=${M} stroke="#FFFFFF" stroke-width="4"/>
         </g>
-        <circle cx=${k} cy=${f + H} r="10" fill=${oe} stroke="#FFFFFF" stroke-width="3"/>
+        <circle cx=${b} cy=${u + H} r="10" fill=${re} stroke="#FFFFFF" stroke-width="3"/>
       </g>
 
-      ${de(Ne, "fan-supply", s && n ? nt : void 0)}
-      ${de(Re, "fan-extract", s && n ? nt : void 0)}
-      ${Ct(_s, f - 95, f + 95, "preheater")}
-      ${Ct(ht, y - 110, 700, "evaporator")}
-      ${Ct(dt, y - 110, 700, "condenser")}
+      ${de(Ne, "fan-supply", s && n ? lt : void 0)}
+      ${de(Re, "fan-extract", s && n ? lt : void 0)}
+      ${St(ys, u - 95, u + 95, "preheater")}
+      ${St($t, _ - 110, 700, "evaporator")}
+      ${St(pt, _ - 110, 700, "condenser")}
 
-      <line id="refrigerant-circuit" x1=${ht} y1=${A} x2=${dt} y2=${A}
-        stroke=${u} stroke-width="7" stroke-dasharray="30 18"/>
-      <line x1=${ht} y1="700" x2=${ht} y2=${A} stroke=${u} stroke-width="7"/>
-      <line x1=${dt} y1="700" x2=${dt} y2=${A} stroke=${u} stroke-width="7"/>
+      <line id="refrigerant-circuit" x1=${$t} y1=${A} x2=${pt} y2=${A}
+        stroke=${f} stroke-width="7" stroke-dasharray="30 18"/>
+      <line x1=${$t} y1="700" x2=${$t} y2=${A} stroke=${f} stroke-width="7"/>
+      <line x1=${pt} y1="700" x2=${pt} y2=${A} stroke=${f} stroke-width="7"/>
 
       <g id="compressor">
-        <circle cx=${P} cy=${A} r="40" fill="#FFFFFF" stroke=${u} stroke-width="9"/>
+        <circle cx=${L} cy=${A} r="40" fill="#FFFFFF" stroke=${f} stroke-width="9"/>
         <g>
-          <path d=${`M ${P - 30},${A - 15} L ${P + 28},${A - 7} L ${P},${A} Z`}
-            fill=${u}/>
+          <path d=${`M ${L - 30},${A - 15} L ${L + 28},${A - 7} L ${L},${A} Z`}
+            fill=${f}/>
           ${s && a ? $`<animateTransform attributeName="transform" type="rotate"
-                from=${`0 ${P} ${A}`} to=${`360 ${P} ${A}`}
-                dur=${`${Math.max(1.2, 240 / a) / r.speed}s`} repeatCount="indefinite"/>` : h}
+                from=${`0 ${L} ${A}`} to=${`360 ${L} ${A}`}
+                dur=${`${Math.max(1.2, 240 / a) / o.speed}s`} repeatCount="indefinite"/>` : h}
         </g>
-        <circle cx=${P} cy=${A} r="7" fill=${oe}/>
+        <circle cx=${L} cy=${A} r="7" fill=${re}/>
       </g>
 
       ${[
-    ["Frischluft", 120, f - 30],
-    ["Fortluft", 120, y - 30],
-    ["Abluft", 1480, f - 30],
-    ["Zuluft", 1480, y - 30]
+    ["Frischluft", 120, u - 30],
+    ["Fortluft", 120, _ - 30],
+    ["Abluft", 1480, u - 30],
+    ["Zuluft", 1480, _ - 30]
   ].map(
     ([x, T, De]) => $`<text class="port" x=${T} y=${De} text-anchor="middle">${x}</text>`
   )}
 
       ${d ? $`<text class="badge" x="1150" y="700" text-anchor="middle" fill=${ne}>KÜHLEN</text>` : h}
 
-      <text id="bypass-label" class="bp" x=${(k + $t) / 2} y=${Ft - 46}
-        text-anchor="middle" fill=${i ? "#4C8C1B" : hs}>
+      <text id="bypass-label" class="bp" x=${(b + I) / 2} y=${q - 46}
+        text-anchor="middle" fill=${i ? "#4C8C1B" : ds}>
         ${i ? "BYPASS OFFEN" : "Bypass zu"}
       </text>
 
-      ${vs.map((x) => {
+      ${As.map((x) => {
     const T = e[x.key];
     return $`<text class=${`val ${x.size}`} x=${x.x} y=${x.y} text-anchor="middle"
-          fill=${x.color} @click=${() => T && r.onEntityClick(T)}
+          fill=${x.color} @click=${() => T && o.onEntityClick(T)}
           style=${T ? "cursor: pointer" : "opacity: 0.4"}>
-          ${(x.prefix ?? "") + ms(t, T)}
+          ${(x.prefix ?? "") + vs(t, T)}
         </text>`;
   })}
     </svg>`;
 }
-const V = "#306291", As = "#E2E8F2", bs = "#F3B229", pe = "#D62631", ue = "#3E8FD0", fe = "#1A1A1A", St = "#C3CEDE", E = 1e3, Mt = 1500, ws = 54, _e = 20, _ = 210, g = 790, ye = 90, me = 520, q = 520, Z = 1430, F = (_ + g) / 2, J = 205, ft = 400, ge = 330, ve = 38, I = 300, C = 640, b = 455, Tt = 760, xe = 900, Ae = 1060, zt = 1140, Ot = 1360, ks = (r) => "M " + r.map(([t, e]) => `${t},${e}`).join(" L ");
-function be(r, t, e, s = 1) {
-  return $`<path id=${e} d=${ks(r)} fill="none" stroke=${t} stroke-width=${ws}
+const Z = "#306291", ws = "#E2E8F2", ks = "#F3B229", pe = "#D62631", ue = "#3E8FD0", fe = "#1A1A1A", Mt = "#C3CEDE", F = 1e3, Tt = 1500, Es = 54, _e = 20, y = 210, g = 790, ye = 90, me = 520, J = 520, Q = 1430, C = (y + g) / 2, tt = 205, _t = 400, ge = 330, ve = 38, B = 300, S = 640, w = 455, Ot = 760, xe = 900, Ae = 1060, zt = 1140, Pt = 1360, Fs = (o) => "M " + o.map(([t, e]) => `${t},${e}`).join(" L ");
+function be(o, t, e, s = 1) {
+  return $`<path id=${e} d=${Fs(o)} fill="none" stroke=${t} stroke-width=${Es}
     stroke-linejoin="round" stroke-linecap="butt" opacity=${s}/>`;
 }
-function we(r, t, e, s = 2, i = 30) {
+function we(o, t, e, s = 2, i = 30) {
   const l = [];
   for (let a = 0; a < s; a++) {
-    const c = r + a * i;
+    const c = o + a * i;
     l.push($`<path d="M ${c - 17},${t - 15} L ${c},${t} L ${c - 17},${t + 15}" fill="none"
       stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>`);
   }
   return l;
 }
-function Es(r, t, e, s, i) {
-  const o = ve, n = ve * 0.5;
+function Cs(o, t, e, s, i) {
+  const r = ve, n = ve * 0.5;
   return $`<g id=${e}>
-    <circle cx=${r} cy=${t} r=${o} fill="#FFFFFF" fill-opacity="0.6" stroke=${s}
-      stroke-width=${Math.round(o * 0.16 * 10) / 10}/>
-    <path d="M ${r - o * 0.78},${t} A ${n} ${n} 0 0 1 ${r},${t}
-      A ${n} ${n} 0 0 0 ${r + o * 0.78},${t}" fill="none" stroke=${s}
-      stroke-width=${Math.round(o * 0.14 * 10) / 10} stroke-linecap="round">
+    <circle cx=${o} cy=${t} r=${r} fill="#FFFFFF" fill-opacity="0.6" stroke=${s}
+      stroke-width=${Math.round(r * 0.16 * 10) / 10}/>
+    <path d="M ${o - r * 0.78},${t} A ${n} ${n} 0 0 1 ${o},${t}
+      A ${n} ${n} 0 0 0 ${o + r * 0.78},${t}" fill="none" stroke=${s}
+      stroke-width=${Math.round(r * 0.14 * 10) / 10} stroke-linecap="round">
       ${i === void 0 ? h : $`<animateTransform attributeName="transform" type="rotate"
-            from=${`0 ${r} ${t}`} to=${`360 ${r} ${t}`} dur=${`${i}s`} repeatCount="indefinite"/>`}
+            from=${`0 ${o} ${t}`} to=${`360 ${o} ${t}`} dur=${`${i}s`} repeatCount="indefinite"/>`}
     </path>
   </g>`;
 }
-function Fs(r, t, e, s, i) {
-  const o = (e - t) / 7, n = [];
+function Ss(o, t, e, s, i) {
+  const r = (e - t) / 7, n = [];
   for (let l = 1; l < 7; l++) {
-    const a = t + l * o;
-    n.push($`<line x1=${a} y1=${r - 24} x2=${a} y2=${r + 24} stroke=${i} stroke-width="3.5"/>`);
+    const a = t + l * r;
+    n.push($`<line x1=${a} y1=${o - 24} x2=${a} y2=${o + 24} stroke=${i} stroke-width="3.5"/>`);
   }
   return $`<g id=${s}>
-    <rect x=${t} y=${r - 24} width=${e - t} height="48" fill="#FFFFFF" fill-opacity="0.85"
+    <rect x=${t} y=${o - 24} width=${e - t} height="48" fill="#FFFFFF" fill-opacity="0.85"
       stroke=${i} stroke-width="5"/>
     ${n}
   </g>`;
 }
-function Cs(r, t, e, s, i, o) {
+function Ms(o, t, e, s, i, r) {
   const l = (s - e) / 5;
-  let a = `M ${r},${e}`;
+  let a = `M ${o},${e}`;
   for (let c = 0; c < 5; c++) {
     const p = e + c * l;
-    a += ` L ${t},${p + l * 0.45} L ${r},${p + l * 0.9}`;
+    a += ` L ${t},${p + l * 0.45} L ${o},${p + l * 0.9}`;
   }
-  return $`<path id=${i} d=${a} fill="none" stroke=${o} stroke-width="10"
+  return $`<path id=${i} d=${a} fill="none" stroke=${r} stroke-width="10"
     stroke-linejoin="round" stroke-linecap="round"/>`;
 }
-function ke(r, t, e = 3, s = "#FFFFFF") {
+function ke(o, t, e = 3, s = "#FFFFFF") {
   const i = [];
-  for (let o = 0; o < e; o++)
+  for (let r = 0; r < e; r++)
     i.push($`<circle r="8" fill=${s} opacity="0.75">
       <animateMotion dur=${`${t}s`} repeatCount="indefinite" calcMode="paced"
-        begin=${`${-(t / e) * o}s`}>
-        <mpath href=${`#${r}`} xlink:href=${`#${r}`}/>
+        begin=${`${-(t / e) * r}s`}>
+        <mpath href=${`#${o}`} xlink:href=${`#${o}`}/>
       </animateMotion>
     </circle>`);
   return i;
 }
-function Ss(r, t) {
+function Ts(o, t) {
   if (!t) return "–";
-  const e = r.states[t];
+  const e = o.states[t];
   if (!e) return "–";
-  if (r.formatEntityState) return r.formatEntityState(e);
+  if (o.formatEntityState) return o.formatEntityState(e);
   const s = e.attributes?.unit_of_measurement;
   return s ? `${e.state} ${s}` : String(e.state);
 }
-function Ms(r) {
-  const { hass: t, map: e, extras: s, animate: i } = r, o = t.states[e.t300_kompressor_aktiv ?? ""]?.state === "on", n = t.states[e.t300_eheiz_aktiv ?? ""]?.state === "on", l = t.states[e.t300_abtau_aktiv ?? ""]?.state === "on", a = t.states[e.t300_solar_aktiv ?? ""]?.state === "on", c = Number(t.states[e.t300_ventilator_pct ?? ""]?.state), p = o ? bs : St, d = o ? ue : St, u = o ? pe : St, m = o ? V : "#8FA3BC", w = o ? 1 : 0.55, G = (10 - (Number.isFinite(c) ? Math.min(100, Math.max(0, c)) : 60) / 100 * (10 - 3.5)) / r.speed, U = i && o, ot = G / 2, nt = [
-    { entityId: e.t300_behaelter_avg, x: F, y: 620, color: "#B03A2E", size: "core" },
-    { entityId: e.t300_solltemperatur_akt, x: F, y: 685, color: "#1f4e79", size: "core" },
-    { entityId: e.t300_temp_eheiz, x: g - 95, y: Tt, color: "dimgray", size: "detail" },
+function Os(o) {
+  const { hass: t, map: e, extras: s, animate: i } = o, r = t.states[e.t300_kompressor_aktiv ?? ""]?.state === "on", n = t.states[e.t300_eheiz_aktiv ?? ""]?.state === "on", l = t.states[e.t300_abtau_aktiv ?? ""]?.state === "on", a = t.states[e.t300_solar_aktiv ?? ""]?.state === "on", c = Number(t.states[e.t300_ventilator_pct ?? ""]?.state), p = r ? ks : Mt, d = r ? ue : Mt, f = r ? pe : Mt, m = r ? Z : "#8FA3BC", k = r ? 1 : 0.55, K = (10 - (Number.isFinite(c) ? Math.min(100, Math.max(0, c)) : 60) / 100 * (10 - 3.5)) / o.speed, U = i && r, at = K / 2, lt = [
+    { entityId: e.t300_behaelter_avg, x: C, y: 620, color: "#B03A2E", size: "core" },
+    { entityId: e.t300_solltemperatur_akt, x: C, y: 685, color: "#1f4e79", size: "core" },
+    { entityId: e.t300_temp_eheiz, x: g - 95, y: Ot, color: "dimgray", size: "detail" },
     { entityId: e.t300_t21_behaelter_mitte, x: g - 110, y: xe, color: "#C0392B", size: "core" },
     { entityId: e.t300_t20_behaelter_unten, x: g - 110, y: Ae, color: "steelblue", size: "core" },
-    { entityId: e.t300_betriebsart, x: F, y: 140, color: "#1f4e79", size: "core" },
+    { entityId: e.t300_betriebsart, x: C, y: 140, color: "#1f4e79", size: "core" },
     // Fits the clear strip between the duct band (ends at Y_AIR_IN + 27 = 232)
     // and the evaporator block (starts at EVAP_Y - 24 = 276).
     { entityId: e.t300_ventilator_pct, x: ge, y: 264, color: "dimgray", size: "detail" },
@@ -791,8 +799,8 @@ function Ms(r) {
     { entityId: s.pv_surplus, x: 120, y: 1330, color: "dimgray", size: "detail" }
   ];
   return $`
-    <svg viewBox=${`0 0 ${E} ${Mt}`} id="proxon-t300" data-state=${o ? "running" : "idle"}
-         style=${`aspect-ratio: ${E} / ${Mt}`} xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox=${`0 0 ${F} ${Tt}`} id="proxon-t300" data-state=${r ? "running" : "idle"}
+         style=${`aspect-ratio: ${F} / ${Tt}`} xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="gradTank" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stop-color="#E8453C"/>
@@ -800,80 +808,80 @@ function Ms(r) {
           <stop offset="100%" stop-color="#5FA8DC"/>
         </linearGradient>
       </defs>
-      <rect id="backdrop" width=${E} height=${Mt} fill="#FFFFFF"/>
+      <rect id="backdrop" width=${F} height=${Tt} fill="#FFFFFF"/>
 
-      <rect id="tank" x=${_} y=${q} width=${g - _} height=${Z - q}
-        rx="52" fill="url(#gradTank)" fill-opacity="0.34" stroke=${V} stroke-width=${_e}/>
-      <path d=${`M ${g},${q + 90} L ${E - 60},${q + 90}`} stroke=${pe}
+      <rect id="tank" x=${y} y=${J} width=${g - y} height=${Q - J}
+        rx="52" fill="url(#gradTank)" fill-opacity="0.34" stroke=${Z} stroke-width=${_e}/>
+      <path d=${`M ${g},${J + 90} L ${F - 60},${J + 90}`} stroke=${pe}
         stroke-width="24" stroke-linecap="round"/>
-      <path d=${`M ${g},${Z - 70} L ${E - 60},${Z - 70}`} stroke=${ue}
+      <path d=${`M ${g},${Q - 70} L ${F - 60},${Q - 70}`} stroke=${ue}
         stroke-width="24" stroke-linecap="round"/>
-      <text class="port" x=${E - 60} y=${q + 52} text-anchor="end">Warmwasser</text>
-      <text class="port" x=${E - 60} y=${Z - 100} text-anchor="end">Kaltwasser</text>
+      <text class="port" x=${F - 60} y=${J + 52} text-anchor="end">Warmwasser</text>
+      <text class="port" x=${F - 60} y=${Q - 100} text-anchor="end">Kaltwasser</text>
 
-      ${Cs(g - 50, _ + 50, zt, Ot, "condenser-coil", u)}
+      ${Ms(g - 50, y + 50, zt, Pt, "condenser-coil", f)}
 
       <g id="e-heater">
-        <rect x=${_ + 50} y=${Tt - 12} width=${(g - _) * 0.5} height="24" rx="12"
-          fill=${n ? "#FFE3B0" : "#FFFFFF"} stroke=${n ? "#E8843C" : V}
+        <rect x=${y + 50} y=${Ot - 12} width=${(g - y) * 0.5} height="24" rx="12"
+          fill=${n ? "#FFE3B0" : "#FFFFFF"} stroke=${n ? "#E8843C" : Z}
           stroke-width=${n ? 7 : 5}/>
-        <path d=${`M ${_ + 78},${Tt} l 20,-14 l 0,28 l 20,-14`} fill="none"
-          stroke=${n ? "#E8843C" : V} stroke-width="4.5"/>
+        <path d=${`M ${y + 78},${Ot} l 20,-14 l 0,28 l 20,-14`} fill="none"
+          stroke=${n ? "#E8843C" : Z} stroke-width="4.5"/>
       </g>
 
       ${[[xe, "T21 Mitte"], [Ae, "T20 unten"]].map(
-    ([v, at]) => $`
-          <circle cx=${_ + 90} cy=${v} r="9" fill=${fe}/>
-          <text class="tag" x=${_ + 110} y=${v + 9}>${at}</text>`
+    ([v, ct]) => $`
+          <circle cx=${y + 90} cy=${v} r="9" fill=${fe}/>
+          <text class="tag" x=${y + 110} y=${v + 9}>${ct}</text>`
   )}
 
-      <rect id="hp-case" x=${_} y=${ye} width=${g - _} height=${me - ye}
-        rx="24" fill=${As} fill-opacity="0.9" stroke=${V} stroke-width=${_e}/>
+      <rect id="hp-case" x=${y} y=${ye} width=${g - y} height=${me - ye}
+        rx="24" fill=${ws} fill-opacity="0.9" stroke=${Z} stroke-width=${_e}/>
 
-      ${be([[40, J], [F, J], [F, I]], p, "flow-air-in", w)}
-      ${be([[F, I], [F, ft], [E - 40, ft]], d, "flow-air-out", w)}
-      ${we(120, J)}
-      ${we(920, ft)}
-      ${U ? ke("flow-air-in", G) : h}
-      ${U ? ke("flow-air-out", G) : h}
+      ${be([[40, tt], [C, tt], [C, B]], p, "flow-air-in", k)}
+      ${be([[C, B], [C, _t], [F - 40, _t]], d, "flow-air-out", k)}
+      ${we(120, tt)}
+      ${we(920, _t)}
+      ${U ? ke("flow-air-in", K) : h}
+      ${U ? ke("flow-air-out", K) : h}
 
-      ${Es(ge, J, "fan-t300", m, i && o ? ot : void 0)}
-      ${Fs(I, _ + 60, g - 60, "evaporator", m)}
+      ${Cs(ge, tt, "fan-t300", m, i && r ? at : void 0)}
+      ${Ss(B, y + 60, g - 60, "evaporator", m)}
 
-      <g id="refrigerant" opacity=${w}>
-        <path d=${`M ${_ + 150},${I + 24} L ${_ + 150},${b} L ${C - 42},${b}`}
-          fill="none" stroke=${u} stroke-width="8" stroke-linejoin="round"/>
-        <path d=${`M ${C + 42},${b} L ${g - 60},${b} L ${g - 60},${zt} L ${g - 50},${zt}`}
-          fill="none" stroke=${u} stroke-width="8" stroke-linejoin="round"/>
-        <path d=${`M ${_ + 50},${Ot} L ${_ + 26},${Ot} L ${_ + 26},${I + 24} L ${_ + 62},${I + 24}`}
-          fill="none" stroke=${u} stroke-width="8" stroke-dasharray="20 13" stroke-linejoin="round"/>
-        <circle id="compressor" cx=${C} cy=${b} r="42" fill="#FFFFFF" stroke=${m} stroke-width="9"/>
+      <g id="refrigerant" opacity=${k}>
+        <path d=${`M ${y + 150},${B + 24} L ${y + 150},${w} L ${S - 42},${w}`}
+          fill="none" stroke=${f} stroke-width="8" stroke-linejoin="round"/>
+        <path d=${`M ${S + 42},${w} L ${g - 60},${w} L ${g - 60},${zt} L ${g - 50},${zt}`}
+          fill="none" stroke=${f} stroke-width="8" stroke-linejoin="round"/>
+        <path d=${`M ${y + 50},${Pt} L ${y + 26},${Pt} L ${y + 26},${B + 24} L ${y + 62},${B + 24}`}
+          fill="none" stroke=${f} stroke-width="8" stroke-dasharray="20 13" stroke-linejoin="round"/>
+        <circle id="compressor" cx=${S} cy=${w} r="42" fill="#FFFFFF" stroke=${m} stroke-width="9"/>
         <g>
-          <path d=${`M ${C - 31},${b - 15} L ${C + 29},${b - 7} L ${C},${b} Z`}
+          <path d=${`M ${S - 31},${w - 15} L ${S + 29},${w - 7} L ${S},${w} Z`}
             fill=${m}/>
-          ${i && o ? $`<animateTransform attributeName="transform" type="rotate"
-                from=${`0 ${C} ${b}`} to=${`360 ${C} ${b}`}
-                dur=${`${1.8 / r.speed}s`} repeatCount="indefinite"/>` : h}
+          ${i && r ? $`<animateTransform attributeName="transform" type="rotate"
+                from=${`0 ${S} ${w}`} to=${`360 ${S} ${w}`}
+                dur=${`${1.8 / o.speed}s`} repeatCount="indefinite"/>` : h}
         </g>
-        <circle cx=${C} cy=${b} r="7" fill=${fe}/>
+        <circle cx=${S} cy=${w} r="7" fill=${fe}/>
       </g>
 
-      <text class="port" x="40" y=${J - 48}>Luft an</text>
-      <text class="port" x=${E - 40} y=${ft + 66} text-anchor="end">Luft ab</text>
+      <text class="port" x="40" y=${tt - 48}>Luft an</text>
+      <text class="port" x=${F - 40} y=${_t + 66} text-anchor="end">Luft ab</text>
 
-      ${l ? $`<text class="badge" x=${F} y=${me - 24} text-anchor="middle" fill="#2F80ED">Abtauen</text>` : h}
-      ${a ? $`<text class="badge" x=${F} y=${Z + 46} text-anchor="middle" fill="#4C8C1B">Solar aktiv</text>` : h}
+      ${l ? $`<text class="badge" x=${C} y=${me - 24} text-anchor="middle" fill="#2F80ED">Abtauen</text>` : h}
+      ${a ? $`<text class="badge" x=${C} y=${Q + 46} text-anchor="middle" fill="#4C8C1B">Solar aktiv</text>` : h}
 
-      ${nt.map(
+      ${lt.map(
     (v) => $`<text class=${`val ${v.size}`} x=${v.x} y=${v.y} text-anchor="middle"
-          fill=${v.color} @click=${() => v.entityId && r.onEntityClick(v.entityId)}
+          fill=${v.color} @click=${() => v.entityId && o.onEntityClick(v.entityId)}
           style=${v.entityId ? "cursor: pointer" : "opacity: 0.4"}>
-          ${Ss(t, v.entityId)}
+          ${Ts(t, v.entityId)}
         </text>`
   )}
     </svg>`;
 }
-const Ts = [
+const zs = [
   "t1_zuluft",
   "t3_frischluft",
   "t4_fortluft",
@@ -894,7 +902,7 @@ const Ts = [
   // Reversing valve = the plant is actually cooling. Disabled by default in
   // the integration, so the card must cope with it being absent.
   "vierwege_ventil"
-], zs = [
+], Ps = [
   "t300_betriebsart",
   "t300_behaelter_avg",
   "t300_solltemperatur_akt",
@@ -908,44 +916,44 @@ const Ts = [
   "t300_abtau_aktiv",
   "t300_solar_aktiv"
 ];
-function Ue(r) {
-  return r === "t300" ? zs : Ts;
+function Ue(o) {
+  return o === "t300" ? Ps : zs;
 }
-function He(r, t) {
-  const e = (r.devices ?? {})[t]?.model;
+function He(o, t) {
+  const e = (o.devices ?? {})[t]?.model;
   if (e === "T300") return "t300";
   if (e === "FWT 2.0") return "fwt";
 }
-function Os(r, t, e) {
-  const s = r.filter(
-    (o) => o.device_id === t && o.platform === "proxon" && !o.disabled_by
+function Ls(o, t, e) {
+  const s = o.filter(
+    (r) => r.device_id === t && r.platform === "proxon" && !r.disabled_by
   ), i = {};
-  for (const o of e) {
-    const n = `_${o}`, l = s.find((a) => a.unique_id.endsWith(n));
-    l && (i[o] = l.entity_id);
+  for (const r of e) {
+    const n = `_${r}`, l = s.find((a) => a.unique_id.endsWith(n));
+    l && (i[r] = l.entity_id);
   }
   return i;
 }
-function Ie(r, t, e) {
+function Ie(o, t, e) {
   const s = {}, i = new Set(e);
-  for (const o of Object.values(r.entities ?? {})) {
-    if (o.device_id !== t || o.platform !== "proxon") continue;
-    const n = o.translation_key;
-    n && i.has(n) && (s[n] = o.entity_id);
+  for (const r of Object.values(o.entities ?? {})) {
+    if (r.device_id !== t || r.platform !== "proxon") continue;
+    const n = r.translation_key;
+    n && i.has(n) && (s[n] = r.entity_id);
   }
   return s;
 }
-async function Ps(r, t, e) {
-  const s = Ue(e), i = Ie(r, t, s);
+async function Ns(o, t, e) {
+  const s = Ue(e), i = Ie(o, t, s);
   if (Object.keys(i).length) return i;
-  const o = await r.callWS({
+  const r = await o.callWS({
     type: "config/entity_registry/list"
   });
-  return Os(o, t, s);
+  return Ls(r, t, s);
 }
-function Ee(r, t = "fwt") {
-  const e = t === "t300" ? "T300" : "FWT 2.0", i = Object.values(r.devices ?? {}).filter(
-    (o) => (o.identifiers ?? []).some((n) => n[0] === "proxon") && o.model === e
+function Ee(o, t = "fwt") {
+  const e = t === "t300" ? "T300" : "FWT 2.0", i = Object.values(o.devices ?? {}).filter(
+    (r) => (r.identifiers ?? []).some((n) => n[0] === "proxon") && r.model === e
   );
   return i.length === 1 ? i[0].id : void 0;
 }
@@ -963,7 +971,7 @@ const Fe = [
       }
     ]
   }
-], Ls = {
+], Rs = {
   name: "extras",
   type: "expandable",
   title: "Zusätzliche Werte (T300)",
@@ -972,7 +980,7 @@ const Fe = [
     { name: "energy_daily", selector: { entity: { domain: "sensor" } } },
     { name: "pv_surplus", selector: { entity: { domain: "sensor" } } }
   ]
-}, Ns = {
+}, Us = {
   device_id: "Gerät",
   title: "Titel",
   animate: "Animation",
@@ -981,21 +989,21 @@ const Fe = [
   power: "Leistung",
   energy_daily: "Energie heute",
   pv_surplus: "PV-Überschuss"
-}, Rs = {
+}, Hs = {
   animation_speed: "1 = Standard, kleiner = ruhiger",
   power: "Kommt nicht aus der Integration – z. B. ein Powercalc- oder Shelly-Sensor",
   energy_daily: "Utility-Meter oder vergleichbarer Tageszähler",
   pv_surplus: "Helfer mit dem für die T300 verfügbaren Überschuss"
-}, gt = class gt extends W {
+}, xt = class xt extends Y {
   constructor() {
-    super(...arguments), this._computeLabel = (t) => Ns[t.name] ?? t.name, this._computeHelper = (t) => Rs[t.name] ?? "";
+    super(...arguments), this._computeLabel = (t) => Us[t.name] ?? t.name, this._computeHelper = (t) => Hs[t.name] ?? "";
   }
   setConfig(t) {
     this._config = t;
   }
   _schema() {
     const t = this._config?.device_id;
-    return this._config?.variant === "t300" || (this.hass && t ? He(this.hass, t) === "t300" : !1) ? [...Fe, Ls] : Fe;
+    return this._config?.variant === "t300" || (this.hass && t ? He(this.hass, t) === "t300" : !1) ? [...Fe, Rs] : Fe;
   }
   _valueChanged(t) {
     t.stopPropagation(), this.dispatchEvent(
@@ -1007,7 +1015,7 @@ const Fe = [
     );
   }
   render() {
-    return !this.hass || !this._config ? h : yt`
+    return !this.hass || !this._config ? h : mt`
       <ha-form
         .hass=${this.hass}
         .data=${this._config}
@@ -1021,19 +1029,19 @@ const Fe = [
       </div>`;
   }
 };
-gt.properties = {
+xt.properties = {
   hass: { attribute: !1 },
   _config: { state: !0 }
-}, gt.styles = Se`
+}, xt.styles = Se`
     .hint {
       padding: 8px 0 0;
       color: var(--secondary-text-color);
       font-size: 12px;
     }
   `;
-let Ut = gt;
+let Ut = xt;
 customElements.define("proxon-schema-card-editor", Ut);
-const vt = class vt extends W {
+const At = class At extends Y {
   constructor() {
     super(...arguments), this._map = {}, this._showMoreInfo = (t) => {
       this.dispatchEvent(
@@ -1087,7 +1095,7 @@ const vt = class vt extends W {
         return;
       }
     }
-    this._resolvedFor !== e && (this._resolvedFor = e, Ps(this.hass, e, s).then((i) => {
+    this._resolvedFor !== e && (this._resolvedFor = e, Ns(this.hass, e, s).then((i) => {
       this._map = i, this._error = Object.keys(i).length ? void 0 : "Gerät gefunden, aber keine passenden Proxon-Entities daran.";
     }).catch((i) => {
       this._resolvedFor = void 0, this._error = `Entity-Registry nicht lesbar: ${i.message}`;
@@ -1096,9 +1104,9 @@ const vt = class vt extends W {
   render() {
     if (!this.hass || !this._config) return h;
     if (this._error)
-      return yt`<ha-card><div class="error">${this._error}</div></ha-card>`;
+      return mt`<ha-card><div class="error">${this._error}</div></ha-card>`;
     if (!Object.keys(this._map).length)
-      return yt`<ha-card><div class="error">Entities werden aufgelöst …</div></ha-card>`;
+      return mt`<ha-card><div class="error">Entities werden aufgelöst …</div></ha-card>`;
     const t = Number(this._config.animation_speed), e = Number.isFinite(t) && t > 0 ? Math.min(5, Math.max(0.1, t)) : 1, s = {
       hass: this.hass,
       map: this._map,
@@ -1106,20 +1114,20 @@ const vt = class vt extends W {
       speed: e,
       onEntityClick: this._showMoreInfo
     };
-    return yt`
+    return mt`
       <ha-card .header=${this._config.title ?? h}>
         <div class="wrap">
-          ${this._variant() === "t300" ? Ms({ ...s, extras: this._config.extras ?? {} }) : xs(s)}
+          ${this._variant() === "t300" ? Os({ ...s, extras: this._config.extras ?? {} }) : bs(s)}
         </div>
       </ha-card>`;
   }
 };
-vt.properties = {
+At.properties = {
   hass: { attribute: !1 },
   _config: { state: !0 },
   _map: { state: !0 },
   _error: { state: !0 }
-}, vt.styles = Se`
+}, At.styles = Se`
     .wrap {
       padding: 8px;
     }
@@ -1168,7 +1176,7 @@ vt.properties = {
       }
     }
   `;
-let Ht = vt;
+let Ht = At;
 customElements.define("proxon-schema-card", Ht);
 window.customCards = window.customCards ?? [];
 window.customCards.push({
