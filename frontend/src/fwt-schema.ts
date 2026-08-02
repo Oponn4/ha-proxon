@@ -18,6 +18,7 @@ const C_RED = "#D62631";
 const C_TEXT = "#1A1A1A";
 const C_GREY = "#7A7A7A";
 const C_OFF = "#C3CEDE";
+const C_COOL = "#2F80ED";
 
 export const W = 1600;
 export const H = 900;
@@ -170,6 +171,7 @@ const VALUES: Array<{
   { key: "kompressor_leistung", x: 620, y: 855, color: "dimgray", size: "detail" },
   { key: "t13_kompressor", x: 880, y: 855, color: "darkred", size: "detail" },
   { key: "bypass_min_frischluft", x: 1130, y: 855, color: "dimgray", size: "detail" },
+  { key: "kuehlung_freigabe", x: 1400, y: 855, color: "dimgray", size: "detail", prefix: "Kühlung " },
 ];
 
 export function renderFwt(ctx: FwtCtx): SVGTemplateResult {
@@ -180,6 +182,15 @@ export function renderFwt(ctx: FwtCtx): SVGTemplateResult {
   const fanOn = fanState?.state === "on";
   const fanPct = fanState?.attributes?.percentage as number | undefined;
   const compressorRpm = num(hass, map.kompressor_drehzahl);
+
+  // Cooling has two independent facts: the release (a switch the user sets)
+  // and whether the plant is actually in cooling mode (reversing valve).
+  // The valve entity is disabled by default, so "not on" must not be read as
+  // "not cooling" -- absent is its own state.
+  const coolEntity = map.vierwege_ventil;
+  const coolKnown = !!(coolEntity && hass.states[coolEntity]);
+  const coolActive = coolKnown && hass.states[coolEntity!].state === "on";
+  const circColor = coolActive ? C_COOL : C_FRAME;
 
   const flapAngle = bypassOpen ? 0 : 90;
   const bpFill = bypassOpen ? C_GREEN : C_OFF;
@@ -262,15 +273,15 @@ export function renderFwt(ctx: FwtCtx): SVGTemplateResult {
       ${plate(COND_X, Y_BOT - 110, 700, "condenser")}
 
       <line id="refrigerant-circuit" x1=${EVAP_X} y1=${CIRC_Y} x2=${COND_X} y2=${CIRC_Y}
-        stroke=${C_FRAME} stroke-width="7" stroke-dasharray="30 18"/>
-      <line x1=${EVAP_X} y1="700" x2=${EVAP_X} y2=${CIRC_Y} stroke=${C_FRAME} stroke-width="7"/>
-      <line x1=${COND_X} y1="700" x2=${COND_X} y2=${CIRC_Y} stroke=${C_FRAME} stroke-width="7"/>
+        stroke=${circColor} stroke-width="7" stroke-dasharray="30 18"/>
+      <line x1=${EVAP_X} y1="700" x2=${EVAP_X} y2=${CIRC_Y} stroke=${circColor} stroke-width="7"/>
+      <line x1=${COND_X} y1="700" x2=${COND_X} y2=${CIRC_Y} stroke=${circColor} stroke-width="7"/>
 
       <g id="compressor">
-        <circle cx=${COMP_X} cy=${CIRC_Y} r="40" fill="#FFFFFF" stroke=${C_FRAME} stroke-width="9"/>
+        <circle cx=${COMP_X} cy=${CIRC_Y} r="40" fill="#FFFFFF" stroke=${circColor} stroke-width="9"/>
         <g>
           <path d=${`M ${COMP_X - 30},${CIRC_Y - 15} L ${COMP_X + 28},${CIRC_Y - 7} L ${COMP_X},${CIRC_Y} Z`}
-            fill=${C_FRAME}/>
+            fill=${circColor}/>
           ${animate && compressorRpm
             ? svg`<animateTransform attributeName="transform" type="rotate"
                 from=${`0 ${COMP_X} ${CIRC_Y}`} to=${`360 ${COMP_X} ${CIRC_Y}`}
@@ -288,6 +299,10 @@ export function renderFwt(ctx: FwtCtx): SVGTemplateResult {
       ] as Array<[string, number, number]>).map(
         ([label, x, y]) => svg`<text class="port" x=${x} y=${y} text-anchor="middle">${label}</text>`,
       )}
+
+      ${coolActive
+        ? svg`<text class="badge" x="1150" y="700" text-anchor="middle" fill=${C_COOL}>KÜHLEN</text>`
+        : nothing}
 
       <text id="bypass-label" class="bp" x=${(BP_X_IN + BP_X_OUT) / 2} y=${BP_Y - 46}
         text-anchor="middle" fill=${bypassOpen ? "#4C8C1B" : C_GREY}>

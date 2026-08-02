@@ -128,7 +128,11 @@ BINARY_SENSORS: tuple[ProxonBinarySensorDescription, ...] = (
         name="4-Wegeventil (Kühlen)",
         icon="mdi:valve",
         on_value=1,
-        entity_registry_enabled_default=False,
+        # Enabled by default since 0.4.0: this is the only honest signal for
+        # "the plant is actually cooling", and the schema card consumes it.
+        # Existing installs keep their registry entry disabled and have to
+        # enable it once by hand.
+        entity_registry_enabled_default=True,
     ),
 )
 
