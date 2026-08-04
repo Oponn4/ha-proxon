@@ -262,9 +262,9 @@ D.elementStyles = [], D.shadowRootOptions = { mode: "open" }, D[rt("elementPrope
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const jt = globalThis, Zt = (o) => o, At = jt.trustedTypes, Jt = At ? At.createPolicy("lit-html", { createHTML: (o) => o }) : void 0, Me = "$lit$", z = `lit$${Math.random().toFixed(9).slice(2)}$`, Oe = "?" + z, ts = `<${Oe}>`, U = document, at = () => U.createComment(""), lt = (o) => o === null || typeof o != "object" && typeof o != "function", Wt = Array.isArray, es = (o) => Wt(o) || typeof o?.[Symbol.iterator] == "function", St = `[ 	
-\f\r]`, q = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, Qt = /-->/g, te = />/g, L = RegExp(`>|${St}(?:([^\\s"'>=/]+)(${St}*=${St}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), ee = /'/g, se = /"/g, ze = /^(?:script|style|textarea|title)$/i, Pe = (o) => (t, ...e) => ({ _$litType$: o, strings: t, values: e }), xt = Pe(1), d = Pe(2), X = Symbol.for("lit-noChange"), h = Symbol.for("lit-nothing"), ie = /* @__PURE__ */ new WeakMap(), R = U.createTreeWalker(U, 129);
+const jt = globalThis, Zt = (o) => o, At = jt.trustedTypes, Jt = At ? At.createPolicy("lit-html", { createHTML: (o) => o }) : void 0, Me = "$lit$", O = `lit$${Math.random().toFixed(9).slice(2)}$`, Oe = "?" + O, ts = `<${Oe}>`, U = document, at = () => U.createComment(""), lt = (o) => o === null || typeof o != "object" && typeof o != "function", Wt = Array.isArray, es = (o) => Wt(o) || typeof o?.[Symbol.iterator] == "function", St = `[ 	
+\f\r]`, q = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, Qt = /-->/g, te = />/g, P = RegExp(`>|${St}(?:([^\\s"'>=/]+)(${St}*=${St}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g"), ee = /'/g, se = /"/g, ze = /^(?:script|style|textarea|title)$/i, Pe = (o) => (t, ...e) => ({ _$litType$: o, strings: t, values: e }), bt = Pe(1), d = Pe(2), X = Symbol.for("lit-noChange"), h = Symbol.for("lit-nothing"), ie = /* @__PURE__ */ new WeakMap(), R = U.createTreeWalker(U, 129);
 function Le(o, t) {
   if (!Wt(o) || !o.hasOwnProperty("raw")) throw Error("invalid template strings array");
   return Jt !== void 0 ? Jt.createHTML(t) : t;
@@ -275,9 +275,9 @@ const ss = (o, t) => {
   for (let l = 0; l < e; l++) {
     const a = o[l];
     let c, u, $ = -1, _ = 0;
-    for (; _ < a.length && (n.lastIndex = _, u = n.exec(a), u !== null); ) _ = n.lastIndex, n === q ? u[1] === "!--" ? n = Qt : u[1] !== void 0 ? n = te : u[2] !== void 0 ? (ze.test(u[2]) && (i = RegExp("</" + u[2], "g")), n = L) : u[3] !== void 0 && (n = L) : n === L ? u[0] === ">" ? (n = i ?? q, $ = -1) : u[1] === void 0 ? $ = -2 : ($ = n.lastIndex - u[2].length, c = u[1], n = u[3] === void 0 ? L : u[3] === '"' ? se : ee) : n === se || n === ee ? n = L : n === Qt || n === te ? n = q : (n = L, i = void 0);
-    const m = n === L && o[l + 1].startsWith("/>") ? " " : "";
-    r += n === q ? a + ts : $ >= 0 ? (s.push(c), a.slice(0, $) + Me + a.slice($) + z + m) : a + z + ($ === -2 ? l : m);
+    for (; _ < a.length && (n.lastIndex = _, u = n.exec(a), u !== null); ) _ = n.lastIndex, n === q ? u[1] === "!--" ? n = Qt : u[1] !== void 0 ? n = te : u[2] !== void 0 ? (ze.test(u[2]) && (i = RegExp("</" + u[2], "g")), n = P) : u[3] !== void 0 && (n = P) : n === P ? u[0] === ">" ? (n = i ?? q, $ = -1) : u[1] === void 0 ? $ = -2 : ($ = n.lastIndex - u[2].length, c = u[1], n = u[3] === void 0 ? P : u[3] === '"' ? se : ee) : n === se || n === ee ? n = P : n === Qt || n === te ? n = q : (n = P, i = void 0);
+    const g = n === P && o[l + 1].startsWith("/>") ? " " : "";
+    r += n === q ? a + ts : $ >= 0 ? (s.push(c), a.slice(0, $) + Me + a.slice($) + O + g) : a + O + ($ === -2 ? l : g);
   }
   return [Le(o, r + (o[e] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), s];
 };
@@ -294,21 +294,21 @@ class ct {
     for (; (i = R.nextNode()) !== null && a.length < l; ) {
       if (i.nodeType === 1) {
         if (i.hasAttributes()) for (const $ of i.getAttributeNames()) if ($.endsWith(Me)) {
-          const _ = u[n++], m = i.getAttribute($).split(z), E = /([.?@])?(.*)/.exec(_);
-          a.push({ type: 1, index: r, name: E[2], strings: m, ctor: E[1] === "." ? os : E[1] === "?" ? rs : E[1] === "@" ? ns : Ct }), i.removeAttribute($);
-        } else $.startsWith(z) && (a.push({ type: 6, index: r }), i.removeAttribute($));
+          const _ = u[n++], g = i.getAttribute($).split(O), E = /([.?@])?(.*)/.exec(_);
+          a.push({ type: 1, index: r, name: E[2], strings: g, ctor: E[1] === "." ? os : E[1] === "?" ? rs : E[1] === "@" ? ns : Ct }), i.removeAttribute($);
+        } else $.startsWith(O) && (a.push({ type: 6, index: r }), i.removeAttribute($));
         if (ze.test(i.tagName)) {
-          const $ = i.textContent.split(z), _ = $.length - 1;
+          const $ = i.textContent.split(O), _ = $.length - 1;
           if (_ > 0) {
             i.textContent = At ? At.emptyScript : "";
-            for (let m = 0; m < _; m++) i.append($[m], at()), R.nextNode(), a.push({ type: 2, index: ++r });
+            for (let g = 0; g < _; g++) i.append($[g], at()), R.nextNode(), a.push({ type: 2, index: ++r });
             i.append($[_], at());
           }
         }
       } else if (i.nodeType === 8) if (i.data === Oe) a.push({ type: 2, index: r });
       else {
         let $ = -1;
-        for (; ($ = i.data.indexOf(z, $ + 1)) !== -1; ) a.push({ type: 7, index: r }), $ += z.length - 1;
+        for (; ($ = i.data.indexOf(O, $ + 1)) !== -1; ) a.push({ type: 7, index: r }), $ += O.length - 1;
       }
       r++;
     }
@@ -519,7 +519,7 @@ Y._$litElement$ = !0, Y.finalized = !0, Yt.litElementHydrateSupport?.({ LitEleme
 const hs = Yt.litElementPolyfillSupport;
 hs?.({ LitElement: Y });
 (Yt.litElementVersions ??= []).push("4.2.2");
-const M = "#306291", ds = "#E2E8F2", pt = "#8DC63F", oe = "#F3B229", re = "#79593A", Tt = "#D62631", ne = "#1A1A1A", $s = "#7A7A7A", ps = "#C3CEDE", ae = "#2F80ED", Z = 1600, J = 900, le = 210, ce = 120, us = 1390, fs = 800, _s = 22, p = 315, f = 605, nt = 62, H = nt / 2, j = 800, ut = 460, W = 168, Ne = 450, Re = 1150, ys = 42, ms = 350, ft = 350, _t = 1250, b = 725, N = 900, w = 590, Q = 690, I = 1030, k = 240, T = 1360, bt = j - W, wt = j + W, he = Math.round((bt - k) / (T - k) * 100), de = Math.round((wt - k) / (T - k) * 100), gs = 1.29, ot = (o) => "M " + o.map(([t, e]) => `${t},${e}`).join(" L ");
+const T = "#306291", ds = "#E2E8F2", pt = "#8DC63F", oe = "#F3B229", re = "#79593A", Tt = "#D62631", ne = "#1A1A1A", $s = "#7A7A7A", ps = "#C3CEDE", ae = "#2F80ED", Z = 1600, J = 900, le = 210, ce = 120, us = 1390, fs = 800, _s = 22, p = 315, f = 605, nt = 62, H = nt / 2, j = 800, ut = 460, W = 168, Ne = 450, Re = 1150, ys = 42, ms = 350, ft = 350, _t = 1250, w = 725, L = 900, x = 590, Q = 690, I = 1030, k = 240, S = 1360, wt = j - W, xt = j + W, he = Math.round((wt - k) / (S - k) * 100), de = Math.round((xt - k) / (S - k) * 100), gs = 1.29, ot = (o) => "M " + o.map(([t, e]) => `${t},${e}`).join(" L ");
 function yt(o, t, e, s = 2, i = 36) {
   const r = e ? 21 : -21, n = 19, l = [];
   for (let a = 0; a < s; a++) {
@@ -535,19 +535,19 @@ function mt(o, t, e, s = 1) {
 }
 function Mt(o, t, e, s) {
   return d`<g id=${s}>
-    <rect x=${o - 14} y=${t} width="28" height=${e - t} fill="#FFFFFF" stroke=${M} stroke-width="6"/>
-    <line x1=${o} y1=${t} x2=${o} y2=${e} stroke=${M} stroke-width="4"/>
+    <rect x=${o - 14} y=${t} width="28" height=${e - t} fill="#FFFFFF" stroke=${T} stroke-width="6"/>
+    <line x1=${o} y1=${t} x2=${o} y2=${e} stroke=${T} stroke-width="4"/>
   </g>`;
 }
 function $e(o, t, e) {
   const s = ys, i = p, r = s * 0.5, n = d`<path d="M ${o - s * 0.78},${i} A ${r} ${r} 0 0 1 ${o},${i}
-      A ${r} ${r} 0 0 0 ${o + s * 0.78},${i}" fill="none" stroke=${M}
+      A ${r} ${r} 0 0 0 ${o + s * 0.78},${i}" fill="none" stroke=${T}
       stroke-width=${Math.round(s * 0.14 * 10) / 10} stroke-linecap="round">
       ${e === void 0 ? h : d`<animateTransform attributeName="transform" type="rotate"
             from=${`0 ${o} ${i}`} to=${`360 ${o} ${i}`} dur=${`${e}s`} repeatCount="indefinite"/>`}
     </path>`;
   return d`<g id=${t}>
-    <circle cx=${o} cy=${i} r=${s} fill="#FFFFFF" fill-opacity="0.6" stroke=${M}
+    <circle cx=${o} cy=${i} r=${s} fill="#FFFFFF" fill-opacity="0.6" stroke=${T}
       stroke-width=${Math.round(s * 0.16 * 10) / 10}/>
     ${n}
   </g>`;
@@ -568,7 +568,7 @@ const vs = (o, t) => {
   const e = Number(o.states[t]?.state);
   return Number.isFinite(e) ? e : void 0;
 };
-function xs(o, t) {
+function bs(o, t) {
   if (!t) return "–";
   const e = o.states[t];
   if (!e) return "–";
@@ -576,10 +576,10 @@ function xs(o, t) {
   const s = e.attributes?.unit_of_measurement;
   return s ? `${e.state} ${s}` : String(e.state);
 }
-function bs(o, t, e = 3.5, s = 10) {
+function ws(o, t, e = 3.5, s = 10) {
   return (o === void 0 || o <= 0 ? s : s - Math.min(100, Math.max(0, o)) / 100 * (s - e)) / t;
 }
-const ws = [
+const xs = [
   { key: "t3_frischluft", x: 120, y: p + 22, color: "green", size: "core" },
   { key: "t4_fortluft", x: 120, y: f + 22, color: "brown", size: "core" },
   { key: "t7_abluft", x: 1480, y: p + 22, color: "orange", size: "core" },
@@ -598,23 +598,23 @@ const ws = [
   { key: "kuehlung_freigabe", x: 1400, y: 855, color: "dimgray", size: "detail", prefix: "Kühlung " }
 ];
 function As(o) {
-  const { hass: t, map: e, animate: s } = o, i = t.states[e.bypass_offen ?? ""]?.state === "on", r = t.states[e.lueftung ?? ""], n = r?.state === "on", l = r?.attributes?.percentage, a = vs(t, e.kompressor_drehzahl), c = e.vierwege_ventil, $ = !!(c && t.states[c]) && t.states[c].state === "on" && (a ?? 0) > 0, _ = $ ? ae : M, m = i ? 0 : 90, E = i ? pt : ps, Xt = i ? 1 : 0.6, K = i ? 0.18 : 1, P = bs(n ? l ?? 50 : void 0, o.speed), dt = s && n, $t = P / 2, v = [[k, p], [bt, p], [wt, f], [T, f]], V = H + 14, Be = ot([[T, p], [wt, p], [bt, f], [k, f]]), De = ot([
+  const { hass: t, map: e, animate: s } = o, i = t.states[e.bypass_offen ?? ""]?.state === "on", r = t.states[e.lueftung ?? ""], n = r?.state === "on", l = r?.attributes?.percentage, a = vs(t, e.kompressor_drehzahl), c = e.vierwege_ventil, $ = !!(c && t.states[c]) && t.states[c].state === "on" && (a ?? 0) > 0, _ = $ ? ae : T, g = i ? 0 : 90, E = i ? pt : ps, Xt = i ? 1 : 0.6, K = i ? 0.18 : 1, z = ws(n ? l ?? 50 : void 0, o.speed), dt = s && n, $t = z / 2, v = [[k, p], [wt, p], [xt, f], [S, f]], V = H + 14, Be = ot([[S, p], [xt, p], [wt, f], [k, f]]), De = ot([
     [k, p],
-    [w, p],
-    [w, Q],
+    [x, p],
+    [x, Q],
     [I, Q],
     [I, f],
-    [T, f]
+    [S, f]
   ]);
   return d`
     <svg viewBox=${`0 0 ${Z} ${J}`} id="proxon-fwt" data-bypass=${i ? "open" : "closed"}
          style=${`aspect-ratio: ${Z} / ${J}`} xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="gradSupply" gradientUnits="userSpaceOnUse" x1=${k} y1="0" x2=${T} y2="0">
+        <linearGradient id="gradSupply" gradientUnits="userSpaceOnUse" x1=${k} y1="0" x2=${S} y2="0">
           <stop offset="0%" stop-color=${pt}/><stop offset=${`${he}%`} stop-color=${pt}/>
           <stop offset=${`${de}%`} stop-color=${Tt}/><stop offset="100%" stop-color=${Tt}/>
         </linearGradient>
-        <linearGradient id="gradExhaust" gradientUnits="userSpaceOnUse" x1=${T} y1="0" x2=${k} y2="0">
+        <linearGradient id="gradExhaust" gradientUnits="userSpaceOnUse" x1=${S} y1="0" x2=${k} y2="0">
           <stop offset="0%" stop-color=${oe}/><stop offset=${`${he}%`} stop-color=${oe}/>
           <stop offset=${`${de}%`} stop-color=${re}/><stop offset="100%" stop-color=${re}/>
         </linearGradient>
@@ -627,18 +627,18 @@ function As(o) {
 
       <rect id="backdrop" width=${Z} height=${J} fill="#FFFFFF"/>
       <rect id="case" x=${le} y=${ce} width=${us - le} height=${fs - ce} rx="12"
-        fill=${ds} stroke=${M} stroke-width=${_s}/>
+        fill=${ds} stroke=${T} stroke-width=${_s}/>
 
       <g id="flow-extract-exhaust">
-        ${mt([[T, p], [wt, p], [bt, f], [k, f]], "url(#gradExhaust)", "flow-exhaust")}
+        ${mt([[S, p], [xt, p], [wt, f], [k, f]], "url(#gradExhaust)", "flow-exhaust")}
         ${yt(1325, p, !1)}
         ${yt(300, f, !1)}
       </g>
 
       <g id="flow-fresh-supply">
         ${mt(v, "url(#gradSupply)", "flow-supply", K)}
-        ${i ? d`${mt([[k, p], [w, p]], pt, "flow-fresh-active")}
-                ${mt([[I, f], [T, f]], Tt, "flow-supply-active")}` : h}
+        ${i ? d`${mt([[k, p], [x, p]], pt, "flow-fresh-active")}
+                ${mt([[I, f], [S, f]], Tt, "flow-supply-active")}` : h}
         ${yt(275, p, !0)}
         ${yt(1305, f, !0)}
         ${i ? d`<path id="flow-supply-bypass" fill="none" stroke="none" d=${De}/>` : h}
@@ -646,27 +646,27 @@ function As(o) {
 
       <polygon id="heat-exchanger"
         points=${`${j},${ut - W} ${j + W},${ut} ${j},${ut + W} ${j - W},${ut}`}
-        fill="none" stroke=${M} stroke-width="10"/>
+        fill="none" stroke=${T} stroke-width="10"/>
 
       <g id="bypass" data-state=${i ? "open" : "closed"}>
         ${[
-    ot([[w, p + H], [w, f - V]]),
-    ot([[w, f + V], [w, Q], [I, Q], [I, f + H]])
+    ot([[x, p + H], [x, f - V]]),
+    ot([[x, f + V], [x, Q], [I, Q], [I, f + H]])
   ].map(
-    (x, O) => d`
-            <path id=${O === 0 ? "bypass-duct-upper" : "bypass-duct-lower"} d=${x} fill="none"
+    (b, M) => d`
+            <path id=${M === 0 ? "bypass-duct-upper" : "bypass-duct-lower"} d=${b} fill="none"
               stroke=${E} stroke-width=${nt} stroke-linejoin="round" opacity=${Xt}/>
-            <path d=${x} fill="none" stroke=${M} stroke-width="4" stroke-dasharray="18 12" opacity="0.8"/>`
+            <path d=${b} fill="none" stroke=${T} stroke-width="4" stroke-dasharray="18 12" opacity="0.8"/>`
   )}
       </g>
 
       <g id="bypass-flap-group">
-        <g id="bypass-flap" transform=${`rotate(${m} ${w} ${p + H})`}
+        <g id="bypass-flap" transform=${`rotate(${g} ${x} ${p + H})`}
            style="transition: transform 600ms ease-in-out; transform-box: view-box;">
-          <rect x=${w - 9} y=${p + H - nt / 2 - 8} width="18" height=${nt + 16} rx="9"
-            fill=${M} stroke="#FFFFFF" stroke-width="4"/>
+          <rect x=${x - 9} y=${p + H - nt / 2 - 8} width="18" height=${nt + 16} rx="9"
+            fill=${T} stroke="#FFFFFF" stroke-width="4"/>
         </g>
-        <circle cx=${w} cy=${p + H} r="10" fill=${ne} stroke="#FFFFFF" stroke-width="3"/>
+        <circle cx=${x} cy=${p + H} r="10" fill=${ne} stroke="#FFFFFF" stroke-width="3"/>
       </g>
 
       ${$e(Ne, "fan-supply", s && n ? $t : void 0)}
@@ -675,21 +675,21 @@ function As(o) {
       ${Mt(ft, f - 110, 700, "evaporator")}
       ${Mt(_t, f - 110, 700, "condenser")}
 
-      <line id="refrigerant-circuit" x1=${ft} y1=${b} x2=${_t} y2=${b}
+      <line id="refrigerant-circuit" x1=${ft} y1=${w} x2=${_t} y2=${w}
         stroke=${_} stroke-width="7" stroke-dasharray="30 18"/>
-      <line x1=${ft} y1="700" x2=${ft} y2=${b} stroke=${_} stroke-width="7"/>
-      <line x1=${_t} y1="700" x2=${_t} y2=${b} stroke=${_} stroke-width="7"/>
+      <line x1=${ft} y1="700" x2=${ft} y2=${w} stroke=${_} stroke-width="7"/>
+      <line x1=${_t} y1="700" x2=${_t} y2=${w} stroke=${_} stroke-width="7"/>
 
       <g id="compressor">
-        <circle cx=${N} cy=${b} r="40" fill="#FFFFFF" stroke=${_} stroke-width="9"/>
+        <circle cx=${L} cy=${w} r="40" fill="#FFFFFF" stroke=${_} stroke-width="9"/>
         <g>
-          <path d=${`M ${N - 30},${b - 15} L ${N + 28},${b - 7} L ${N},${b} Z`}
+          <path d=${`M ${L - 30},${w - 15} L ${L + 28},${w - 7} L ${L},${w} Z`}
             fill=${_}/>
           ${s && a ? d`<animateTransform attributeName="transform" type="rotate"
-                from=${`0 ${N} ${b}`} to=${`360 ${N} ${b}`}
+                from=${`0 ${L} ${w}`} to=${`360 ${L} ${w}`}
                 dur=${`${Math.max(1.2, 240 / a) / o.speed}s`} repeatCount="indefinite"/>` : h}
         </g>
-        <circle cx=${N} cy=${b} r="7" fill=${ne}/>
+        <circle cx=${L} cy=${w} r="7" fill=${ne}/>
       </g>
 
       ${[
@@ -698,38 +698,38 @@ function As(o) {
     ["Abluft", 1480, p - 30],
     ["Zuluft", 1480, f - 30]
   ].map(
-    ([x, O, je]) => d`<text class="port" x=${O} y=${je} text-anchor="middle">${x}</text>`
+    ([b, M, je]) => d`<text class="port" x=${M} y=${je} text-anchor="middle">${b}</text>`
   )}
 
       <!-- Flow dots live on their own layer above every duct and component.
            Inside the air-path groups they were painted over by whatever came
            later -- the bypass duct alone is a 62-unit opaque stroke. -->
       <g id="flow-dots">
-        ${dt ? Ot("flow-exhaust", P) : h}
+        ${dt ? Ot("flow-exhaust", z) : h}
         ${dt ? i ? d`<g mask="url(#dotsBehindExhaust)">
-                ${Ot("flow-supply-bypass", P * gs)}
-              </g>` : Ot("flow-supply", P) : h}
+                ${Ot("flow-supply-bypass", z * gs)}
+              </g>` : Ot("flow-supply", z) : h}
       </g>
 
       ${$ ? d`<text class="badge" x="1150" y="700" text-anchor="middle" fill=${ae}>KÜHLEN</text>` : h}
 
-      <text id="bypass-label" class="bp" x=${(w + I) / 2} y=${Q - 46}
+      <text id="bypass-label" class="bp" x=${(x + I) / 2} y=${Q - 46}
         text-anchor="middle" fill=${i ? "#4C8C1B" : $s}>
         ${i ? "BYPASS OFFEN" : "Bypass zu"}
       </text>
 
-      ${ws.map((x) => {
-    const O = e[x.key];
-    return d`<text class=${`val ${x.size}`} x=${x.x} y=${x.y} text-anchor="middle"
-          fill=${x.color} @click=${() => O && o.onEntityClick(O)}
-          style=${O ? "cursor: pointer" : "opacity: 0.4"}>
-          ${(x.prefix ?? "") + xs(t, O)}
+      ${xs.map((b) => {
+    const M = e[b.key];
+    return d`<text class=${`val ${b.size}`} x=${b.x} y=${b.y} text-anchor="middle"
+          fill=${b.color} @click=${() => M && o.onEntityClick(M)}
+          style=${M ? "cursor: pointer" : "opacity: 0.4"}>
+          ${(b.prefix ?? "") + bs(t, M)}
         </text>`;
   })}
     </svg>`;
 }
-const tt = "#306291", ks = "#E2E8F2", Es = "#F3B229", pe = "#D62631", ue = "#3E8FD0", fe = "#1A1A1A", zt = "#C3CEDE", F = 1e3, Pt = 1500, Fs = 54, _e = 20, y = 210, g = 790, ye = 90, me = 520, et = 520, st = 1430, C = (y + g) / 2, it = 205, gt = 400, ge = 330, ve = 38, B = 300, S = 640, A = 455, Lt = 760, xe = 900, be = 1060, Nt = 1140, Rt = 1360, Cs = (o) => "M " + o.map(([t, e]) => `${t},${e}`).join(" L ");
-function we(o, t, e, s = 1) {
+const tt = "#306291", ks = "#E2E8F2", Es = "#F3B229", pe = "#D62631", ue = "#3E8FD0", fe = "#1A1A1A", zt = "#C3CEDE", N = 1e3, Pt = 1500, Fs = 54, _e = 20, y = 210, m = 790, ye = 90, me = 520, et = 520, st = 1430, F = (y + m) / 2, it = 205, gt = 400, ge = 330, ve = 38, B = 330, C = 640, A = 455, Lt = 760, be = 900, we = 1060, Nt = 1140, Rt = 1360, Cs = (o) => "M " + o.map(([t, e]) => `${t},${e}`).join(" L ");
+function xe(o, t, e, s = 1) {
   return d`<path id=${e} d=${Cs(o)} fill="none" stroke=${t} stroke-width=${Fs}
     stroke-linejoin="round" stroke-linecap="butt" opacity=${s}/>`;
 }
@@ -797,23 +797,28 @@ function Os(o, t) {
   return s ? `${e.state} ${s}` : String(e.state);
 }
 function zs(o) {
-  const { hass: t, map: e, extras: s, animate: i } = o, r = t.states[e.t300_kompressor_aktiv ?? ""]?.state === "on", n = t.states[e.t300_eheiz_aktiv ?? ""]?.state === "on", l = t.states[e.t300_abtau_aktiv ?? ""]?.state === "on", a = t.states[e.t300_solar_aktiv ?? ""]?.state === "on", c = Number(t.states[e.t300_ventilator_pct ?? ""]?.state), u = r ? Es : zt, $ = r ? ue : zt, _ = r ? pe : zt, m = r ? tt : "#8FA3BC", E = r ? 1 : 0.55, K = (10 - (Number.isFinite(c) ? Math.min(100, Math.max(0, c)) : 60) / 100 * (10 - 3.5)) / o.speed, P = i && r, dt = K / 2, $t = [
-    { entityId: e.t300_behaelter_avg, x: C, y: 620, color: "#B03A2E", size: "core" },
-    { entityId: e.t300_solltemperatur_akt, x: C, y: 685, color: "#1f4e79", size: "core" },
-    { entityId: e.t300_temp_eheiz, x: g - 95, y: Lt, color: "dimgray", size: "detail" },
-    { entityId: e.t300_t21_behaelter_mitte, x: g - 110, y: xe, color: "#C0392B", size: "core" },
-    { entityId: e.t300_t20_behaelter_unten, x: g - 110, y: be, color: "steelblue", size: "core" },
-    { entityId: e.t300_betriebsart, x: C, y: 140, color: "#1f4e79", size: "core" },
-    // Fits the clear strip between the duct band (ends at Y_AIR_IN + 27 = 232)
-    // and the evaporator block (starts at EVAP_Y - 24 = 276).
-    { entityId: e.t300_ventilator_pct, x: ge, y: 264, color: "dimgray", size: "detail" },
+  const { hass: t, map: e, extras: s, animate: i } = o, r = t.states[e.t300_kompressor_aktiv ?? ""]?.state === "on", n = t.states[e.t300_eheiz_aktiv ?? ""]?.state === "on", l = t.states[e.t300_abtau_aktiv ?? ""]?.state === "on", a = t.states[e.t300_solar_aktiv ?? ""]?.state === "on", c = Number(t.states[e.t300_ventilator_pct ?? ""]?.state), u = r ? Es : zt, $ = r ? ue : zt, _ = r ? pe : zt, g = r ? tt : "#8FA3BC", E = r ? 1 : 0.55, K = (10 - (Number.isFinite(c) ? Math.min(100, Math.max(0, c)) : 60) / 100 * (10 - 3.5)) / o.speed, z = i && r, dt = K / 2, $t = [
+    { entityId: e.t300_behaelter_avg, x: F, y: 620, color: "#B03A2E", size: "core" },
+    { entityId: e.t300_solltemperatur_akt, x: F, y: 685, color: "#1f4e79", size: "core" },
+    // Clear of the hot-gas line that drops to the condenser coil at
+    // DEV_X1 - 60 = 730: a 42 px reading is ~140 wide, so anything centred right
+    // of ~655 gets the pipe drawn through it.
+    { entityId: e.t300_temp_eheiz, x: m - 160, y: Lt, color: "dimgray", size: "detail" },
+    { entityId: e.t300_t21_behaelter_mitte, x: m - 160, y: be, color: "#C0392B", size: "core" },
+    { entityId: e.t300_t20_behaelter_unten, x: m - 160, y: we, color: "steelblue", size: "core" },
+    { entityId: e.t300_betriebsart, x: F, y: 140, color: "#1f4e79", size: "core" },
+    // Between the fan circle (ends at Y_AIR_IN + FAN_RAD = 243) and the
+    // evaporator block (starts at EVAP_Y - 24 = 306). Moving EVAP_Y down bought
+    // that strip: at the old 300 it was 33 units for a 30 px line, so the label
+    // sat on the fan and the block at once.
+    { entityId: e.t300_ventilator_pct, x: ge, y: 282, color: "dimgray", size: "detail" },
     { entityId: s.power, x: 120, y: 620, color: "dimgray", size: "detail" },
     { entityId: s.energy_daily, x: 120, y: 685, color: "dimgray", size: "detail" },
     { entityId: s.pv_surplus, x: 120, y: 1330, color: "dimgray", size: "detail" }
   ];
   return d`
-    <svg viewBox=${`0 0 ${F} ${Pt}`} id="proxon-t300" data-state=${r ? "running" : "idle"}
-         style=${`aspect-ratio: ${F} / ${Pt}`} xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox=${`0 0 ${N} ${Pt}`} id="proxon-t300" data-state=${r ? "running" : "idle"}
+         style=${`aspect-ratio: ${N} / ${Pt}`} xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="gradTank" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stop-color="#E8453C"/>
@@ -821,73 +826,75 @@ function zs(o) {
           <stop offset="100%" stop-color="#5FA8DC"/>
         </linearGradient>
       </defs>
-      <rect id="backdrop" width=${F} height=${Pt} fill="#FFFFFF"/>
+      <rect id="backdrop" width=${N} height=${Pt} fill="#FFFFFF"/>
 
-      <rect id="tank" x=${y} y=${et} width=${g - y} height=${st - et}
+      <rect id="tank" x=${y} y=${et} width=${m - y} height=${st - et}
         rx="52" fill="url(#gradTank)" fill-opacity="0.34" stroke=${tt} stroke-width=${_e}/>
-      <path d=${`M ${g},${et + 90} L ${F - 60},${et + 90}`} stroke=${pe}
+      <path d=${`M ${m},${et + 90} L ${N - 60},${et + 90}`} stroke=${pe}
         stroke-width="24" stroke-linecap="round"/>
-      <path d=${`M ${g},${st - 70} L ${F - 60},${st - 70}`} stroke=${ue}
+      <path d=${`M ${m},${st - 70} L ${N - 60},${st - 70}`} stroke=${ue}
         stroke-width="24" stroke-linecap="round"/>
-      <text class="port" x=${F - 60} y=${et + 52} text-anchor="end">Warmwasser</text>
-      <text class="port" x=${F - 60} y=${st - 100} text-anchor="end">Kaltwasser</text>
+      <!-- Left-anchored at the tank wall: right-anchoring at the port end put the
+           wider of the two words back over the tank body. -->
+      <text class="port" x=${m + 16} y=${et + 52}>Warmwasser</text>
+      <text class="port" x=${m + 16} y=${st - 100}>Kaltwasser</text>
 
-      ${Ms(g - 50, y + 50, Nt, Rt, "condenser-coil", _)}
+      ${Ms(m - 50, y + 50, Nt, Rt, "condenser-coil", _)}
 
       <g id="e-heater">
-        <rect x=${y + 50} y=${Lt - 12} width=${(g - y) * 0.5} height="24" rx="12"
+        <rect x=${y + 50} y=${Lt - 12} width=${(m - y) * 0.5} height="24" rx="12"
           fill=${n ? "#FFE3B0" : "#FFFFFF"} stroke=${n ? "#E8843C" : tt}
           stroke-width=${n ? 7 : 5}/>
         <path d=${`M ${y + 78},${Lt} l 20,-14 l 0,28 l 20,-14`} fill="none"
           stroke=${n ? "#E8843C" : tt} stroke-width="4.5"/>
       </g>
 
-      ${[[xe, "T21 Mitte"], [be, "T20 unten"]].map(
+      ${[[be, "T21 Mitte"], [we, "T20 unten"]].map(
     ([v, V]) => d`
           <circle cx=${y + 90} cy=${v} r="9" fill=${fe}/>
           <text class="tag" x=${y + 110} y=${v + 9}>${V}</text>`
   )}
 
-      <rect id="hp-case" x=${y} y=${ye} width=${g - y} height=${me - ye}
+      <rect id="hp-case" x=${y} y=${ye} width=${m - y} height=${me - ye}
         rx="24" fill=${ks} fill-opacity="0.9" stroke=${tt} stroke-width=${_e}/>
 
-      ${we([[40, it], [C, it], [C, B]], u, "flow-air-in", E)}
-      ${we([[C, B], [C, gt], [F - 40, gt]], $, "flow-air-out", E)}
+      ${xe([[40, it], [F, it], [F, B]], u, "flow-air-in", E)}
+      ${xe([[F, B], [F, gt], [N - 40, gt]], $, "flow-air-out", E)}
       ${Ae(120, it)}
       ${Ae(920, gt)}
 
-      ${Ss(ge, it, "fan-t300", m, i && r ? dt : void 0)}
-      ${Ts(B, y + 60, g - 60, "evaporator", m)}
+      ${Ss(ge, it, "fan-t300", g, i && r ? dt : void 0)}
+      ${Ts(B, y + 60, m - 60, "evaporator", g)}
 
       <g id="refrigerant" opacity=${E}>
-        <path d=${`M ${y + 150},${B + 24} L ${y + 150},${A} L ${S - 42},${A}`}
+        <path d=${`M ${y + 150},${B + 24} L ${y + 150},${A} L ${C - 42},${A}`}
           fill="none" stroke=${_} stroke-width="8" stroke-linejoin="round"/>
-        <path d=${`M ${S + 42},${A} L ${g - 60},${A} L ${g - 60},${Nt} L ${g - 50},${Nt}`}
+        <path d=${`M ${C + 42},${A} L ${m - 60},${A} L ${m - 60},${Nt} L ${m - 50},${Nt}`}
           fill="none" stroke=${_} stroke-width="8" stroke-linejoin="round"/>
         <path d=${`M ${y + 50},${Rt} L ${y + 26},${Rt} L ${y + 26},${B + 24} L ${y + 62},${B + 24}`}
           fill="none" stroke=${_} stroke-width="8" stroke-dasharray="20 13" stroke-linejoin="round"/>
-        <circle id="compressor" cx=${S} cy=${A} r="42" fill="#FFFFFF" stroke=${m} stroke-width="9"/>
+        <circle id="compressor" cx=${C} cy=${A} r="42" fill="#FFFFFF" stroke=${g} stroke-width="9"/>
         <g>
-          <path d=${`M ${S - 31},${A - 15} L ${S + 29},${A - 7} L ${S},${A} Z`}
-            fill=${m}/>
+          <path d=${`M ${C - 31},${A - 15} L ${C + 29},${A - 7} L ${C},${A} Z`}
+            fill=${g}/>
           ${i && r ? d`<animateTransform attributeName="transform" type="rotate"
-                from=${`0 ${S} ${A}`} to=${`360 ${S} ${A}`}
+                from=${`0 ${C} ${A}`} to=${`360 ${C} ${A}`}
                 dur=${`${1.8 / o.speed}s`} repeatCount="indefinite"/>` : h}
         </g>
-        <circle cx=${S} cy=${A} r="7" fill=${fe}/>
+        <circle cx=${C} cy=${A} r="7" fill=${fe}/>
       </g>
 
       <!-- Same reason as on the FWT: above the lamellae block and the fan. -->
       <g id="flow-dots">
-        ${P ? ke("flow-air-in", K) : h}
-        ${P ? ke("flow-air-out", K) : h}
+        ${z ? ke("flow-air-in", K) : h}
+        ${z ? ke("flow-air-out", K) : h}
       </g>
 
       <text class="port" x="40" y=${it - 48}>Luft an</text>
-      <text class="port" x=${F - 40} y=${gt + 66} text-anchor="end">Luft ab</text>
+      <text class="port" x=${N - 40} y=${gt + 66} text-anchor="end">Luft ab</text>
 
-      ${l ? d`<text class="badge" x=${C} y=${me - 24} text-anchor="middle" fill="#2F80ED">Abtauen</text>` : h}
-      ${a ? d`<text class="badge" x=${C} y=${st + 46} text-anchor="middle" fill="#4C8C1B">Solar aktiv</text>` : h}
+      ${l ? d`<text class="badge" x=${F} y=${me - 24} text-anchor="middle" fill="#2F80ED">Abtauen</text>` : h}
+      ${a ? d`<text class="badge" x=${F} y=${st + 46} text-anchor="middle" fill="#4C8C1B">Solar aktiv</text>` : h}
 
       ${$t.map(
     (v) => d`<text class=${`val ${v.size}`} x=${v.x} y=${v.y} text-anchor="middle"
@@ -1032,7 +1039,7 @@ const Fe = [
     );
   }
   render() {
-    return !this.hass || !this._config ? h : xt`
+    return !this.hass || !this._config ? h : bt`
       <ha-form
         .hass=${this.hass}
         .data=${this._config}
@@ -1121,9 +1128,9 @@ const Et = class Et extends Y {
   render() {
     if (!this.hass || !this._config) return h;
     if (this._error)
-      return xt`<ha-card><div class="error">${this._error}</div></ha-card>`;
+      return bt`<ha-card><div class="error">${this._error}</div></ha-card>`;
     if (!Object.keys(this._map).length)
-      return xt`<ha-card><div class="error">Entities werden aufgelöst …</div></ha-card>`;
+      return bt`<ha-card><div class="error">Entities werden aufgelöst …</div></ha-card>`;
     const t = Number(this._config.animation_speed), e = Number.isFinite(t) && t > 0 ? Math.min(5, Math.max(0.1, t)) : 1, s = {
       hass: this.hass,
       map: this._map,
@@ -1131,7 +1138,7 @@ const Et = class Et extends Y {
       speed: e,
       onEntityClick: this._showMoreInfo
     };
-    return xt`
+    return bt`
       <ha-card .header=${this._config.title ?? h}>
         <div class="wrap">
           ${this._variant() === "t300" ? zs({ ...s, extras: this._config.extras ?? {} }) : As(s)}

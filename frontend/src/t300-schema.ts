@@ -31,7 +31,7 @@ const DEV_CX = (DEV_X0 + DEV_X1) / 2;
 
 const Y_AIR_IN = 205, Y_AIR_OUT = 400;
 const FAN_X = 330, FAN_RAD = 38;
-const EVAP_Y = 300;
+const EVAP_Y = 330;
 const COMP_X = 640, COMP_Y = 455;
 
 const HEATER_Y = 760;
@@ -161,13 +161,18 @@ export function renderT300(ctx: T300Ctx): SVGTemplateResult {
   }> = [
     { entityId: map.t300_behaelter_avg, x: DEV_CX, y: 620, color: "#B03A2E", size: "core" },
     { entityId: map.t300_solltemperatur_akt, x: DEV_CX, y: 685, color: "#1f4e79", size: "core" },
-    { entityId: map.t300_temp_eheiz, x: DEV_X1 - 95, y: HEATER_Y, color: "dimgray", size: "detail" },
-    { entityId: map.t300_t21_behaelter_mitte, x: DEV_X1 - 110, y: T21_Y, color: "#C0392B", size: "core" },
-    { entityId: map.t300_t20_behaelter_unten, x: DEV_X1 - 110, y: T20_Y, color: "steelblue", size: "core" },
+    // Clear of the hot-gas line that drops to the condenser coil at
+    // DEV_X1 - 60 = 730: a 42 px reading is ~140 wide, so anything centred right
+    // of ~655 gets the pipe drawn through it.
+    { entityId: map.t300_temp_eheiz, x: DEV_X1 - 160, y: HEATER_Y, color: "dimgray", size: "detail" },
+    { entityId: map.t300_t21_behaelter_mitte, x: DEV_X1 - 160, y: T21_Y, color: "#C0392B", size: "core" },
+    { entityId: map.t300_t20_behaelter_unten, x: DEV_X1 - 160, y: T20_Y, color: "steelblue", size: "core" },
     { entityId: map.t300_betriebsart, x: DEV_CX, y: 140, color: "#1f4e79", size: "core" },
-    // Fits the clear strip between the duct band (ends at Y_AIR_IN + 27 = 232)
-    // and the evaporator block (starts at EVAP_Y - 24 = 276).
-    { entityId: map.t300_ventilator_pct, x: FAN_X, y: 264, color: "dimgray", size: "detail" },
+    // Between the fan circle (ends at Y_AIR_IN + FAN_RAD = 243) and the
+    // evaporator block (starts at EVAP_Y - 24 = 306). Moving EVAP_Y down bought
+    // that strip: at the old 300 it was 33 units for a 30 px line, so the label
+    // sat on the fan and the block at once.
+    { entityId: map.t300_ventilator_pct, x: FAN_X, y: 282, color: "dimgray", size: "detail" },
     { entityId: extras.power, x: 120, y: 620, color: "dimgray", size: "detail" },
     { entityId: extras.energy_daily, x: 120, y: 685, color: "dimgray", size: "detail" },
     { entityId: extras.pv_surplus, x: 120, y: 1330, color: "dimgray", size: "detail" },
@@ -191,8 +196,10 @@ export function renderT300(ctx: T300Ctx): SVGTemplateResult {
         stroke-width="24" stroke-linecap="round"/>
       <path d=${`M ${DEV_X1},${TK_Y1 - 70} L ${W - 60},${TK_Y1 - 70}`} stroke=${C_BLUE}
         stroke-width="24" stroke-linecap="round"/>
-      <text class="port" x=${W - 60} y=${TK_Y0 + 52} text-anchor="end">Warmwasser</text>
-      <text class="port" x=${W - 60} y=${TK_Y1 - 100} text-anchor="end">Kaltwasser</text>
+      <!-- Left-anchored at the tank wall: right-anchoring at the port end put the
+           wider of the two words back over the tank body. -->
+      <text class="port" x=${DEV_X1 + 16} y=${TK_Y0 + 52}>Warmwasser</text>
+      <text class="port" x=${DEV_X1 + 16} y=${TK_Y1 - 100}>Kaltwasser</text>
 
       ${coil(DEV_X1 - 50, DEV_X0 + 50, COIL_Y0, COIL_Y1, "condenser-coil", circ)}
 
