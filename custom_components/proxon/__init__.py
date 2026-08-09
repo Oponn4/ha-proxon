@@ -23,6 +23,7 @@ from .const import (
     FILTER_NOTIFICATION_ID,
 )
 from .coordinator import ProxonCoordinator
+from .entity import DEVICE_FWT, DEVICE_T300
 
 PLATFORMS = [
     Platform.CLIMATE,
@@ -138,6 +139,21 @@ async def _async_migrate_identity(hass: HomeAssistant, entry: ConfigEntry) -> No
             changed = True
         if changed:
             dev_reg.async_update_device(device.id, new_identifiers=new_identifiers)
+
+
+async def async_remove_config_entry_device(
+    hass: HomeAssistant, entry: ConfigEntry, device: dr.DeviceEntry
+) -> bool:
+    """Allow deleting devices the integration no longer provides.
+
+    Without this hook Home Assistant refuses every device deletion, which
+    leaves stale devices from an earlier host permanently in the registry.
+    Devices we currently provide are keyed on the entry id and stay put.
+    """
+    current = {f"{entry.entry_id}_{DEVICE_FWT}", f"{entry.entry_id}_{DEVICE_T300}"}
+    return not any(
+        domain == DOMAIN and ident in current for domain, ident in device.identifiers
+    )
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
