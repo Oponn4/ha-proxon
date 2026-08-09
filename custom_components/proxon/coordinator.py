@@ -152,12 +152,17 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     def __init__(
         self,
         hass: HomeAssistant,
+        entry_id: str,
         host: str,
         port: int,
         slave: int,
         scan_interval: int,
         has_t300: bool = True,
     ) -> None:
+        # Entity and device identity hang off the entry id, not the host: the
+        # address changes when the device moves (new DHCP lease, other VLAN),
+        # the entry id does not.
+        self.entry_id = entry_id
         self.host = host
         self.port = port
         self.slave = slave
