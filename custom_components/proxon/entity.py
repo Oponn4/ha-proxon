@@ -34,7 +34,8 @@ class ProxonEntity(CoordinatorEntity[ProxonCoordinator]):
         device: str = DEVICE_FWT,
     ) -> None:
         super().__init__(coordinator)
-        self._attr_unique_id = f"proxon_{coordinator.host}_{unique_suffix}"
+        # Keyed on the entry id, never the host -- see _async_migrate_identity.
+        self._attr_unique_id = f"proxon_{coordinator.entry_id}_{unique_suffix}"
         # The suffix doubles as the translation key. It lands in the entity
         # registry's display data (`tk`), which is what lets the dashboard card
         # find entities by meaning instead of by hard-coded entity_id.
@@ -45,7 +46,7 @@ class ProxonEntity(CoordinatorEntity[ProxonCoordinator]):
         self._attr_translation_key = unique_suffix
         info = _DEVICE_INFO[device]
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"{coordinator.host}_{device}")},
+            identifiers={(DOMAIN, f"{coordinator.entry_id}_{device}")},
             name=info["name"],
             manufacturer="Proxon",
             model=info["model"],

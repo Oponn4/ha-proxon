@@ -1,6 +1,7 @@
 """Proxon FWT Home Assistant Integration."""
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 from homeassistant.components.frontend import add_extra_js_url
@@ -9,6 +10,7 @@ from homeassistant.components.persistent_notification import async_create, async
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL, Platform
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import device_registry as dr, entity_registry as er
 from homeassistant.loader import async_get_integration
 
 from .const import (
@@ -38,6 +40,8 @@ FRONTEND_URL_BASE = "/proxon_frontend"
 FRONTEND_CARD = "proxon-schema-card.js"
 FRONTEND_REGISTERED = f"{DOMAIN}_frontend_registered"
 
+_LOGGER = logging.getLogger(__name__)
+
 
 async def _async_register_frontend(hass: HomeAssistant) -> None:
     """Serve the bundled Lovelace card and load it on every dashboard.
@@ -66,12 +70,84 @@ async def _async_register_frontend(hass: HomeAssistant) -> None:
     )
 
 
+async def _async_migrate_identity(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Rebind entity and device identity from the host address to the entry id.
+
+    Up to 0.4.4 the unique_id was ``proxon_<host>_<suffix>`` and the device
+    identifier ``<host>_<device>``. Changing the host -- a new DHCP lease, a
+    move to another VLAN -- therefore looked like a different device: HA
+    registered a second set of entities and orphaned the originals, taking
+    their entity_ids and any user renames with them. The entry id survives
+    reconfiguration, so it is the stable anchor.
+
+    Runs on every setup and is a no-op once migrated.
+    """
+    ent_reg = er.async_get(hass)
+    new_prefix = f"proxon_{entry.entry_id}_"
+    taken = {
+        existing.unique_id
+        for existing in er.async_entries_for_config_entry(ent_reg, entry.entry_id)
+    }
+
+    @callback
+    def _migrate(registry_entry: er.RegistryEntry) -> dict[str, str] | None:
+        old = registry_entry.unique_id
+        if old.startswith(new_prefix) or not old.startswith("proxon_"):
+            return None
+        # proxon_<host>_<suffix> -- hosts carry dots, never underscores, so the
+        # first underscore after the domain prefix separates host from suffix.
+        _, _, rest = old.partition("_")
+        _host, separator, suffix = rest.partition("_")
+        if not separator:
+            return None
+        new_unique_id = f"{new_prefix}{suffix}"
+        if new_unique_id in taken:
+            # A second registration already claimed this identity: the host was
+            # changed while the old entities were still registered. Merging
+            # would silently pick a winner, so leave both and let the user
+            # delete the set they do not want.
+            _LOGGER.warning(
+                "Proxon: cannot migrate %s to %s, that identity already exists. "
+                "Delete the duplicate entities and reload the integration",
+                registry_entry.entity_id,
+                new_unique_id,
+            )
+            return None
+        taken.add(new_unique_id)
+        return {"new_unique_id": new_unique_id}
+
+    await er.async_migrate_entries(hass, entry.entry_id, _migrate)
+
+    dev_reg = dr.async_get(hass)
+    devices = dr.async_entries_for_config_entry(dev_reg, entry.entry_id)
+    claimed = {ident for device in devices for ident in device.identifiers}
+    for device in devices:
+        new_identifiers = set()
+        changed = False
+        for domain, ident in device.identifiers:
+            host, separator, kind = ident.rpartition("_")
+            if domain != DOMAIN or not separator or host == entry.entry_id:
+                new_identifiers.add((domain, ident))
+                continue
+            target = (domain, f"{entry.entry_id}_{kind}")
+            if target in claimed:
+                new_identifiers.add((domain, ident))
+                continue
+            new_identifiers.add(target)
+            claimed.add(target)
+            changed = True
+        if changed:
+            dev_reg.async_update_device(device.id, new_identifiers=new_identifiers)
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Proxon FWT from a config entry."""
     await _async_register_frontend(hass)
+    await _async_migrate_identity(hass, entry)
 
     coordinator = ProxonCoordinator(
         hass,
+        entry_id=entry.entry_id,
         host=entry.data[CONF_HOST],
         port=entry.data.get(CONF_PORT, 502),
         slave=int(entry.data.get(CONF_SLAVE, DEFAULT_SLAVE)),
