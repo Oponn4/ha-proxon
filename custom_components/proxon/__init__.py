@@ -4,8 +4,11 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
+from modbus_connection import ModbusTcpParams
+
 from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.components.http import StaticPathConfig
+from homeassistant.components.modbus import async_get_unit
 from homeassistant.components.persistent_notification import async_create, async_dismiss
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL, Platform
@@ -36,6 +39,10 @@ PLATFORMS = [
     Platform.BUTTON,
     Platform.TEXT,
 ]
+
+# Pause zwischen Modbus-Anfragen. Übernommen aus der pymodbus-Fassung, dort
+# gegen die echte Bridge eingestellt.
+_INTER_BLOCK_DELAY = 0.15
 
 FRONTEND_URL_BASE = "/proxon_frontend"
 FRONTEND_CARD = "proxon-schema-card.js"
@@ -161,9 +168,37 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await _async_register_frontend(hass)
     await _async_migrate_identity(hass, entry)
 
+    # Die Verbindung gehört der `modbus`-Integration: mehrere Integrationen am
+    # selben RS485-Strang teilen sie und ihre Anfragen werden serialisiert,
+    # statt sich um den Adapter zu streiten. `async_get_unit()` macht dabei
+    # kein I/O — eine stromlose Anlage blockiert den Start also nicht, die
+    # Verbindung entsteht beim ersten Lesen und wird selbständig wiederhergestellt.
+    #
+    unit = async_get_unit(
+        hass,
+        entry,
+        ModbusTcpParams(
+            host=entry.data[CONF_HOST],
+            port=entry.data.get(CONF_PORT, 502),
+            framer="rtu",
+        ),
+        int(entry.data.get(CONF_SLAVE, DEFAULT_SLAVE)),
+    )
+    # Pause zwischen Anfragen: die USR-Bridge spiegelt fremden RS485-Verkehr in
+    # unsere Verbindung, und ohne Pause wird ein Fremdframe als Antwort auf die
+    # eigene Anfrage gelesen (klassisch: 128 °C Warmwasser). Entspricht dem
+    # früheren _INTER_BLOCK_DELAY.
+    unit.set_message_spacing(_INTER_BLOCK_DELAY)
+    # ⚠️ Für _POST_CONNECT_DRAIN gibt es hier **kein** Gegenstück: `connect_delay`
+    # ist ein Parameter der Verbindung, und die gehört der `modbus`-Integration —
+    # `async_get_unit()` reicht ihn nicht durch. Die Bridge schiebt beim Verbinden
+    # ihren Sendepuffer raus; bisher haben wir den mit 0,3 s verworfen.
+    # Ob das ohne diese Pause auffällt, muss der Dauerlauf zeigen.
+
     coordinator = ProxonCoordinator(
         hass,
         entry_id=entry.entry_id,
+        unit=unit,
         host=entry.data[CONF_HOST],
         port=entry.data.get(CONF_PORT, 502),
         slave=int(entry.data.get(CONF_SLAVE, DEFAULT_SLAVE)),
