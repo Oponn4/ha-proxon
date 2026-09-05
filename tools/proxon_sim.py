@@ -19,10 +19,25 @@ Die drei Schalter, die den Praxisfall nachstellen:
                      ein Poll dazwischen liefert noch den alten Wert.
   --reject ADDR      Write auf dieses Register wird mit einer Modbus-Exception
                      beantwortet → prüft den HomeAssistantError-Pfad.
+  --alles-lesbar     schaltet die Lückenprüfung ab (siehe unten).
 
 Beispiel:
     python tools/proxon_sim.py --dump proxon_dump.json --latency 0.15 \
         --lazy 62:8 --reject 2001
+
+## Lücken im Adressraum
+
+Die Anlage beantwortet **nicht** jedes Register. Ein Leseblock, der über eine
+Lücke hinweggeht, scheitert komplett und nimmt jedes Feld darin mit. Genau das
+ist am 2026-09-05 auf prod passiert: die neue Gerätebibliothek plante
+`(16,92)` statt `(16,7)`+`(41,103)`, und sämtliche FWT-Holding-Entities waren
+tot — während dieser Simulator munter grün meldete, weil er brav jede Adresse
+beantwortete.
+
+Ein Simulator, der mehr kann als das Original, testet am Zielsystem vorbei.
+Deshalb prüft er jetzt jeden Lesezugriff gegen `LESBAR_*` und antwortet
+außerhalb mit ILLEGAL_ADDRESS. Zum Erkunden unbekannter Register lässt sich
+das mit `--alles-lesbar` abschalten.
 """
 from __future__ import annotations
 
@@ -48,6 +63,37 @@ _LOGGER = logging.getLogger("proxon_sim")
 # damit Listenindex == clientseitige Registeradresse ab.
 BLOCK_START = 1
 
+# Bereiche, die die Anlage tatsächlich beantwortet — (erste, letzte Adresse),
+# beide einschließlich. Abgeleitet aus `_READ_BLOCKS` der Integration, die seit
+# Jahren an der echten Anlage läuft. Alles außerhalb quittiert der Adapter
+# nicht sinnvoll, deshalb tut es der Simulator auch nicht.
+LESBAR_HOLDING = [
+    (16, 22),      # Sollbetriebsart, Bypass-Menü, Lüfterstufe
+    (41, 143),     # Schwellen, Zonen, Bypass-Parameter
+    (187, 187),    # HBDE PTC
+    (213, 219),    # NBE Offsets
+    (233, 239),    # NBE Mitteltemperaturen
+    (253, 259),    # NBE PTC-Freigaben
+    (438, 438),    # Schreibrechte (nur schreibend benutzt)
+    (460, 460),    # Filterstandzeit
+    (467, 469),    # Stundenzähler
+    (613, 619),    # Nachtabsenkung
+    (620, 699),    # Raumnamen, 8 Slots à 10 Register
+    (2000, 2025),  # T300
+]
+LESBAR_INPUT = [
+    (0, 51),
+    (154, 265),
+    (590, 610),    # NBE Temperaturen
+    (811, 900),    # T300
+]
+
+
+def _liegt_in(bereiche: list[tuple[int, int]], start: int, count: int) -> bool:
+    """True, wenn der ganze Zugriff in **einem** Bereich liegt."""
+    ende = start + count - 1
+    return any(von <= start and ende <= bis for von, bis in bereiche)
+
 
 class ProxonDataBlock(ModbusSequentialDataBlock):
     """Datablock mit Latenz, verzögerter Übernahme und Ablehnung."""
@@ -59,12 +105,15 @@ class ProxonDataBlock(ModbusSequentialDataBlock):
         lazy: dict[int, float] | None = None,
         reject: set[int] | None = None,
         label: str = "",
+        lesbar: list[tuple[int, int]] | None = None,
     ) -> None:
         super().__init__(BLOCK_START, values)
         self._latency = latency
         self._lazy = lazy or {}
         self._reject = reject or set()
         self._label = label
+        # None = keine Prüfung (--alles-lesbar)
+        self._lesbar = lesbar
         # addr → (wert, frühester Übernahmezeitpunkt)
         self._pending: dict[int, tuple[int, float]] = {}
 
@@ -77,6 +126,24 @@ class ProxonDataBlock(ModbusSequentialDataBlock):
                 _LOGGER.info("%s: Register %d übernimmt jetzt %d", self._label, addr, value)
 
     def getValues(self, address, count=1):
+        """Lesen — außerhalb der lesbaren Bereiche mit Exception statt Nullen.
+
+        Der Datablock gibt hier direkt einen `ExcCodes` zurück; pymodbus macht
+        daraus die Modbus-Antwort. (Ein `validate()` gibt es an dieser Klasse
+        nicht — `setValues` unten benutzt für `--reject` denselben Weg.)
+
+        Damit scheitert ein Block, der eine Lücke überspannt, genauso wie an
+        der echten Anlage, statt still Nullen zu liefern und einen
+        Planungsfehler bis auf prod durchzulassen.
+        """
+        start = address - BLOCK_START
+        if self._lesbar is not None and not _liegt_in(self._lesbar, start, count):
+            _LOGGER.warning(
+                "%s: Lesen %d–%d abgelehnt — überspannt eine Lücke (lesbar: %s)",
+                self._label, start, start + count - 1,
+                ", ".join(f"{v}-{b}" for v, b in self._lesbar),
+            )
+            return ExcCodes.ILLEGAL_ADDRESS
         if self._latency:
             time.sleep(self._latency)
         self._settle_pending()
@@ -132,6 +199,8 @@ async def main() -> None:
                         help="Holding-Register übernimmt Writes verzögert")
     parser.add_argument("--reject", action="append", type=int, default=[], metavar="ADDR",
                         help="Writes auf dieses Holding-Register ablehnen")
+    parser.add_argument("--alles-lesbar", action="store_true", dest="alles_lesbar",
+                        help="Lückenprüfung abschalten (zum Erkunden unbekannter Register)")
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
@@ -145,11 +214,13 @@ async def main() -> None:
         lazy=_parse_lazy(args.lazy),
         reject=set(args.reject),
         label="holding",
+        lesbar=None if args.alles_lesbar else LESBAR_HOLDING,
     )
     inputs = ProxonDataBlock(
         _values_from_dump(dump["registers"]["input"], 950),
         latency=args.latency,
         label="input",
+        lesbar=None if args.alles_lesbar else LESBAR_INPUT,
     )
 
     context = ModbusServerContext(
@@ -165,6 +236,11 @@ async def main() -> None:
         f", lazy {args.lazy}" if args.lazy else "",
         f", reject {args.reject}" if args.reject else "",
     )
+    if args.alles_lesbar:
+        _LOGGER.warning(
+            "Lückenprüfung AUS — der Simulator beantwortet jede Adresse und "
+            "kann Planungsfehler in den Leseblöcken nicht mehr zeigen."
+        )
     await server.serve_forever()
 
 
