@@ -25,9 +25,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # HA 2026.9 setzt Python 3.14 voraus. Mit 3.13 löst der Resolver still auf
+      # die letzte 3.13-taugliche Fassung zurück (2026.2.3) — der Job lief dann
+      # grün bzw. rot am falschen Gegenstand, statt die Zielversion zu prüfen.
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
 
       - name: Extract manifest requirements
         run: |
@@ -47,6 +50,22 @@ jobs:
           fi
           uv pip install --system $PRE homeassistant -r requirements-manifest.txt
 
+      # Wir importieren `homeassistant.components.modbus`; dessen eigene
+      # Requirements installiert HA sonst erst zur Laufzeit, ein blankes
+      # `pip install homeassistant` bringt sie nicht mit. Aus dem Manifest der
+      # Komponente lesen statt hier zu pflegen — sie wandern mit den Releases.
+      - name: Install modbus component requirements
+        run: |
+          python - <<'EOF'
+          import json, pathlib, subprocess, sys
+          import homeassistant
+          manifest = pathlib.Path(homeassistant.__file__).parent / "components" / "modbus" / "manifest.json"
+          reqs = json.loads(manifest.read_text()).get("requirements", [])
+          print("modbus benötigt:", reqs)
+          if reqs:
+              subprocess.check_call(["uv", "pip", "install", "--system", *reqs])
+          EOF
+
       - name: Import smoke test
         env:
           PYTHONPATH: ${{ github.workspace }}
@@ -54,10 +73,13 @@ jobs:
           python - <<'EOF'
           from homeassistant.const import __version__
           print(f"Home Assistant {__version__}")
-          # Modul-Import zieht pymodbus-Imports + datagram_received-Monkeypatch —
-          # bricht die pymodbus-Version eine dieser Stellen, failt der Job hier.
+          # Der Import zieht `homeassistant.components.modbus` (async_get_unit)
+          # und die Gerätebibliothek proxon-modbus. Verschwindet eine der
+          # beiden Schnittstellen in einer neuen Fassung, failt der Job hier —
+          # eine Woche vor dem Monatsrelease statt als tote Integration.
           import custom_components.proxon
           import custom_components.proxon.coordinator
           import custom_components.proxon.config_flow
+          from homeassistant.components.modbus import async_get_unit, async_get_temporary_unit
           print("proxon imports OK")
           EOF
