@@ -34,10 +34,17 @@ QUELLEN = [
     (const.T300_HOLDING_REGISTERS, proxon_modbus.T300Holding, "t300_"),
 ]
 
+# Schlüssel ohne Feld in der Bibliothek — mit Begründung, nicht stillschweigend.
+# `schreibrechte` (Reg 438) lag noch nie in einem Leseblock; auch die
+# pymodbus-Fassung lieferte dafür immer None. Der Coordinator gibt weiterhin
+# None aus, damit der Datenvertrag unverändert bleibt.
+OHNE_FELD = {"schreibrechte"}
+
 FAELLE = [
     (schluessel, register, komponente, praefix)
     for tabelle, komponente, praefix in QUELLEN
     for schluessel, register in tabelle.items()
+    if schluessel not in OHNE_FELD
 ]
 
 
@@ -60,6 +67,21 @@ def test_jeder_schluessel_hat_ein_feld_auf_derselben_adresse(
         f"{schluessel!r}: Registeradresse verrutscht — "
         f"const.py {register.address}, Bibliothek {felder[feldname].address}"
     )
+
+
+@pytest.mark.parametrize("schluessel", sorted(OHNE_FELD))
+def test_ausnahmen_liefern_none_statt_zu_fehlen(schluessel):
+    """Die Ausnahmen müssen bewusst bleiben, nicht durch Zufall verschwinden."""
+    for tabelle, komponente, praefix in QUELLEN:
+        if schluessel not in tabelle:
+            continue
+        feldname = schluessel[len(praefix):] if praefix else schluessel
+        assert feldname not in komponente.declared_fields, (
+            f"{schluessel!r} hat jetzt doch ein Feld — dann gehört es nicht "
+            f"mehr in OHNE_FELD"
+        )
+        return
+    pytest.fail(f"{schluessel!r} steht in keiner Registertabelle")
 
 
 def test_keine_zusaetzlichen_felder_ohne_schluessel():

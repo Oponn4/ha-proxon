@@ -18,7 +18,7 @@
     "proxon_modbus"
   ],
   "requirements": [
-    "proxon-modbus>=0.1.1"
+    "proxon-modbus>=0.1.2"
   ],
-  "version": "0.6.0"
+  "version": "0.6.1"
 }

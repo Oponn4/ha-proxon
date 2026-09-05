@@ -145,7 +145,10 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 continue
             for key in registers:
                 field = key[len(prefix):] if prefix else key
-                data[key] = getattr(component, field)
+                # Fehlendes Feld -> None, wie in der pymodbus-Fassung. Betrifft
+                # `schreibrechte` (Reg 438): liegt in keinem Leseblock und wurde
+                # auch früher nie gelesen.
+                data[key] = getattr(component, field, None)
 
         # Abgeleitete Werte
         data["filter_wechsel_faellig"] = self.device.fwt_input.filter_wechsel_faellig
