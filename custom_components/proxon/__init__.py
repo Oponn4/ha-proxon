@@ -258,9 +258,22 @@ def _setup_filter_notification(
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload a config entry."""
+    """Unload a config entry.
+
+    Hier gibt es keinen Client zu schließen: seit dem Umstieg auf
+    `modbus-connection` (v0.6.0) gehört die Verbindung der `modbus`-Integration
+    und hängt an deren Config-Entry — `async_get_unit()` reicht sie nur durch.
+    Der frühere Aufruf `coordinator._close_client()` stammt aus der Zeit davor,
+    die Methode existiert seitdem nicht mehr. Da er nur im Unload-Pfad steckte,
+    fiel er erst am 20.09.2026 beim ersten Reload auf: `AttributeError`, Entry
+    ging in `failed_unload`, alle Proxon-Entities wurden `unavailable`, und
+    Erholung ging nur per HA-Neustart. Ein zweiter Reload wäre härter
+    gescheitert, weil `pop()` den Coordinator schon entfernt hatte.
+
+    `pop` deshalb mit Default: nach einem halb gescheiterten Unload ist der
+    Eintrag weg, und ein KeyError würde denselben Zustand erneut herstellen.
+    """
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok:
-        coordinator: ProxonCoordinator = hass.data[DOMAIN].pop(entry.entry_id)
-        coordinator._close_client()
+        hass.data[DOMAIN].pop(entry.entry_id, None)
     return unload_ok
