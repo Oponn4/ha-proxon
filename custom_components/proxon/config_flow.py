@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-import voluptuous as vol
+import probatio
 from modbus_connection import ModbusError, ModbusTcpParams
 from proxon_modbus import (
     UNLOCK_REGISTER,
@@ -27,16 +27,16 @@ from .const import CONF_FILTER_NOTIFICATION, CONF_HAS_T300, CONF_ROOMS, CONF_SLA
 
 _LOGGER = logging.getLogger(__name__)
 
-STEP_SCHEMA = vol.Schema(
+STEP_SCHEMA = probatio.Schema(
     {
-        vol.Required(CONF_HOST): str,
-        vol.Optional(CONF_PORT, default=DEFAULT_PORT): cv.port,
-        vol.Optional(CONF_SLAVE, default=DEFAULT_SLAVE): NumberSelector(NumberSelectorConfig(min=1, max=247, mode=NumberSelectorMode.BOX)),
-        vol.Optional(CONF_HAS_T300, default=True): bool,
-        vol.Required(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): vol.All(
-            int, vol.Range(min=10, max=120)
+        probatio.Required(CONF_HOST): str,
+        probatio.Optional(CONF_PORT, default=DEFAULT_PORT): cv.port,
+        probatio.Optional(CONF_SLAVE, default=DEFAULT_SLAVE): NumberSelector(NumberSelectorConfig(min=1, max=247, mode=NumberSelectorMode.BOX)),
+        probatio.Optional(CONF_HAS_T300, default=True): bool,
+        probatio.Required(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): probatio.All(
+            int, probatio.Range(min=10, max=120)
         ),
-        vol.Optional(CONF_FILTER_NOTIFICATION, default=True): bool,
+        probatio.Optional(CONF_FILTER_NOTIFICATION, default=True): bool,
     }
 )
 
@@ -109,11 +109,11 @@ class ProxonOptionsFlow(OptionsFlow):
         )
         return self.async_show_form(
             step_id="init",
-            data_schema=vol.Schema(
+            data_schema=probatio.Schema(
                 {
-                    vol.Optional(CONF_FILTER_NOTIFICATION, default=current_filter): bool,
-                    vol.Required(CONF_SCAN_INTERVAL, default=current_interval): vol.All(
-                        int, vol.Range(min=10, max=120)
+                    probatio.Optional(CONF_FILTER_NOTIFICATION, default=current_filter): bool,
+                    probatio.Required(CONF_SCAN_INTERVAL, default=current_interval): probatio.All(
+                        int, probatio.Range(min=10, max=120)
                     ),
                 }
             ),
@@ -204,14 +204,14 @@ class ProxonConfigFlow(ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="reconfigure",
-            data_schema=vol.Schema(
+            data_schema=probatio.Schema(
                 {
-                    vol.Required(CONF_HOST, default=entry.data.get(CONF_HOST, "")): str,
-                    vol.Optional(CONF_PORT, default=entry.data.get(CONF_PORT, DEFAULT_PORT)): cv.port,
-                    vol.Optional(CONF_SLAVE, default=entry.data.get(CONF_SLAVE, DEFAULT_SLAVE)): NumberSelector(
+                    probatio.Required(CONF_HOST, default=entry.data.get(CONF_HOST, "")): str,
+                    probatio.Optional(CONF_PORT, default=entry.data.get(CONF_PORT, DEFAULT_PORT)): cv.port,
+                    probatio.Optional(CONF_SLAVE, default=entry.data.get(CONF_SLAVE, DEFAULT_SLAVE)): NumberSelector(
                         NumberSelectorConfig(min=1, max=247, mode=NumberSelectorMode.BOX)
                     ),
-                    vol.Optional(CONF_HAS_T300, default=entry.data.get(CONF_HAS_T300, True)): bool,
+                    probatio.Optional(CONF_HAS_T300, default=entry.data.get(CONF_HAS_T300, True)): bool,
                 }
             ),
             errors=errors,
