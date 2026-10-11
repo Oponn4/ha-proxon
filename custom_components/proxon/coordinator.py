@@ -28,7 +28,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import Any
 
-from modbus_connection import ModbusError, ModbusUnit
+from modbus_connection import IllegalDataValueError, ModbusError, ModbusUnit
 from proxon_modbus import ProxonDevice, ProxonUnreachable
 
 from homeassistant.core import HomeAssistant
@@ -43,6 +43,7 @@ from .const import (
     T300_INPUT_REGISTERS,
 )
 from .optimistic import OptimisticCache
+from .schreiben import schreiben_mit_wiederholung
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -209,7 +210,12 @@ class ProxonCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         """
         try:
             await self.device.async_unlock()
-            await self._unit.write_register(address, value)
+            # Die FWT lehnt einen Write ab, solange sie den vorigen noch an die
+            # T300 weiterreicht (0x03) — siehe schreiben.py.
+            await schreiben_mit_wiederholung(
+                self._unit.write_register, address, value,
+                wiederholen_bei=IllegalDataValueError,
+            )
         except ModbusError as err:
             _LOGGER.error("Modbus-Fehler beim Schreiben auf %d: %s", address, err)
             return False
