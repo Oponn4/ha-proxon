@@ -37,3 +37,4 @@ if PKG not in sys.modules:
 
 optimistic = _load("optimistic")
 schreiben = _load("schreiben")
+filter_hinweis = _load("filter_hinweis")

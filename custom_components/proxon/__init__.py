@@ -15,6 +15,7 @@ from homeassistant.const import CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL, Platfo
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import device_registry as dr, entity_registry as er
 from homeassistant.loader import async_get_integration
+from homeassistant.util import dt as dt_util
 
 from .const import (
     CONF_FILTER_NOTIFICATION,
@@ -27,6 +28,7 @@ from .const import (
 )
 from .coordinator import ProxonCoordinator
 from .entity import DEVICE_FWT, DEVICE_T300
+from .filter_hinweis import filter_zustand, vorwarnung_text
 
 PLATFORMS = [
     Platform.CLIMATE,
@@ -233,10 +235,22 @@ def _setup_filter_notification(
 
     @callback
     def _on_coordinator_update() -> None:
-        filter_status = coordinator.data.get("filter_wechsel_faellig")
         notify_enabled: bool = entry.options.get(CONF_FILTER_NOTIFICATION, True)
+        rest_tage = coordinator.data.get("geraetefilter_remaining_days")
+        zustand = filter_zustand(
+            faellig=coordinator.data.get("filter_wechsel_faellig"),
+            rest_tage=rest_tage,
+        )
 
-        if filter_status is True and notify_enabled:
+        if zustand == "bald" and notify_enabled:
+            # v0.6.5: Vorwarnung, damit Zeit bleibt, einen Filter zu besorgen
+            async_create(
+                hass,
+                message=vorwarnung_text(rest_tage, dt_util.now().date()),
+                title="Proxon FWT – Filterwechsel bald fällig",
+                notification_id=notification_id,
+            )
+        elif zustand == "faellig" and notify_enabled:
             async_create(
                 hass,
                 message=(
@@ -249,9 +263,9 @@ def _setup_filter_notification(
                 title="Proxon FWT – Filterwechsel fällig",
                 notification_id=notification_id,
             )
-        elif filter_status is False or not notify_enabled:
-            # Only dismiss when filter is confirmed OK, or user disabled notifications.
-            # When filter_status is None (short read / unknown), leave current state.
+        elif zustand == "ok" or not notify_enabled:
+            # Nur wegräumen, wenn der Filter sicher in Ordnung ist oder der
+            # Hinweis abgeschaltet wurde. Bei None (Lesefehler) bleibt alles.
             async_dismiss(hass, notification_id)
 
     entry.async_on_unload(coordinator.async_add_listener(_on_coordinator_update))
