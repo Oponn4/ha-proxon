@@ -48,12 +48,13 @@ FWT_INPUT_REGISTERS: dict[str, ModbusRegister] = {
     # Operating state
     "betriebsart": ModbusRegister(23, REG_INPUT, "Aktuelle Betriebsart", "", 1, "int16"),
 
-    # Temperatures – raw = real°C * 100; range -30°C to +60°C → raw 0–6000
-    "t1_zuluft": ModbusRegister(195, REG_INPUT, "T1 Zuluft", "°C", 100, "uint16", min_raw=0, max_raw=6000),
-    "t3_frischluft": ModbusRegister(198, REG_INPUT, "T3 Frischluft", "°C", 100, "uint16", min_raw=0, max_raw=6000),
-    "t4_fortluft": ModbusRegister(197, REG_INPUT, "T4 Fortluft", "°C", 100, "uint16", min_raw=0, max_raw=6000),
-    "t5_vorverdampfer": ModbusRegister(175, REG_INPUT, "T5 VorVerdampfer", "°C", 100, "uint16", min_raw=0, max_raw=6000),
-    "t6_verdampfer": ModbusRegister(176, REG_INPUT, "T6 Verdampfer", "°C", 100, "uint16", min_raw=0, max_raw=6000),
+    # Temperatures – raw = real°C * 100, int16. Outdoor-air side and evaporator
+    # sensors go below 0 °C in winter, so they are signed with a negative lower bound.
+    "t1_zuluft": ModbusRegister(195, REG_INPUT, "T1 Zuluft", "°C", 100, "int16", min_raw=-3000, max_raw=6000),
+    "t3_frischluft": ModbusRegister(198, REG_INPUT, "T3 Frischluft", "°C", 100, "int16", min_raw=-3000, max_raw=6000),
+    "t4_fortluft": ModbusRegister(197, REG_INPUT, "T4 Fortluft", "°C", 100, "int16", min_raw=-3000, max_raw=6000),
+    "t5_vorverdampfer": ModbusRegister(175, REG_INPUT, "T5 VorVerdampfer", "°C", 100, "int16", min_raw=-4000, max_raw=6000),
+    "t6_verdampfer": ModbusRegister(176, REG_INPUT, "T6 Verdampfer", "°C", 100, "int16", min_raw=-4000, max_raw=6000),
     "t7_abluft": ModbusRegister(196, REG_INPUT, "T7 Abluft", "°C", 100, "uint16", min_raw=0, max_raw=6000),
     "t13_kompressor": ModbusRegister(180, REG_INPUT, "T13 Kompressor", "°C", 100, "uint16", min_raw=0, max_raw=15000),
     "t21_zone1": ModbusRegister(263, REG_INPUT, "T2.1 Zonentemperatur 1 (EG)", "°C", 100, "uint16", min_raw=0, max_raw=6000),
@@ -95,7 +96,7 @@ FWT_INPUT_REGISTERS: dict[str, ModbusRegister] = {
     "umluft_aktiv": ModbusRegister(39, REG_INPUT, "Umluft aktiv", "", 1, "int16"),
 
     # Außenluft
-    "t9_aussenluft": ModbusRegister(181, REG_INPUT, "T9 Außenluft vor EWT", "°C", 100, "uint16", min_raw=0, max_raw=5000),
+    "t9_aussenluft": ModbusRegister(181, REG_INPUT, "T9 Außenluft vor EWT", "°C", 100, "int16", min_raw=-3000, max_raw=5000),
 
     # Valve states & system status
     "bypass_zustand": ModbusRegister(222, REG_INPUT, "Bypass Zustand", "", 1, "int16"),

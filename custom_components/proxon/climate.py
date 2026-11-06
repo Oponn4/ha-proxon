@@ -75,7 +75,7 @@ class ProxonRoomClimate(ProxonEntity, ClimateEntity):
     """
 
     _attr_hvac_modes = [HVACMode.OFF, HVACMode.AUTO]
-    _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_supported_features = ClimateEntityFeature.TARGET_TEMPERATURE
     _attr_target_temperature_step = 1.0
 
@@ -88,11 +88,11 @@ class ProxonRoomClimate(ProxonEntity, ClimateEntity):
     # ── temperatures ──────────────────────────────────────────────────────
 
     @property
-    def current_temperature(self) -> float | None:
+    def native_current_temperature(self) -> float | None:
         return self.coordinator.data.get(f"nbe_temp_{self._n}")
 
     @property
-    def target_temperature(self) -> float | None:
+    def native_target_temperature(self) -> float | None:
         mittel = self.coordinator.data.get(f"nbe_mittel_{self._n}")
         offset = self.coordinator.data.get(f"nbe_offset_{self._n}")
         if mittel is None or offset is None:
@@ -167,7 +167,7 @@ class ProxonZoneClimate(ProxonEntity, ClimateEntity):
     """
 
     _attr_hvac_modes = [HVACMode.OFF, HVACMode.AUTO]
-    _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_supported_features = ClimateEntityFeature.TARGET_TEMPERATURE
     _attr_target_temperature_step = 0.5
     _attr_min_temp = 10.0
@@ -189,11 +189,11 @@ class ProxonZoneClimate(ProxonEntity, ClimateEntity):
         self._attr_name = name
 
     @property
-    def current_temperature(self) -> float | None:
+    def native_current_temperature(self) -> float | None:
         return self.coordinator.data.get(self._temp_key)
 
     @property
-    def target_temperature(self) -> float | None:
+    def native_target_temperature(self) -> float | None:
         return self.coordinator.data.get(self._target_key)
 
     @property
