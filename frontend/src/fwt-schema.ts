@@ -8,6 +8,7 @@
  */
 import { svg, SVGTemplateResult, nothing } from "lit";
 import type { EntityMap, HassLike } from "./entities";
+import { animationLoadPct, fanLevelApplies, levelFromPct } from "./fan";
 
 const C_FRAME = "#306291";
 const C_FILL = "#E2E8F2";
@@ -190,6 +191,9 @@ export function renderFwt(ctx: FwtCtx): SVGTemplateResult {
   const fanOn = fanState?.state === "on";
   const fanPct = fanState?.attributes?.percentage as number | undefined;
   const compressorRpm = num(hass, map.kompressor_drehzahl);
+  const supplyRpm = num(hass, map.drehzahl_zuluft);
+  // Register 22 is only the running fan level in the ECO modes; see fan.ts.
+  const showFanLevel = fanLevelApplies(hass.states[map.betriebsart ?? ""]?.state);
 
   // Cooling has two independent facts: the release (a switch the user sets)
   // and whether the plant is actually in cooling mode (reversing valve).
@@ -209,8 +213,11 @@ export function renderFwt(ctx: FwtCtx): SVGTemplateResult {
   const bpOp = bypassOpen ? 1.0 : 0.6;
   const wtOp = bypassOpen ? 0.18 : 1.0;
 
-  const dur = flowDuration(fanOn ? (fanPct ?? 50) : undefined, ctx.speed);
-  const dotsOn = animate && fanOn;
+  // Animation pace follows the measured supply fan speed, not register 22.
+  const load = animationLoadPct(supplyRpm, fanOn, fanPct);
+  const fansTurn = load !== undefined;
+  const dur = flowDuration(load, ctx.speed);
+  const dotsOn = animate && fansTurn;
   // Blades turn slower than the dots travel; a blurred fan reads as noise.
   const bladeDur = dur / 2;
 
@@ -298,8 +305,8 @@ export function renderFwt(ctx: FwtCtx): SVGTemplateResult {
         <circle cx=${BP_X_IN} cy=${Y_TOP + HB} r="10" fill=${C_TEXT} stroke="#FFFFFF" stroke-width="3"/>
       </g>
 
-      ${fan(FAN_L, "fan-supply", animate && fanOn ? bladeDur : undefined)}
-      ${fan(FAN_R, "fan-extract", animate && fanOn ? bladeDur : undefined)}
+      ${fan(FAN_L, "fan-supply", animate && fansTurn ? bladeDur : undefined)}
+      ${fan(FAN_R, "fan-extract", animate && fansTurn ? bladeDur : undefined)}
       ${plate(PRE_X, Y_TOP - 95, Y_TOP + 95, "preheater")}
       ${plate(EVAP_X, Y_BOT - 110, 700, "evaporator")}
       ${plate(COND_X, Y_BOT - 110, 700, "condenser")}
@@ -357,10 +364,17 @@ export function renderFwt(ctx: FwtCtx): SVGTemplateResult {
 
       ${VALUES.map((v) => {
         const entityId = map[v.key];
+        let text = (v.prefix ?? "") + formatState(hass, entityId);
+        if (v.key === "lueftung") {
+          // Outside the ECO modes the stored level says nothing about the plant.
+          if (!showFanLevel) return nothing;
+          const level = fanOn ? levelFromPct(fanPct) : undefined;
+          if (level !== undefined) text = `Stufe ${level}`;
+        }
         return svg`<text class=${`val ${v.size}`} x=${v.x} y=${v.y} text-anchor="middle"
           fill=${v.color} @click=${() => entityId && ctx.onEntityClick(entityId)}
           style=${entityId ? "cursor: pointer" : "opacity: 0.4"}>
-          ${(v.prefix ?? "") + formatState(hass, entityId)}
+          ${text}
         </text>`;
       })}
     </svg>`;
