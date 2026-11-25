@@ -93,6 +93,11 @@ async def _probe_and_discover(
         ]
 
 
+def _entry_title(host: str) -> str:
+    """Titel des Eintrags; Setup und Reconfigure nutzen denselben."""
+    return f"Proxon FWT ({host})"
+
+
 class ProxonOptionsFlow(OptionsFlow):
     """Handle options for Proxon FWT."""
 
@@ -151,7 +156,7 @@ class ProxonConfigFlow(ConfigFlow, domain=DOMAIN):
                 await self.async_set_unique_id(f"proxon_{host}_{port}_{slave}")
                 self._abort_if_unique_id_configured()
                 return self.async_create_entry(
-                    title=f"Proxon FWT ({host})",
+                    title=_entry_title(host),
                     data={
                         CONF_HOST: host,
                         CONF_PORT: port,
@@ -193,6 +198,7 @@ class ProxonConfigFlow(ConfigFlow, domain=DOMAIN):
             else:
                 return self.async_update_reload_and_abort(
                     entry,
+                    title=_entry_title(host),
                     data={
                         CONF_HOST: host,
                         CONF_PORT: port,
